@@ -47,7 +47,7 @@ const ForgetPassword = () => {
           borderRadius: "12px",
           color: "#F5F5DC", // Beige text
           width: "100%", // Reduce width of card
-          maxWidth: "650px",
+          maxWidth: "450px",
           position: 'justify-center,align-center, fixed',
           cursor: 'pointer',
           transition: "all '.3s'",
@@ -57,21 +57,22 @@ const ForgetPassword = () => {
           {/* Card body */}
           <Card.Body className="p-6">
           <div className="flex flex-col text-center justify-center min-h-screen">
-              <Link href="/"><Image src="/images/brand/logo/logo.png"   className="text-center block mx-auto  mb-2 " style={{ maxWidth: "200px", height: "auto" }}  alt="" /></Link>
+              <Link href="/"><Image src="/images/brand/logo/logo.png"   className="text-center block mx-auto  mb-2 " style={{ maxWidth: "150px", height: "auto" }}  alt="" /></Link>
             </div>
             {/* Form */}
             {hasMounted && 
             <Form>
               {/* Email */}
               <Form.Group className="mb-3" controlId="email">
-                <Form.Label style={{ color: "#F5F5DC" }}>Email</Form.Label>
+                <Form.Label style={{ color: "#F5F5DC" }}>Email:</Form.Label>
                 <Form.Control type="email" name="email" placeholder="Enter Your Email" />
-              </Form.Group>
+              </Form.Group><br></br>
               {/* Button */}
               <div className="mb-3 d-grid">
                 <Button variant="primary" type="submit" style={{ color: "#F5F5DC" }}>Reset Password</Button>
               </div>
-              <span style={{ color: "#F5F5DC" }}>Don&apos;t have an account? <Link href="/authentication/sign-in" style={{ color: "#F5F5DC" }} >Sign In</Link></span>
+              
+              {/* <span style={{ color: "#F5F5DC" }}>Don&apos;t have an account? <Link href="/authentication/sign-in" style={{ color: "#F5F5DC" }} >Sign In</Link></span> */}
             </Form>
             }
           </Card.Body>

@@ -29,9 +29,6 @@ const Home = () => {
                                 <div className="mb-2 mb-lg-0">
                                     <h3 className="mb-0  text-white">Welcome, the President of the [club name] Club!</h3>
                                 </div>
-                                <div>
-                                    <Link href="/pages/clubcreation" className="btn btn-white">Create New Club</Link>
-                                </div>
                             </div>
                         </div>
                     </Col>

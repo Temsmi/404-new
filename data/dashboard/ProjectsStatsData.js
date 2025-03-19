@@ -8,10 +8,10 @@ import {
 export const ProjectsStats = [
     {
        id:1,
-       title : "Projects",
-       value : 18,
+       title : "Total Clubs",
+       value : 101,
        icon: <Briefcase size={18}/>,
-       statInfo: '<span className="text-dark me-2">2</span> Completed' 
+      
     },
     /*{
         id:2,
@@ -29,10 +29,9 @@ export const ProjectsStats = [
      },*/
      {
         id:4,
-        title : "Productivity",
+        title : "Site Engagement",
         value : '76%',
         icon: <Bullseye size={18}/>,
-        statInfo: '<span className="text-dark me-2">5%</span> Completed' 
-     }
+             }
 ];
 export default ProjectsStats;

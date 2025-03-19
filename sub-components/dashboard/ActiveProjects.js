@@ -1,6 +1,6 @@
 // import node module libraries
 import Link from 'next/link';
-import { ProgressBar, Col, Row, Card, Table, Image } from 'react-bootstrap';
+import {Col, Row, Card, Table, Image } from 'react-bootstrap';
 
 // import required data files
 import ActiveProjectsData from "data/dashboard/ActiveProjectsData";
@@ -11,16 +11,13 @@ const ActiveProjects = () => {
             <Col md={12} xs={12}>
                 <Card>
                     <Card.Header className="bg-white  py-4">
-                        <h4 className="mb-0">Active Projects</h4>
+                        <h4 className="mb-0">All Clubs</h4>
                     </Card.Header>
                     <Table responsive className="text-nowrap mb-0">
                         <thead className="table-light">
                             <tr>
-                                <th>Project name</th>
-                                <th>Hours</th>
-                                <th>priority</th>
+                                <th>Name</th>
                                 <th>Members</th>
-                                <th>Progress</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -40,8 +37,8 @@ const ActiveProjects = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="align-middle">{item.hours}</td>
-                                        <td className="align-middle"><span className={`badge bg-${item.priorityBadgeBg}`}>{item.priority}</span></td>
+                                        {/* <td className="align-middle">{item.hours}</td>
+                                        <td className="align-middle"><span className={`badge bg-${item.priorityBadgeBg}`}>{item.priority}</span></td> */}
                                         <td className="align-middle">
                                             <div className="avatar-group">
                                                 {item.members.map((avatar, avatarIndex) => {
@@ -56,19 +53,13 @@ const ActiveProjects = () => {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="align-middle text-dark">
-                                            <div className="float-start me-3">{item.progress}%</div>
-                                            <div className="mt-2">
-                                                <ProgressBar now={item.progress} style={{ height: '5px' }} />
-                                            </div>
-                                        </td>
                                     </tr>
                                 )
                             })}
                         </tbody>
                     </Table>
                     <Card.Footer className="bg-white text-center">
-                        <Link href="#" className="link-primary">View All Projects</Link>
+                        <Link href="/pages/profile" className="link-primary">View All Clubs</Link>
                     </Card.Footer>
                 </Card>
             </Col>
