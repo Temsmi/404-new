@@ -6,7 +6,7 @@ import { useState } from 'react';
 import 'styles/theme.scss';
 
 // import sub components
-import NavbarVertical from '/layouts/navbars/NavbarVertical';
+import NavbarVertical from '/layouts/navbars/NavbarVertical_president';
 import NavbarTop from '/layouts/navbars/NavbarTop';
 
 export default function DashboardLayout({ children }) {
