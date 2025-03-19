@@ -99,8 +99,7 @@ const NavbarVertical = (props) => {
 			<SimpleBar style={{ maxHeight: '100vh' }}>
 				<div className="nav-scroller">
 					<Link href="/" className="navbar-brand">
-						<Image src="/images/brand/logo/logo.svg" alt="" />
-					</Link>
+					<Image src="/images/brand/logo/logo.png" alt="" />					</Link>
 				</div>				
 				{/* Dashboard Menu */}
 				<Accordion defaultActiveKey="0" as="ul" className="navbar-nav flex-column">

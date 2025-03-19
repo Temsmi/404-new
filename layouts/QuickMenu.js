@@ -19,6 +19,8 @@ import NotificationList from 'data/Notification';
 
 // import hooks
 import useMounted from 'hooks/useMounted';
+import { ToggleButton,ToggleButtonGroup } from 'react-bootstrap';
+
 
 const QuickMenu = () => {
 
@@ -54,6 +56,16 @@ const QuickMenu = () => {
     const QuickMenuDesktop = () => {
         return (
         <ListGroup as="ul" bsPrefix='navbar-nav' className="navbar-right-wrap ms-auto d-flex nav-top-wrap">
+              <div className="bottom px-3  d-flex justify-content-between align-items-end">
+                <ToggleButtonGroup type="radio" name="options" defaultValue={1} >
+			    <ToggleButton id="tbg-radio-1"value={1}	variant="outline-primary">
+                ENG						
+				</ToggleButton>								
+											
+				<ToggleButton id="tbg-radio-2" value={2} variant="outline-primary">
+				TUR							
+				</ToggleButton>
+                 </ToggleButtonGroup></div>
             <Dropdown as="li" className="stopevent">
                 <Dropdown.Toggle as="a"
                     bsPrefix=' '

@@ -16,41 +16,41 @@ import {
 } from 'sub-components'
 
 const Profile = () => {
-  return (
-    <Container fluid className="p-6">
-      {/* Page Heading */}
-      <PageHeading heading="Overview"/>
+  // return (
+    // <Container fluid className="p-6">
+    //   {/* Page Heading */}
+    //   <PageHeading heading="Overview"/>
 
-      {/* Profile Header  */}
-      <ProfileHeader />
+    //   {/* Profile Header  */}
+    //   <ProfileHeader />
 
-      {/* content */}
-      <div className="py-6">
-        <Row>
+    //   {/* content */}
+    //   <div className="py-6">
+    //     <Row>
 
-          {/* About Me */}
-          <AboutMe />
+    //       {/* About Me */}
+    //       <AboutMe />
 
-          {/* Projects Contributions */}
-          <ProjectsContributions />
+    //       {/* Projects Contributions */}
+    //       <ProjectsContributions />
 
-          {/* Recent From Blog */}
-          <RecentFromBlog />
+    //       {/* Recent From Blog */}
+    //       <RecentFromBlog />
 
-          <Col xl={6} lg={12} md={12} xs={12} className="mb-6">
+    //       <Col xl={6} lg={12} md={12} xs={12} className="mb-6">
 
-            {/* My Team */}
-            <MyTeam />
+    //         {/* My Team */}
+    //         <MyTeam />
 
-            {/* Activity Feed */}
-            <ActivityFeed />
+    //         {/* Activity Feed */}
+    //         <ActivityFeed />
 
-          </Col>
-        </Row>
-      </div>
+    //       </Col>
+    //     </Row>
+    //   </div>
 
-    </Container>
-  )
+    // </Container>
+  // )
 }
 
 export default Profile
