@@ -37,18 +37,18 @@ const ForgetPassword = () => {
         }}
       >
     <Row className="align-items-center justify-content-center g-0 min-vh-100">
-      <Col xxl={4} lg={6} md={8} xs={12} className="py-8 py-xl-0">
+      <Col xxl={4} lg={5} md={4} xs={12} className="py-8 py-xl-0">
         {/* Card */}
         <Card className="smooth-shadow-md"
          style={{
           background: "rgba(90, 85, 85, 0.49)", // Glassmorphism effect
           backdropFilter: "blur(10px)",
-          border: "1px solid rgba(54, 52, 52, 0.77)", // Subtle border
+          border: "1px solid rgba(27, 26, 26, 0.61)",        
           borderRadius: "12px",
           color: "#F5F5DC", // Beige text
-          width: "100%", // Reduce width of card
-          maxWidth: "650px",
-          position: 'justify-center,align-center, fixed',
+          width: "100%", // Maintain responsiveness
+          maxWidth: "500px", // Proper width
+          padding: "20px",
           cursor: 'pointer',
           transition: "all '.3s'",
           display: "flex",
@@ -57,7 +57,7 @@ const ForgetPassword = () => {
           {/* Card body */}
           <Card.Body className="p-6">
           <div className="flex flex-col text-center justify-center min-h-screen">
-              <Link href="/"><Image src="/images/brand/logo/logo.png"   className="text-center block mx-auto  mb-2 " style={{ maxWidth: "200px", height: "auto" }}  alt="" /></Link>
+              <Link href="/"><Image src="/images/brand/logo/logo.png"   className="text-center block mx-auto  mb-2 " style={{ maxWidth: "140px", height: "auto" }}  alt="" /></Link>
             </div>
             {/* Form */}
             {hasMounted && 
