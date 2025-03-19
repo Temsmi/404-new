@@ -19,7 +19,7 @@ import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
 
 // import routes file
-import { DashboardMenu } from 'routes/DashboardRoutes';
+import { DashboardMenu } from 'routes/DashboardRoutes_president';
 
 const NavbarVertical = (props) => {
 	const location = usePathname ()
@@ -99,7 +99,8 @@ const NavbarVertical = (props) => {
 			<SimpleBar style={{ maxHeight: '100vh' }}>
 				<div className="nav-scroller">
 					<Link href="/" className="navbar-brand">
-					<Image src="/images/brand/logo/logo.png" alt="" />					</Link>
+						<Image src="/images/brand/logo/logo.svg" alt="" />
+					</Link>
 				</div>				
 				{/* Dashboard Menu */}
 				<Accordion defaultActiveKey="0" as="ul" className="navbar-nav flex-column">

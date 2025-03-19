@@ -22,6 +22,7 @@ import { v4 as uuid } from 'uuid';
  *  ( Use title : value to specify group title  e.g. COMPONENTS , DOCUMENTATION that we did here. )
  *
  */
+
 export const DashboardMenu = [
 	{
 		id: uuid(),
@@ -31,27 +32,39 @@ export const DashboardMenu = [
 	},
 	{
 		id: uuid(),
-		title: 'CLUBS',
+		title: 'CLUB MANAGEMENT',
 		grouptitle: true
 	},
 	{
 		id: uuid(),
-		title: 'Clubs',
+		title: 'Club',
 		icon: 'layers',
 		children: [
-			{ id: uuid(), link: '/pages/profile', name: 'Club profile' },
-			{ id: uuid(), link: '/pages/settings', name: 'Activity requests'},
-			{ id: uuid(), link: '/pages/clubcreation', name: 'Club creation' }
+			{ id: uuid(), link: 'dashboard-president/pages/clubcreation', name: 'Event Creation' },
+			{ id: uuid(), link: '/pages/event-edition', name: 'Event Addition'}
 			
 		]
 	},	
-	
+
 	{
 		id: uuid(),
-		title: 'Elections',
-		icon: 'lock',
-		link: '/layout-vertical'
+		title: 'COMMUNICATION',
+		grouptitle: true
 	},	
+
+	{
+		id: uuid(),
+		title: 'Chats',
+		icon: 'lock',
+		link: '/pages/layout-vertical'
+	},	
+	{
+		id: uuid(),
+		title: 'Suggestions & Complaints',
+		icon: 'lock',
+		link: '/pages/layout-vertical'
+	},	
+
 	{
 		id: uuid(),
 		title: 'OTHERS',

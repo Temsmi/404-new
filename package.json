@@ -21,7 +21,7 @@
     "nextjs-template",
     "react-dashboard",
     "bootstrap 5"
-    ],
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -29,6 +29,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.15",
+    "@fullcalendar/interaction": "^6.1.15",
+    "@fullcalendar/react": "^6.1.15",
     "@vercel/analytics": "^1.0.1",
     "apexcharts": "^3.41.1",
     "bootstrap": "^5.3.1",
