@@ -22,6 +22,7 @@ import { v4 as uuid } from 'uuid';
  *  ( Use title : value to specify group title  e.g. COMPONENTS , DOCUMENTATION that we did here. )
  *
  */
+
 export const DashboardMenu = [
 	{
 		id: uuid(),
@@ -31,7 +32,7 @@ export const DashboardMenu = [
 	},
 	{
 		id: uuid(),
-		title: 'CLUBS',
+		title: 'CLUB MANAGEMENT',
 		grouptitle: true
 	},
 	{

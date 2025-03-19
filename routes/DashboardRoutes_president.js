@@ -28,11 +28,11 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Dashboard',
 		icon: 'home',
-		link: '/'
+		link: '/dashboard-president'
 	},
 	{
 		id: uuid(),
-		title: 'CLUB MANAGEMENT',
+		title: 'CLUBS',
 		grouptitle: true
 	},
 	{
@@ -40,8 +40,8 @@ export const DashboardMenu = [
 		title: 'Club',
 		icon: 'layers',
 		children: [
-			{ id: uuid(), link: 'dashboard-president/pages/clubcreation', name: 'Event Creation' },
-			{ id: uuid(), link: '/pages/event-edition', name: 'Event Addition'}
+			{ id: uuid(), link: '/dashboard-president/pages/clubcreation', name: 'Event Creation' },
+			{ id: uuid(), link: '/dashboard-president/pages/event-edition', name: 'Event Addition'}
 			
 		]
 	},	
@@ -74,13 +74,13 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Calendar',
 		icon: 'calendar',
-		link: '/pages/calendar'
+		link: '/dashboard-president/pages/calendar'
 	},	
 	{
 		id: uuid(),
 		title: 'Help Page',
 		icon: 'info',
-		link: '/pages/help'
+		link: '/dashboard-president/pages/help'
 	},	
 	/*{
 		id: uuid(),
