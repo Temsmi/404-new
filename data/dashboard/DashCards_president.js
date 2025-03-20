@@ -2,7 +2,9 @@ import {
     Briefcase,
     ListTask,
     People,
-    Bullseye
+    Bullseye,
+    Person,
+    RocketTakeoff
 } from 'react-bootstrap-icons';
 
 export const DashCards_president = [
@@ -10,7 +12,7 @@ export const DashCards_president = [
        id:1,
        title : "Total Members",
        value : 52,
-       icon: <Briefcase size={18}/>,
+       icon: <Person size={18}/>,
       
     },
     /*{
@@ -31,7 +33,7 @@ export const DashCards_president = [
         id:4,
         title : "Participation Rate",
         value : '1.2%',
-        icon: <Bullseye size={18}/>,
+        icon: <RocketTakeoff size={18}/>,
              }
 ];
 export default DashCards_president;
