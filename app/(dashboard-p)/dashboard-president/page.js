@@ -14,7 +14,8 @@ import { ActiveProjects, Teams,
 
 
 // import required data files
-import ProjectsStatsData from "data/dashboard/DashCards_president";
+import ProjectsStatsData from "data/dashboard/DashCards";
+import MembersInfo from "sub-components/dashboard/MembersInfo";
 
 const Home = () => {
     return (
@@ -45,7 +46,7 @@ const Home = () => {
                {/* <SalesOverview /> */}
                 
                 {/* Active Projects  */}
-                <ActiveProjects />
+                <MembersInfo />
                 
                 <Row className="my-6">
                     <Col xl={4} lg={12} md={12} xs={12} className="mb-6 mb-xl-0">
