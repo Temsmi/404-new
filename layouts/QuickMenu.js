@@ -121,7 +121,7 @@ const QuickMenu = () => {
                             <div className=" dropdown-divider mt-3 mb-2"></div>
                     </Dropdown.Item>
                      <Dropdown.Item eventKey="2" href="/dashboard-president/pages/settings">
-    <i className="fe fe-user me-2"></i> Edit Profile
+    <i className="fe fe-user me-2"></i> View Profile
                   </Dropdown.Item>
                   
                     

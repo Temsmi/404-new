@@ -14,7 +14,7 @@ import { ActiveProjects, Teams,
 
 
 // import required data files
-import ProjectsStatsData from "data/dashboard/DashCards";
+import DashCards_president from "data/dashboard/DashCards_president";
 import MembersInfo from "sub-components/dashboard/MembersInfo";
 
 const Home = () => {
@@ -33,7 +33,7 @@ const Home = () => {
                             </div>
                         </div>
                     </Col>
-                    {ProjectsStatsData.map((item, index) => {
+                    {DashCards_president.map((item, index) => {
                         return (
                             <Col xl={3} lg={6} md={12} xs={12} className="mt-6" key={index}>
                                 <StatRightTopIcon info={item} />

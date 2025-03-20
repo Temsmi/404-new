@@ -5,7 +5,7 @@ import {
     Bullseye
 } from 'react-bootstrap-icons';
 
-export const ProjectsStats = [
+export const DashCards_president = [
     {
        id:1,
        title : "Total Members",
@@ -34,4 +34,4 @@ export const ProjectsStats = [
         icon: <Bullseye size={18}/>,
              }
 ];
-export default ProjectsStats;
+export default DashCards_president;

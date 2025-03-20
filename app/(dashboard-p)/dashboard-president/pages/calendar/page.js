@@ -80,19 +80,21 @@ const CalendarPage = () => {
       </div>
 
       {/* FullCalendar Component */}
-      <FullCalendar
-        ref={calendarRef} // Reference to FullCalendar
-        plugins={[dayGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        events={events}
-        height="auto"
-        dateClick={handleDateClick}
-        firstDay={1} // Start the week on Monday
-        dayCellClassNames={(info) => {
-          const dayOfWeek = new Date(info.date).getDay();
-          return dayOfWeek === 0 || dayOfWeek === 6 ? 'bg-light text-danger' : '';
-        }}
-      />
+      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
+  <FullCalendar
+    ref={calendarRef}
+    plugins={[dayGridPlugin, interactionPlugin]}
+    initialView="dayGridMonth"
+    events={events}
+    height="auto"
+    dateClick={handleDateClick}
+    firstDay={1}
+    dayCellClassNames={(info) => {
+      const dayOfWeek = new Date(info.date).getDay();
+      return dayOfWeek === 0 || dayOfWeek === 6 ? 'bg-light text-danger' : '';
+    }}
+  />
+</div>
 
      
     </Container>
