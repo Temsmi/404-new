@@ -32,7 +32,7 @@ export const DashboardMenu = [
 	},
 	{
 		id: uuid(),
-		title: 'CLUBS',
+		title: 'CLUB MANAGEMENT',
 		grouptitle: true
 	},
 	{

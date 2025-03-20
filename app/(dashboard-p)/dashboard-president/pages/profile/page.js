@@ -18,7 +18,7 @@ const Profile = () => {
                 <Col md={12} xs={12}>
                     <Card>
                         <Card.Header className="bg-white  py-4">
-                            <h4 className="mb-0">All Members</h4>
+                            <h4 className="mb-0">All Clubs</h4>
                         </Card.Header>
                         <Table responsive className="text-nowrap mb-0">
                             <thead className="table-light">

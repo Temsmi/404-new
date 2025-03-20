@@ -1,180 +1,148 @@
-'use client';
+'use client'
 
+// Import necessary libraries
 import { useState } from 'react';
+import { Container, Form, Button } from 'react-bootstrap';
 
-const members = [
-  { id: 1, name: 'Alice', department: 'IT' },
-  { id: 2, name: 'Bob', department: 'Marketing' },
-  { id: 3, name: 'Charlie', department: 'Finance' },
-  { id: 4, name: 'David', department: 'HR' },
-  { id: 5, name: 'Emma', department: 'Design' },
-];
-
-export default function ChatSelection() {
-  const [subject, setSubject] = useState('');
-  const [selectedMembers, setSelectedMembers] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
-
-  const handleSelectMember = (id) => {
-    if (selectedMembers.includes(id)) {
-      setSelectedMembers(selectedMembers.filter((memberId) => memberId !== id));
-    } else {
-      setSelectedMembers([...selectedMembers, id]);
-    }
-  };
-
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedMembers([]);
-    } else {
-      setSelectedMembers(members.map((member) => member.id));
-    }
-    setSelectAll(!selectAll);
-  };
-
-  const handleStartChat = () => {
-    if (!subject.trim() || selectedMembers.length === 0) {
-      alert('Please enter a subject and select at least one member.');
-      return;
-    }
-    console.log('Starting chat with:', selectedMembers, 'Subject:', subject);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-md">
-        <h1 className="text-2xl font-bold text-center text-blue-700 mb-4">Start a New Chat</h1>
-        
-        <input
-          type="text"
-          className="w-full p-2 border border-gray-300 rounded-md mb-4"
-          placeholder="Enter chat subject..."
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-        />
-
-        <div className="mb-4 flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={selectAll}
-            onChange={handleSelectAll}
-            className="w-5 h-5"
-          />
-          <span className="text-lg font-medium">Select All</span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border p-2 text-left">Select</th>
-                <th className="border p-4 text-left w-1/2">Name</th>
-                <th className="border p-4 text-left w-1/2">Department</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.map((member) => (
-                <tr key={member.id} className="border">
-                  <td className="border p-2 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedMembers.includes(member.id)}
-                      onChange={() => handleSelectMember(member.id)}
-                      className="w-5 h-5"
-                    />
-                  </td>
-                  <td className="border p-4 w-1/2">{member.name}</td>
-                  <td className="border p-4 w-1/2">{member.department}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <button
-          onClick={handleStartChat}
-          className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-        >
-          Start Chat
-        </button>
-      </div>
-    </div>
-  );
-}
-
-
-
-
-/*'use client'
-
-// Import required modules
-import { useState } from 'react';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-
-const ClubCreationForm = () => {
-  const [clubName, setClubName] = useState('');
-  const [description, setDescription] = useState('');
-  const [logo, setLogo] = useState(null);
-
-  const handleImageUpload = (event) => {
-    setLogo(event.target.files[0]);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log({
-      clubName,
-      description,
-      logo
+const EventCreationForm = () => {
+    const [eventData, setEventData] = useState({
+        eventName: '',
+        eventDesc: '',
+        eventDate: '',
+        eventImage: null,
+        includeFeedback: 'no',
+        zoomMeeting: 'no',
+        zoomLink: ''
     });
-  };
 
-  return (
-    <Container className="mt-5">
-      <Row className="justify-content-center">
-        <Col md={8} lg={6}>
-          <h2 className="text-center mb-4">Create a Club</h2>
-          <Form onSubmit={handleSubmit}>
-            {/* Club Logo Upload }
-            <Form.Group controlId="clubLogo" className="mb-3">
-              <Form.Label>Club Logo</Form.Label>
-              <Form.Control type="file" accept="image/*" onChange={handleImageUpload} />
-            </Form.Group>
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setEventData({ ...eventData, [name]: value });
+    };
 
-            {/* Club Name}
-            <Form.Group controlId="clubName" className="mb-3">
-              <Form.Label>Club Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter club name"
-                value={clubName}
-                onChange={(e) => setClubName(e.target.value)}
-                required
-              />
-            </Form.Group>
+    const handleFileChange = (e) => {
+        setEventData({ ...eventData, eventImage: e.target.files[0] });
+    };
 
-            {/* Club Description *}
-            <Form.Group controlId="clubDescription" className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={4}
-                placeholder="Enter club description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-              />
-            </Form.Group>
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log('Event Data:', eventData);
+    };
 
-            {/* Submit Button *}
-            <Button variant="primary" type="submit" className="w-100">
-              Create Club
-            </Button>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
-  );
+    return (
+        <Container className="d-flex justify-content-center align-items-center min-vh-100">
+            <div className="p-4 w-100" style={{ maxWidth: '500px' }}>
+                <h3 className="mb-4 text-center">Create Event</h3>
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Event Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="eventName"
+                            value={eventData.eventName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Event Description</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            name="eventDesc"
+                            value={eventData.eventDesc}
+                            onChange={handleChange}
+                            rows={3}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Event Date</Form.Label>
+                        <Form.Control
+                            type="date"
+                            name="eventDate"
+                            value={eventData.eventDate}
+                            onChange={handleChange}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Event Image (Optional)</Form.Label>
+                        <Form.Control
+                            type="file"
+                            name="eventImage"
+                            onChange={handleFileChange}
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Include Post-Feedback?</Form.Label>
+                        <div>
+                            <Form.Check
+                                inline
+                                label="Yes"
+                                type="radio"
+                                name="includeFeedback"
+                                value="yes"
+                                checked={eventData.includeFeedback === 'yes'}
+                                onChange={handleChange}
+                            />
+                            <Form.Check
+                                inline
+                                label="No"
+                                type="radio"
+                                name="includeFeedback"
+                                value="no"
+                                checked={eventData.includeFeedback === 'no'}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Include Zoom Meeting Link?</Form.Label>
+                        <div>
+                            <Form.Check
+                                inline
+                                label="Yes"
+                                type="radio"
+                                name="zoomMeeting"
+                                value="yes"
+                                checked={eventData.zoomMeeting === 'yes'}
+                                onChange={handleChange}
+                            />
+                            <Form.Check
+                                inline
+                                label="No"
+                                type="radio"
+                                name="zoomMeeting"
+                                value="no"
+                                checked={eventData.zoomMeeting === 'no'}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </Form.Group>
+
+                    {eventData.zoomMeeting === 'yes' && (
+                        <Form.Group className="mb-3">
+                            <Form.Label>Zoom Meeting Link</Form.Label>
+                            <Form.Control
+                                type="url"
+                                name="zoomLink"
+                                value={eventData.zoomLink}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                    )}
+
+                    <Button variant="primary" type="submit" className="w-100">Submit</Button>
+                </Form>
+            </div>
+        </Container>
+    );
 };
 
-export default ClubCreationForm;*/
+export default EventCreationForm;

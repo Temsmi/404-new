@@ -104,6 +104,8 @@ const SignUp = () => {
         </Card>
       </Col>
     </Row>
+    </div>
+    </div>
   )
 }
 
