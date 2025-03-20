@@ -14,7 +14,7 @@ const StatRightTopIcon = props => {
                     <div>
                         <h4 className="mb-0">{info.title}</h4>
                     </div>
-                    <div className="icon-shape icon-md bg-light-primary text-primary rounded-2">
+                    <div className="icon-shape icon-md bg-light-secondary text-primary rounded-2">
                         {info.icon}
                     </div>
                 </div>

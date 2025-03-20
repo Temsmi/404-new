@@ -30,6 +30,9 @@ const Home = () => {
                                 <div className="mb-2 mb-lg-0">
                                     <h3 className="mb-0  text-white">Welcome, the President of the [club name] Club!</h3>
                                 </div>
+                                <div>
+                                    <Link href="/dashboard-president/pages/clubcreation" className="btn btn-white">Create Group Chat</Link>
+                                </div>
                             </div>
                         </div>
                     </Col>

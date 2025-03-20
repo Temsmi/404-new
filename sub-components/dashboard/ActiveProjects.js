@@ -59,7 +59,7 @@ const ActiveProjects = () => {
                         </tbody>
                     </Table>
                     <Card.Footer className="bg-white text-center">
-                        <Link href="/pages/profile" className="link-primary">View All Clubs</Link>
+                        <Link href="/pages/profile" className="link-primary">View All Members</Link>
                     </Card.Footer>
                 </Card>
             </Col>
