@@ -14,7 +14,7 @@ import { ActiveProjects, Teams,
 
 
 // import required data files
-import ProjectsStatsData from "data/dashboard/ProjectsStatsData";
+import ProjectsStatsData from "data/dashboard/DashCards_president";
 
 const Home = () => {
     return (

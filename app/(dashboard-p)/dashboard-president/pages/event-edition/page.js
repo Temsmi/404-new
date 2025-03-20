@@ -30,10 +30,9 @@ const EditEventForm = () => {
     };
 
     return (
-        <Container className="d-flex justify-content-center align-items-center vh-100">
-            <div className="p-4" style={{ width: '900px', position: 'relative' }}>
-            
-            <h3 className="mb-4 text-center" style={{ zIndex: 1 , marginTop: '50px'}}>Edit Event</h3>
+        <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+            <div className="p-4" style={{ width: '500px' }}>
+                <h3 className="mb-4 text-center">Edit Event</h3>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
                         <Form.Label>Event Name</Form.Label>
