@@ -15,36 +15,34 @@ export default function MemberList() {
 
   const handleStartPrivateChat = (member) => {
     console.log(`Starting private chat with: ${member.name}`);
-    // Navigate to a chat page (Replace '/chat' with the actual route)
     router.push(`/chat?memberId=${member.id}&name=${member.name}`);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-md">
-        <h1 className="text-2xl font-bold text-center text-blue-700 mb-4">
-          Member List
-        </h1>
-
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border p-4 text-left w-1/2">Name</th>
-                <th className="border p-4 text-left w-1/2">Department</th>
-                <th className="border p-4 text-center">Action</th>
+    <div className="container mt-5">
+      <div className="card shadow p-4">
+        <h1 className="text-center text-primary mb-4">Member List</h1>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="table-light">
+              <tr>
+                <th>Name</th>
+                <th>Department</th>
+                <th className="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
               {members.map((member) => (
-                <tr key={member.id} className="border">
-                  <td className="border p-4">{member.name}</td>
-                  <td className="border p-4">{member.department}</td>
-                  <td className="border p-4 text-center">
-                  <button style={{ backgroundColor: 'blue' }} className="text-white px-4 py-2 rounded-md">
-  Start Chat
-</button>
-
+                <tr key={member.id}>
+                  <td>{member.name}</td>
+                  <td>{member.department}</td>
+                  <td className="text-center">
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => handleStartPrivateChat(member)}
+                    >
+                      Start Chat
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -62,7 +62,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Suggestions & Complaints',
 		icon: 'lock',
-		link: '/pages/layout-vertical'
+		link: 'dashboard-president/pages/suggestion'
 	},	
 
 	{
