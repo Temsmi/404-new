@@ -1,7 +1,7 @@
 // import node module libraries
 import Link from 'next/link';
 import {Col, Row, Card, Table, Image } from 'react-bootstrap';
-
+import {EyeFill} from 'react-bootstrap-icons';
 // import required data files
 import ActiveProjectsData from "data/dashboard/ActiveProjectsData";
 
@@ -13,11 +13,13 @@ const ActiveProjects = () => {
                     <Card.Header className="bg-white  py-4">
                         <h4 className="mb-0">All Clubs</h4>
                     </Card.Header>
-                    <Table responsive className="text-nowrap mb-0">
-                        <thead className="table-light">
-                            <tr>
-                                <th>Name</th>
-                                <th>Members</th>
+                    <Table responsive hover className="text-nowrap mb-0">
+                        <thead className="table-light" >
+                            <tr className='border-b'>
+                                <th >NAME</th>
+                                <th >PRESIDENT</th>
+                                <th >MEMBERS</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -37,8 +39,8 @@ const ActiveProjects = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        {/* <td className="align-middle">{item.hours}</td>
-                                        <td className="align-middle"><span className={`badge bg-${item.priorityBadgeBg}`}>{item.priority}</span></td> */}
+                                         <td className="align-middle">{item.hours}</td>
+                                       {/* <td className="align-middle"><span className={`badge bg-${item.priorityBadgeBg}`}>{item.priority}</span></td> */}
                                         <td className="align-middle">
                                             <div className="avatar-group">
                                                 {item.members.map((avatar, avatarIndex) => {
@@ -53,6 +55,10 @@ const ActiveProjects = () => {
                                                 </span>
                                             </div>
                                         </td>
+                                        <td className='text-center'>
+                                            <Link href="" className="link-primary d-flex align-items-center">
+                                                <EyeFill className="me-1" /> View Details</Link>
+                                         </td>
                                     </tr>
                                 )
                             })}

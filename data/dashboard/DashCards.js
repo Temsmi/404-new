@@ -7,7 +7,7 @@ export const DashCards = [
     {
        id:1,
        title : "Total Clubs",
-       value : 101,
+       value : 53,
        icon: <People size={18}/>,
        
     },

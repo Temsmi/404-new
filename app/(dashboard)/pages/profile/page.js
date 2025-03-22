@@ -4,27 +4,24 @@ import { Col, Row, Card, Table, Image, Container } from 'react-bootstrap';
 import Link from 'next/link';
 // import widget as custom components
 import { PageHeading } from 'widgets'
-
 // import sub components
 import ActiveProjectsData from "data/dashboard/ActiveProjectsData";
 
 const Profile = () => {
   
   return (
-    <Container fluid className="p-6">
+    <Container className="p-6">
       {/* Page Heading */}
-      <PageHeading heading="All Clubs"/>
+      <PageHeading heading="Clubs"/>
      <Row className="mt-6">
                 <Col md={12} xs={12}>
-                    <Card>
-                        <Card.Header className="bg-white  py-4">
-                            <h4 className="mb-0">All Clubs</h4>
-                        </Card.Header>
-                        <Table responsive className="text-nowrap mb-0">
+                    <Card className="bg-white">
+                        <Table responsive className="text-nowrap mb-5">
                             <thead className="table-light">
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Members</th>
+                                    <th>NAME</th>
+                                    <th>PRESIDENT</th>
+                                    <th>MEMBERS</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -44,6 +41,7 @@ const Profile = () => {
                                                     </div>
                                                 </div>
                                             </td>
+                                            <td className="align-middle">{item.hours}</td>
                                             <td className="align-middle">
                                                 <div className="avatar-group">
                                                     {item.members.map((avatar, avatarIndex) => {
