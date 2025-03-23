@@ -1,62 +1,44 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Container, Button, Modal, Form } from 'react-bootstrap';
+import { useState, useRef } from 'react';
+import { Container, Form } from 'react-bootstrap';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
 
 const CalendarPage = () => {
   const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState(currentYear); // Selected year state
-  const [events, setEvents] = useState([]); // Store created events
-  const [showForm, setShowForm] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [eventTitle, setEventTitle] = useState('');
-  const [selectedClub, setSelectedClub] = useState('');
-  const [description, setDescription] = useState('');
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  // const [events, setEvents] = useState([]);
+  // const [showForm, setShowForm] = useState(false);
+  // const [selectedDate, setSelectedDate] = useState(null);
+  // const [eventTitle, setEventTitle] = useState('');
+  // const [selectedClub, setSelectedClub] = useState('');
+  // const [description, setDescription] = useState('');
 
-  const clubs = ['Club A', 'Club B', 'Club C']; // Example clubs
-  const calendarRef = useRef(null); // Reference for FullCalendar
+  const clubs = ['Club A', 'Club B', 'Club C'];
+  const calendarRef = useRef(null);
 
-  // Function to generate years (5 before and after the current year)
+  // Function to generate years from the current year to the next 10 years
   const generateYears = () => {
-    return Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
-  };
-
-  // Handle date click (open modal)
-  const handleDateClick = (info) => {
-    setSelectedDate(info.dateStr);
-    setShowForm(true);
+    return Array.from({ length: 11 }, (_, i) => currentYear + i);
   };
 
   // Handle form submission
-  const handleAddEvent = () => {
-    if (!eventTitle || !selectedClub) {
-      alert('Please fill in all fields!');
-      return;
-    }
+  
 
-    const newEvent = {
-      title: `${eventTitle} (${selectedClub})`,
-      start: selectedDate,
-      description: description,
-    };
+  // Navigate to selected year without resetting to January
+  const handleYearChange = (e) => {
+    const newYear = Number(e.target.value);
+    setSelectedYear(newYear);
 
-    setEvents([...events, newEvent]);
-    setShowForm(false);
-    setEventTitle('');
-    setSelectedClub('');
-    setDescription('');
-  };
-
-  // Use effect to update the calendar when year changes
-  useEffect(() => {
     if (calendarRef.current) {
-      // Goto the first day of the selected year
-      calendarRef.current.getApi().gotoDate(`${selectedYear}-01-01`);
+      const calendarApi = calendarRef.current.getApi();
+      const currentDate = calendarApi.getDate(); // Keep the current month
+      calendarApi.gotoDate(new Date(newYear, currentDate.getMonth(), 1));
     }
-  }, [selectedYear]);
+  };
 
   return (
     <Container className="mt-5">
@@ -64,11 +46,9 @@ const CalendarPage = () => {
 
       {/* Custom Toolbar */}
       <div className="d-flex justify-content-left align-items-left mb-3">
-      
-        {/* 🏆 Year Dropdown */}
         <Form.Select
           value={selectedYear}
-          onChange={(e) => setSelectedYear(Number(e.target.value))}
+          onChange={handleYearChange} // Now correctly updates year while keeping month
           style={{ width: '100px', display: 'inline-block' }}
         >
           {generateYears().map((year) => (
@@ -79,24 +59,27 @@ const CalendarPage = () => {
         </Form.Select>
       </div>
 
-      {/* FullCalendar Component */}
+           {/* FullCalendar Component */}
       <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
-  <FullCalendar
-    ref={calendarRef}
-    plugins={[dayGridPlugin, interactionPlugin]}
-    initialView="dayGridMonth"
-    events={events}
-    height="auto"
-    dateClick={handleDateClick}
-    firstDay={1}
-    dayCellClassNames={(info) => {
-      const dayOfWeek = new Date(info.date).getDay();
-      return dayOfWeek === 0 || dayOfWeek === 6 ? 'bg-light text-danger' : '';
-    }}
-  />
-</div>
-
-     
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
+          headerToolbar={{
+            left: 'prev,next',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek',
+          }}
+          initialView="dayGridMonth"
+          initialDate={new Date()} // Ensure the calendar starts on the current month
+          nowIndicator={true}
+          editable={true}
+          selectable={true}
+          selectMirror={true}
+          // events={events}
+          height="auto"
+          // dateClick={handleDateClick}
+        />
+      </div>
     </Container>
   );
 };

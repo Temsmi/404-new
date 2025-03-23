@@ -56,13 +56,13 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Chats',
 		icon: 'lock',
-		link: 'dashboard-president/pages/layout-vertical'
+		link: '/dashboard-president/pages/layout-vertical'
 	},	
 	{
 		id: uuid(),
 		title: 'Suggestions & Complaints',
 		icon: 'lock',
-		link: 'dashboard-president/pages/suggestion'
+		link: '/dashboard-president/pages/suggestion'
 	},	
 
 	{
