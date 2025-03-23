@@ -55,8 +55,8 @@ export const DashboardMenu = [
 	{
 		id: uuid(),
 		title: 'Chats',
-		icon: 'lock',
-		link: '/dashboard-president/pages/layout-vertical'
+		icon: 'chat',
+		link: '/dashboard-president/pages/chat-group'
 	},	
 	{
 		id: uuid(),
