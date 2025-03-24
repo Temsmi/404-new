@@ -37,11 +37,11 @@ export const DashboardMenu = [
 	},
 	{
 		id: uuid(),
-		title: 'Club',
+		title: 'Events',
 		icon: 'layers',
 		children: [
-			{ id: uuid(), link: '/dashboard-president/pages/clubcreation', name: 'Event Creation' },
-			{ id: uuid(), link: '/dashboard-president/pages/event-edition', name: 'Event Addition'}
+			{ id: uuid(), link: '/dashboard-president/pages/events', name: 'Event Logs' },
+			{ id: uuid(), link: '/dashboard-president/pages/announcement', name: 'Create Announcement'}
 			
 		]
 	},	
@@ -55,7 +55,7 @@ export const DashboardMenu = [
 	{
 		id: uuid(),
 		title: 'Chats',
-		icon: 'chat',
+		icon: 'message-circle ',
 		link: '/dashboard-president/pages/chat-group'
 	},	
 	{
