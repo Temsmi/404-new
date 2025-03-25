@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Image } from 'react-bootstrap';
 
@@ -24,7 +25,6 @@ const ManageClubs = () => {
   }, []);
 
   const handleEdit = (id) => {
-    // Redirect to edit page or show a modal
     alert(` Edit Club: ${id}`);
   };
 
@@ -45,59 +45,68 @@ const ManageClubs = () => {
   };
 
   return (
-      <Container>
-        <Row className="justify-content-center">
-          <Col lg={10}>
-            <div className="p-5 rounded shadow-lg text-center"
+    <Container>
+      <Row className="justify-content-between align-items-center mb-4">
+        <Col className="justify-content-between align-items-center w-100 mb-4">
+          <h2 className="text-black font-weight-bold">Manage Clubs</h2>
+        </Col>
+        <Col className="text-end">
+          <Link href="/pages/managepresident">
+            <Button
+              variant="dark"
               style={{
-                background: "rgba(255, 255, 255, 0.15)",
-                backdropFilter: "blur(10px)",
-                borderRadius: "12px",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-                boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.2)",
-                padding: "40px",
+                background: "#0d6efd",
+                border: "none",
+                padding: "10px 20px",
+                fontSize: "16px",
+                
+                transition: "0.3s ease-in-out",
               }}
+              onMouseOver={(e) => (e.currentTarget.style.background = "#084298")}
+              onMouseOut={(e) => (e.currentTarget.style.background = "#0d6efd")}
             >
-              <h2 className="text-black font-weight-bold mb-4"> Manage Clubs</h2>
-              {loading ? (
-                <p className="text-black">Loading clubs...</p>
-              ) : clubs.length > 0 ? (
-                <Row>
-                  {clubs.map((club) => (
-                    <Col md={6} key={club.id} className="mb-4">
-                      <Card className="p-3 shadow-lg text-center"
-                        style={{
-                          background: "rgba(255, 255, 255, 0.25)",
-                          backdropFilter: "blur(8px)",
-                          borderRadius: "12px",
-                          border: "1px solid rgba(255, 255, 255, 0.4)",
-                          boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)",
-                          transition: "0.3s",
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                        onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
-                      >
-                        <Card.Body>
-                          <Image src={club.logo} alt="Club Logo" width={80} height={80} className="mb-3" />
-                          <h5 className="mb-2 text-black">{club.name}</h5>
-                          <p className="text-black">{club.description}</p>
-                          <p className="text-black">Status: {club.status}</p>
-                          <div className="d-flex justify-content-around mt-3">
-                            <Button variant="primary" onClick={() => handleEdit(club.id)}> Edit</Button>
-                            <Button variant="warning" onClick={() => handleDeactivate(club.id)}> Desactivate</Button>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              ) : (
-                <h5 className="text-black mt-4">No clubs available.</h5>
-              )}
-            </div>
-          </Col>
-        </Row>
-      </Container>
+              Manage Presidents
+            </Button>
+          </Link>
+        </Col>
+      </Row>
+
+      <Row>
+        {loading ? (
+          <p className="text-black">Loading clubs...</p>
+        ) : clubs.length > 0 ? (
+          clubs.map((club) => (
+            <Col md={6} key={club.id} className="mb-4">
+              <Card className="p-3 shadow-lg text-center"
+                style={{
+                  background: "rgba(255, 255, 255, 0.25)",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255, 255, 255, 0.4)",
+                  boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)",
+                  transition: "0.3s",
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+              >
+                <Card.Body>
+                  <Image src={club.logo} alt="Club Logo" width={80} height={80} className="mb-3" />
+                  <h5 className="mb-2 text-black">{club.name}</h5>
+                  <p className="text-black">{club.description}</p>
+                  <p className="text-black">Status: {club.status}</p>
+                  <div className="d-flex justify-content-around mt-3">
+                    <Button variant="primary" onClick={() => handleEdit(club.id)}> Edit</Button>
+                    <Button variant="warning" onClick={() => handleDeactivate(club.id)}> Deactivate</Button>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
+        ) : (
+          <h5 className="text-black mt-4">No clubs available.</h5>
+        )}
+      </Row>
+    </Container>
   );
 };
 

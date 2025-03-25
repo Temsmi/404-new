@@ -125,7 +125,7 @@ const ClubCreationForm = () => {
                     e.target.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
                   }}
                 >
-                  Create Club 🚀
+                  Create Club 
                 </Button>
           </Form></div>
         </Col>
