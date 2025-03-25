@@ -32,6 +32,7 @@
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
+    "@fullcalendar/timegrid": "^6.1.15",
     "@vercel/analytics": "^1.0.1",
     "apexcharts": "^3.41.1",
     "bootstrap": "^5.3.1",

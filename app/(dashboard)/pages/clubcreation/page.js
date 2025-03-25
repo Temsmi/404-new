@@ -8,6 +8,9 @@ const ClubCreationForm = () => {
   const [clubName, setClubName] = useState('');
   const [description, setDescription] = useState('');
   const [logo, setLogo] = useState(null);
+  const [contactInfo, setContactInfo] = useState('');
+  const [rules, setRules] = useState(''); 
+
 
   const handleImageUpload = (event) => {
     setLogo(event.target.files[0]);
@@ -26,7 +29,6 @@ const ClubCreationForm = () => {
     <div
     className="d-flex align-items-center justify-content-center min-vh-100"
     style={{
-      backgroundImage: "url('/images/background/club-bg.jpg')", // Background image
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
@@ -48,49 +50,80 @@ const ClubCreationForm = () => {
               }}
             >
           <h2 className="text-center mb-4">Create a Club</h2>
-          <Form onSubmit={handleSubmit}>
+          
             
 
             {/* Club Name */}
             <Form.Group controlId="clubName" className="mb-3">
-              <Form.Label>Club Name</Form.Label>
-              <Form.Control
+            <Form.Label className="text-black fw-bold"> Club Name</Form.Label>
+            <Form.Control
                 type="text"
                 placeholder="Enter club name"
                 value={clubName}
                 onChange={(e) => setClubName(e.target.value)}
                 required
+                style={{ background: "rgba(255, 255, 255, 0.3)", color: "black" }}
+                
               />
+            </Form.Group>
+            <Form onSubmit={handleSubmit}>
+                 <Form.Group controlId="clubLogo" className="mb-3">
+                 <Form.Label className="text-black fw-bold"> Club Logo</Form.Label>
+                 <Form.Control type="file" accept="image/*" onChange={handleImageUpload} required />
             </Form.Group>
 
             {/* Club Description */}
             <Form.Group controlId="clubDescription" className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
+            <Form.Label className="text-black fw-bold">Description</Form.Label>
+            <Form.Control
+               as="textarea"
+               rows={4}
+               placeholder="Enter club description"
+               value={description}
+               onChange={(e) => setDescription(e.target.value)}
+               required
+               style={{ background: "rgba(255, 255, 255, 0.3)", color: "black" }}
+              />
+            </Form.Group>
+
+           
+            <Form.Group controlId="clubRules" className="mb-3">
+            <Form.Label className="text-black fw-bold"> Club Rules & Guidelines</Form.Label>
+            <Form.Control
                 as="textarea"
                 rows={4}
-                placeholder="Enter club description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Define club rules and guidelines"
+                value={rules}
+                onChange={(e) => setRules(e.target.value)}
                 required
+                style={{ background: "rgba(255, 255, 255, 0.3)", color: "black" }}
+
               />
             </Form.Group>
 
             {/* Submit Button */}
             <Button 
-                 variant="primary"
+               variant="primary"
                   type="submit"
                   className="w-100 mt-3"
                   style={{
-                    background: "linear-gradient(135deg,rgb(29, 74, 223),rgb(28, 71, 212))",
+                    background: "linear-gradient(135deg, rgb(29, 74, 223), rgb(28, 71, 212))",
                     border: "none",
-                    padding: "10px 15px",
+                    padding: "12px 20px",
                     fontSize: "18px",
                     fontWeight: "bold",
-                    transition: "0.3s",
+                    borderRadius: "8px",
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                    transition: "transform 0.2s ease, box-shadow 0.3s ease",
                   }}
-                  onMouseOver={(e) => (e.target.style.opacity = "0.8")}
-                  onMouseOut={(e) => (e.target.style.opacity = "1")}
+                  onMouseOver={(e) => {
+                    e.target.style.transform = "scale(1.05)";
+                    e.target.style.boxShadow = "0px 6px 12px rgba(0, 0, 0, 0.3)";
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.transform = "scale(1)";
+                    e.target.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+                  }}
                 >
                   Create Club 🚀
                 </Button>

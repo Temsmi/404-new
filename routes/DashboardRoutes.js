@@ -42,8 +42,10 @@ export const DashboardMenu = [
 		children: [
 			{ id: uuid(), link: '/pages/profile', name: 'Club profile' },
 			{ id: uuid(), link: '/pages/requests', name: 'Activity requests'},
-			{ id: uuid(), link: '/pages/clubcreation', name: 'Club creation' }
-			
+			{ id: uuid(), link: '/pages/clubcreation', name: 'Club creation' },
+			{ id: uuid(), link: '/pages/clubrequests', name: 'Club requests' },
+			{ id: uuid(), link: '/pages/manageclubs', name: 'Manage Clubs' },
+			{ id: uuid(), link: '/pages/managepresident', name: 'Manage Clubs President' }			
 		]
 	},	
 	
