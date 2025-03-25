@@ -40,10 +40,10 @@ export const DashboardMenu = [
 		title: 'Clubs',
 		icon: 'layers',
 		children: [
-			{ id: uuid(), link: '/pages/profile', name: 'Club profile' },
-			{ id: uuid(), link: '/pages/settings', name: 'Activity requests'},
-			{ id: uuid(), link: '/pages/clubcreation', name: 'Club creation' }
-			
+			{ id: uuid(), link: '/pages/requests', name: 'Activity requests'},
+			{ id: uuid(), link: '/pages/clubcreation', name: 'Club creation' },
+			{ id: uuid(), link: '/pages/clubrequests', name: 'Club requests' },
+			{ id: uuid(), link: '/pages/manageclubs', name: 'Manage Clubs' },
 		]
 	},	
 	
@@ -51,7 +51,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Elections',
 		icon: 'lock',
-		link: '/layout-vertical'
+		link: '/elections'
 	},	
 	{
 		id: uuid(),
@@ -70,29 +70,6 @@ export const DashboardMenu = [
 		icon: 'info',
 		link: '/pages/help'
 	},	
-	/*{
-		id: uuid(),
-		title: 'Documentation',
-		grouptitle: true
-	},
-	{
-		id: uuid(),
-		title: 'Docs',
-		icon: 'clipboard',
-		link: '/documentation'
-	},
-	{
-		id: uuid(),
-		title: 'Changelog',
-		icon: 'git-pull-request',
-		link: '/changelog'
-	},
-	{
-		id: uuid(),
-		title: 'Download',
-		icon: 'download',
-		link: 'https://codescandy.gumroad.com/l/dashui-nextjs'
-	}*/
 ];
 
 export default DashboardMenu;

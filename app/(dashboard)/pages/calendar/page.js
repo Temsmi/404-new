@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Container, Form } from 'react-bootstrap';
+import { Container, Button, Modal, Form } from 'react-bootstrap';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -10,12 +10,12 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 const CalendarPage = () => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  // const [events, setEvents] = useState([]);
-  // const [showForm, setShowForm] = useState(false);
-  // const [selectedDate, setSelectedDate] = useState(null);
-  // const [eventTitle, setEventTitle] = useState('');
-  // const [selectedClub, setSelectedClub] = useState('');
-  // const [description, setDescription] = useState('');
+  const [events, setEvents] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [eventTitle, setEventTitle] = useState('');
+  const [selectedClub, setSelectedClub] = useState('');
+  const [description, setDescription] = useState('');
 
   const clubs = ['Club A', 'Club B', 'Club C'];
   const calendarRef = useRef(null);
@@ -25,8 +25,31 @@ const CalendarPage = () => {
     return Array.from({ length: 11 }, (_, i) => currentYear + i);
   };
 
+  // Handle date click (open modal)
+  const handleDateClick = (info) => {
+    setSelectedDate(info.dateStr);
+    setShowForm(true);
+  };
+
   // Handle form submission
-  
+  const handleAddEvent = () => {
+    if (!eventTitle || !selectedClub) {
+      alert('Please fill in all fields!');
+      return;
+    }
+
+    const newEvent = {
+      title: `${eventTitle} (${selectedClub})`,
+      start: selectedDate,
+      description: description,
+    };
+
+    setEvents([...events, newEvent]);
+    setShowForm(false);
+    setEventTitle('');
+    setSelectedClub('');
+    setDescription('');
+  };
 
   // Navigate to selected year without resetting to January
   const handleYearChange = (e) => {
@@ -59,7 +82,50 @@ const CalendarPage = () => {
         </Form.Select>
       </div>
 
-           {/* FullCalendar Component */}
+      {/* Event Modal */}
+      <Modal show={showForm} onHide={() => setShowForm(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Event</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Event Title</Form.Label>
+              <Form.Control
+                type="text"
+                value={eventTitle}
+                onChange={(e) => setEventTitle(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Club</Form.Label>
+              <Form.Select value={selectedClub} onChange={(e) => setSelectedClub(e.target.value)}>
+                <option value="">Select Club</option>
+                {clubs.map((club) => (
+                  <option key={club} value={club}>
+                    {club}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowForm(false)}>Close</Button>
+          <Button variant="primary" onClick={handleAddEvent}>Add Event</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* FullCalendar Component */}
       <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
         <FullCalendar
           ref={calendarRef}
@@ -75,9 +141,9 @@ const CalendarPage = () => {
           editable={true}
           selectable={true}
           selectMirror={true}
-          // events={events}
+          events={events}
           height="auto"
-          // dateClick={handleDateClick}
+          dateClick={handleDateClick}
         />
       </div>
     </Container>

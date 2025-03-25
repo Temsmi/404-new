@@ -8,12 +8,11 @@ import { Container, Col, Row } from 'react-bootstrap';
 import { StatRightTopIcon } from "widgets";
 
 // import sub components
-import { ActiveProjects, Teams, 
-    TasksPerformance,  
+import { ActiveProjects
 } from "sub-components";
 
 // import required data files
-import ProjectsStatsData from "data/dashboard/ProjectsStatsData";
+import DashCards from "data/dashboard/DashCards";
 
 const Home = () => {
     return (
@@ -30,12 +29,12 @@ const Home = () => {
                                     <h3 className="mb-0  text-white">Welcome, Admin!</h3>
                                 </div>
                                 <div>
-                                    <Link href="#" className="btn btn-white">Create New Club</Link>
+                                    <Link href="/pages/clubcreation" className="btn btn-white">Create New Club</Link>
                                 </div>
                             </div>
                         </div>
                     </Col>
-                    {ProjectsStatsData.map((item, index) => {
+                    {DashCards.map((item, index) => {
                         return (
                             <Col xl={3} lg={6} md={12} xs={12} className="mt-6" key={index}>
                                 <StatRightTopIcon info={item} />
