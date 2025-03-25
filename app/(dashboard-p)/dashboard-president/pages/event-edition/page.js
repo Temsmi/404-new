@@ -1,8 +1,7 @@
-'use client'
+'use client';
 
-// Import necessary libraries
 import { useState } from 'react';
-import { Container, Form, Button } from 'react-bootstrap';
+import { Container, Form, Button, Alert } from 'react-bootstrap';
 
 const EditEventForm = () => {
     const [eventData, setEventData] = useState({
@@ -32,7 +31,21 @@ const EditEventForm = () => {
     return (
         <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
             <div className="p-4" style={{ width: '500px' }}>
-                <h3 className="mb-4 text-center">Edit Event</h3>
+                <h3 className="mb-3 text-center">Edit Event</h3>
+
+                {/* Message Box for Requirements */}
+                <Alert variant="info" className="text-center">
+                    <strong>Requirements for Editing:</strong>
+                    <ul className="mb-0 text-start">
+                        <li>Ensure the event name is clear and concise.</li>
+                        <li>Provide a detailed description of the event.</li>
+                        <li>Set the correct event date.</li>
+                        <li>Upload an updated image if necessary.</li>
+                        <li>Confirm whether post-feedback is needed.</li>
+                        <li>Include a valid Zoom link if applicable.</li>
+                    </ul>
+                </Alert>
+
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
                         <Form.Label>Event Name</Form.Label>
