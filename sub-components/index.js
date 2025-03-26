@@ -4,7 +4,7 @@
  */
 
 // sub components for /pages/dashboard
-import ActiveProjects from 'sub-components/dashboard/ActiveProjects';
+import ClubsTable from 'sub-components/dashboard/ClubsTable';
 import TasksPerformance from 'sub-components/dashboard/TasksPerformance';
 import Teams from 'sub-components/dashboard/Teams';
 
@@ -29,7 +29,7 @@ import Preferences from 'sub-components/settings/Preferences';
 
 
 export {
-   ActiveProjects,
+   ClubsTable,
    TasksPerformance,
    Teams,
    

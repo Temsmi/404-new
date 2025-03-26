@@ -7,20 +7,26 @@ import { Container, Col, Row } from 'react-bootstrap';
 // import widget/custom components
 import { StatRightTopIcon } from "widgets";
 
-// import sub components
-import { ActiveProjects
-} from "sub-components";
-
 // import required data files
 import DashCards from "data/dashboard/DashCards";
+import ClubsTable from 'sub-components/dashboard/ClubsTable';
+import { useEffect, useState } from 'react';
 
 const Home = () => {
+    const [clubs, setClubs] = useState([]);
+    
+    useEffect(() => {
+        fetch("api/club") //For fetching from database
+            .then((res) => res.json())
+            .then((data) => setClubs(data))
+            .catch((error) => console.error("Fetch error:", error));
+    }, []);
+    
     return (
         <Fragment>
             <div className="bg-primary pt-10 pb-21"></div>
             <Container fluid className="mt-n22 px-6">
                 <Row>
-                
                     <Col lg={12} md={12} xs={12}>
                         {/* Page header */}
                         <div>
@@ -43,26 +49,10 @@ const Home = () => {
                     })}
                 </Row>
 
-                {/* Active Projects  */}
-                <ActiveProjects />
-
-                <Row className="my-6">
-                    <Col xl={4} lg={12} md={12} xs={12} className="mb-6 mb-xl-0">
-
-                        {/* Tasks Performance  */}
-                       {/* <TasksPerformance />*/}
-
-                    </Col>
-                    {/* card  */}
-                    <Col xl={8} lg={12} md={12} xs={12}>
-
-                        {/* Teams  */}
-                        {/*<Teams />*/}
-
-                    </Col>
-                </Row>
+                {/* Clubs Table */}
+                <ClubsTable clubs={clubs} />
             </Container>
         </Fragment>
-    )
+    );
 }
 export default Home;
