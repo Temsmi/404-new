@@ -37,10 +37,17 @@ export const DashboardMenu = [
 	},
 	{
 		id: uuid(),
+		title: 'Club profile',
+		icon: 'hands',
+		link: '/dashboard-president/pages/club-profile'
+	},	
+	{
+		id: uuid(),
 		title: 'Events',
 		icon: 'layers',
 		children: [
 			{ id: uuid(), link: '/dashboard-president/pages/events', name: 'Event Logs' },
+			{ id: uuid(), link: '/dashboard-president/pages/event-creation', name: 'Create Event'},
 			{ id: uuid(), link: '/dashboard-president/pages/announcement', name: 'Create Announcement'}
 			
 		]

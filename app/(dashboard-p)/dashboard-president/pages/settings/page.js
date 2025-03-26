@@ -78,7 +78,7 @@ const CombinedProfileSettings = () => {
           <EmailSetting />
 
           {/* Settings for Preferences */}
-          <Preferences />
+          {/* <Preferences /> */}
 
           {/* Delete Your Account */}
           <DeleteAccount />
