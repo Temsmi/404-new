@@ -6,7 +6,7 @@ const ClubCreationForm = () => {
   const [clubName, setClubName] = useState('');
   const [description, setDescription] = useState('');
   const [logo, setLogo] = useState(null);
-  const [rules, setRules] = useState(''); 
+  //const [rules, setRules] = useState(''); 
 
   const handleImageUpload = (event) => {
     setLogo(event.target.files[0]);
@@ -20,7 +20,7 @@ const ClubCreationForm = () => {
     const formData = new FormData();
     formData.append('clubName', clubName);
     formData.append('description', description);
-    formData.append('rules', rules);
+    //formData.append('rules', rules);
     if (logo) {
       formData.append('clubLogo', logo);
     }
@@ -111,19 +111,7 @@ const ClubCreationForm = () => {
                   />
                 </Form.Group>
 
-                {/* Club Rules */}
-                <Form.Group controlId="clubRules" className="mb-3">
-                  <Form.Label className="text-black fw-bold"> Club Rules & Guidelines</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={4}
-                    placeholder="Define club rules and guidelines"
-                    value={rules}
-                    onChange={(e) => setRules(e.target.value)}
-                    required
-                    style={{ background: "rgba(255, 255, 255, 0.3)", color: "black" }}
-                  />
-                </Form.Group>
+     
 
                 {/* Submit Button */}
                 <Button

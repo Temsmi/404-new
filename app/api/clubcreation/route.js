@@ -9,7 +9,7 @@ export async function POST(req) {
         const formData = await req.formData();
         const clubName = formData.get('clubName');
         const description = formData.get('description');
-        const rules = formData.get('rules');
+       // const rules = formData.get('rules');
         const file = formData.get('clubLogo');
 
         let filePath = null;
@@ -28,13 +28,13 @@ export async function POST(req) {
 
         // Insert club data into the database
         const query = `
-            INSERT INTO club (name, logo, description, rules)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO club (name, logo, description)
+            VALUES (?, ?, ?)
         `;
 
         await conn({
             query,
-            values: [clubName, filePath, description, rules]
+            values: [clubName, filePath, description]
         });
 
         return NextResponse.json({ message: 'Club created successfully!' });
