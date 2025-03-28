@@ -9,14 +9,14 @@ const feedbackData = [
   { id: 3, name: 'Charlie', category: 'Facilities', feedback: 'Gym equipment needs maintenance.', status: 'Resolved' },
 ];
 
-const getStatusBadge = (status) => {
+/*const getStatusBadge = (status) => {
   switch (status) {
     case 'Open': return <Badge bg="primary">Open</Badge>;
     case 'In Progress': return <Badge bg="warning">In Progress</Badge>;
     case 'Resolved': return <Badge bg="success">Resolved</Badge>;
     default: return <Badge bg="secondary">Unknown</Badge>;
   }
-};
+};*/
 
 export default function MemberFeedback() {
   const [feedbacks, setFeedbacks] = useState(feedbackData);
@@ -42,7 +42,7 @@ export default function MemberFeedback() {
             <th>Name</th>
             <th>Category</th>
             <th>Feedback</th>
-            <th>Status</th>
+            
             <th className="text-center">Action</th>
           </tr>
         </thead>
@@ -52,7 +52,7 @@ export default function MemberFeedback() {
               <td>{feedback.name}</td>
               <td>{feedback.category}</td>
               <td>{feedback.feedback}</td>
-              <td>{getStatusBadge(feedback.status)}</td>
+             
               <td className="text-center">
                 <Button variant="info" size="sm" onClick={() => handleViewFeedback(feedback)}>View</Button>
               </td>
@@ -70,7 +70,7 @@ export default function MemberFeedback() {
             <p><strong>Name:</strong> {selectedFeedback.name}</p>
             <p><strong>Category:</strong> {selectedFeedback.category}</p>
             <p><strong>Feedback:</strong> {selectedFeedback.feedback}</p>
-            <p><strong>Status:</strong> {getStatusBadge(selectedFeedback.status)}</p>
+            
             <Form>
               <Form.Group>
                 <Form.Label>Response</Form.Label>
