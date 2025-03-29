@@ -1,0 +1,74 @@
+.signIn {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('/images/background/newactivity.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.26); // Dark overlay
+    background-attachment: fixed;
+    background-size: cover;
+    backdrop-filter: blur(8px); // More blur for a stronger glass effect
+    z-index: 0;
+    overflow-y: auto;
+  }
+  
+  .card {
+    background: rgba(90, 85, 85, 0.49); // Glassmorphism effect
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(54, 52, 52, 0.77); // Subtle border
+    border-radius: 12px;
+    color: #f5f5dc; // Beige text
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .cardUp {
+    background: rgba(90, 85, 85, 0.49); // Glassmorphism effect
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(54, 52, 52, 0.77); // Subtle border
+    border-radius: 12px;
+    color: #f5f5dc; // Beige text
+    width: 100%;
+    max-width: 550px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .label {
+    color: #f5f5dc; // Beige text for form labels
+  }
+  .link{
+    color :aqua;
+  }
+  .pageContainer {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+  

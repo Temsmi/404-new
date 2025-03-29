@@ -7,11 +7,6 @@ import { Container, Col, Row } from 'react-bootstrap';
 // import widget/custom components
 import { StatRightTopIcon } from "widgets";
 
-// import sub components
-import { ActiveProjects, Teams, 
-    TasksPerformance, SalesOverview,
-} from "sub-components";
-
 
 // import required data files
 import DashCards_president from "data/dashboard/DashCards_president";
@@ -45,27 +40,13 @@ const Home = () => {
                     })}
                 </Row>
 
-                {/* Trends and Metrics  */}
-               {/* <SalesOverview /> */}
-                
-                {/* Active Projects  */}
                 <MembersInfo />
                 
                 <Row className="my-6">
                     <Col xl={4} lg={12} md={12} xs={12} className="mb-6 mb-xl-0">
 
-                        {/* Tasks Performance  */}
-                        {/* <TasksPerformance /> */}
-
                     </Col>
-                    {/* card  */}
-                    <Col xl={8} lg={12} md={12} xs={12}>
-
-                        {/* Teams  */}
-                        {/* <Teams /> */}
-
-                    </Col>
-                </Row>
+                  </Row>
             </Container>
         </Fragment>
     )
