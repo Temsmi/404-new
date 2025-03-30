@@ -25,8 +25,9 @@ export async function POST(req) {
                 fs.mkdirSync(uploadDir, { recursive: true });
             }
 
-            const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
-            filePath = `/images/ClubsLogo/${fileName}`;
+            const fileName = file.name.replace(/^\d+-/, '').replace(/\s/g, '_');
+
+            filePath = `${fileName}`;
 
             await writeFile(path.join(uploadDir, fileName), buffer);
         }
