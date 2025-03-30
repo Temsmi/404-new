@@ -2,16 +2,24 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Image } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Table } from 'react-bootstrap';
+import Image from "next/image";
 
 const ManageClubs = () => {
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedClub, setSelectedClub] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    logo: ''
+  });
 
   useEffect(() => {
     const fetchClubs = async () => {
       try {
-        const res = await fetch('/api/clubs');
+        const res = await fetch('/api/club');
         const data = await res.json();
         setClubs(data);
         setLoading(false);
@@ -20,28 +28,71 @@ const ManageClubs = () => {
         setLoading(false);
       }
     };
-    
+
     fetchClubs();
   }, []);
 
-  const handleEdit = (id) => {
-    alert(` Edit Club: ${id}`);
+  const handleEdit = (club) => {
+    setSelectedClub(club);
+    setFormData({
+      name: club.name,
+      description: club.description,
+      logo: club.logo,
+    });
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`/api/club`, { // Ensure this matches your API endpoint
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedClub.id, // Include the club ID
+          name: formData.name,
+          description: formData.description,
+          logo: formData.logo
+        }),
+      });
+
+      if (res.ok) {
+        const updatedClub = await res.json(); // Get the updated club data from the response
+        alert('Club Updated!');
+        setClubs(clubs.map(club => (club.id === updatedClub.id ? updatedClub : club))); // Update the state with the new data
+        setIsEditing(false); // Exit editing mode
+        setSelectedClub(null); // Clear selected club
+      } else {
+        console.error('Failed to update club:', res.statusText);
+      }
+    } catch (error) {
+      console.error('Error updating club:', error);
+    }
   };
 
   const handleDeactivate = async (id) => {
     try {
-      const res = await fetch(`/api/clubs/${id}`, {
+      const res = await fetch(`/api/club/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'inactive' }),
+        body: JSON.stringify({ description: 'This club has been Deactivated' }),
       });
       if (res.ok) {
-        alert(' Club Deactivated!');
-        setClubs(clubs.map(club => club.id === id ? { ...club, status: 'inactive' } : club));
+        alert('Club Deactivated!');
+        setClubs(clubs.map(club => club.id === id ? { ...club, description: 'This club has been Deactivated' } : club));
+      } else {
+        console.error('Failed to deactivate club:', res.statusText);
       }
     } catch (error) {
       console.error('Error deactivating club:', error);
     }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
@@ -52,60 +103,121 @@ const ManageClubs = () => {
         </Col>
         <Col className="text-end">
           <Link href="/pages/managepresident">
-            <Button
-              variant="dark"
-              style={{
-                background: "#0d6efd",
-                border: "none",
-                padding: "10px 20px",
-                fontSize: "16px",
-                
-                transition: "0.3s ease-in-out",
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.background = "#084298")}
-              onMouseOut={(e) => (e.currentTarget.style.background = "#0d6efd")}
-            >
-              Manage Presidents
-            </Button>
+            <Button variant="dark">Manage Presidents</Button>
           </Link>
         </Col>
       </Row>
 
-      <Row>
-        {loading ? (
-          <p className="text-black">Loading clubs...</p>
-        ) : clubs.length > 0 ? (
-          clubs.map((club) => (
-            <Col md={6} key={club.id} className="mb-4">
-              <Card className="p-3 shadow-lg text-center"
-                style={{
-                  background: "rgba(255, 255, 255, 0.25)",
-                  backdropFilter: "blur(8px)",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(255, 255, 255, 0.4)",
-                  boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)",
-                  transition: "0.3s",
-                }}
-                onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
-              >
-                <Card.Body>
-                  <Image src={club.logo} alt="Club Logo" width={80} height={80} className="mb-3" />
-                  <h5 className="mb-2 text-black">{club.name}</h5>
-                  <p className="text-black">{club.description}</p>
-                  <p className="text-black">Status: {club.status}</p>
-                  <div className="d-flex justify-content-around mt-3">
-                    <Button variant="primary" onClick={() => handleEdit(club.id)}> Edit</Button>
-                    <Button variant="warning" onClick={() => handleDeactivate(club.id)}> Deactivate</Button>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))
-        ) : (
-          <h5 className="text-black mt-4">No clubs available.</h5>
-        )}
-      </Row>
+      {/* Club Edit Form */}
+      {isEditing && selectedClub ? (
+        <Row>
+          <Col md={12}>
+            <Card className="p-4 shadow-lg text-center">
+              <Card.Body>
+                <h3>Edit Club</h3>
+                <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                  <Form.Group controlId="formName">
+                    <Form.Label>Club Name</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="formDescription">
+                    <Form.Label>Club Description</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="formLogo">
+                    <Form.Label>Club Logo URL</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="logo"
+                      value={formData.logo}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+                  <Button variant="success" type="submit" className="mt-3">
+                    Save Changes
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setIsEditing(false)}
+                    className="mt-3 ms-2"
+                  >
+                    Cancel
+                  </Button>
+                </Form>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      ) : (
+        // Clubs Display in Table
+        <Row className="mt-6">
+          <Col md={12} xs={12}>
+            <Card>
+              <Card.Header className="bg-white py-4">
+                <h4 className="mb-0">All Clubs</h4>
+              </Card.Header>
+              <Table responsive hover className="text-nowrap mb-0">
+                <thead className="table-light">
+                  <tr className="border-b">
+                    <th>NAME</th>
+                    <th>PRESIDENT</th>
+                    <th>MEMBERS</th>
+                    <th>ACTIONS</th> {/* Added Actions column */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="4" className="text-center">Loading clubs...</td>
+                    </tr>
+                  ) : clubs.length > 0 ? (
+                    clubs.map((club, index) => (
+                      <tr key={index}>
+                        <td className="align-middle">
+                          <div className="d-flex align-items-center">
+                            <div>
+                              <Image src={`/images/ClubsLogo/${club.logo}`} alt={club.name} width={20} height={20} unoptimized loading="eager" className="border p-4 rounded-1" />
+                            </div>
+                            <div className="ms-3 lh-1">
+                              <h5 className="mb-1">
+                                <Link href="#" className="text-inherit">{club.name}</Link>
+                              </h5>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="align-middle">{club.president_name || 'N/A'}</td>
+                        <td className="align-middle">{club.member_count}</td>
+                        <td className="text-center">
+                          <Button variant="primary" onClick={() => handleEdit(club)} className="me-2">Edit</Button>
+                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="text-center">No clubs available.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+              <Card.Footer className="bg-white text-center">
+                <Link href="/pages/profile" className="link-primary">View All Clubs</Link>
+              </Card.Footer>
+            </Card>
+          </Col>
+        </Row>
+      )}
     </Container>
   );
 };
