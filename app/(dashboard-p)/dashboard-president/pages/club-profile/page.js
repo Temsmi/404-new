@@ -4,28 +4,14 @@ import { useState, useRef, useEffect } from 'react';
 import { Container, Row, Col, Button, Form, Card } from 'react-bootstrap';
 
 const ClubDescription = () => {
-    const [clubData, setClubData] = useState(null);  // Initialize as null for better loading state
+    const [clubData, setClubData] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         fetch("/api/clubprofile")
             .then((res) => res.json())
             .then((data) => {
-                console.log("Fetched Data:", data);  // Log API response
-
-                if (!data) {
-                    console.error("API response is empty:", data);
-                    return;
-                }
-
-                // Assuming the response is an object, not an array
-                const club = data;  // Directly use the object since it isn't an array
-                if (!club) {
-                    console.error("Club data not found in API response:", data);
-                    return;
-                }
-
-                setClubData(club);  // Set the club data directly
+                if (data) setClubData(data);
             })
             .catch((error) => console.error("Fetch error:", error));
     }, []);
@@ -44,28 +30,61 @@ const ClubDescription = () => {
         setClubData({ ...clubData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/api/upload", {
+            method: "POST",
+            body: formData
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.url) {
+                setClubData({ ...clubData, logo: data.url });
+            }
+        })
+        .catch((error) => console.error("File upload error:", error));
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsEditing(false);
-        console.log('Updated Club Data:', clubData);
+
+        try {
+            const response = await fetch('/api/clubprofile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clubData),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert('Club updated successfully!');
+                setIsEditing(false);
+            } else {
+                alert('Error updating club: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Update error:', error);
+        }
     };
 
     return (
         <Container className="py-5">
-            {clubData ? (  // If data exists, show club info
+            {clubData ? (
                 <Row className="align-items-center">
-                    {/* Club Logo */}
                     <Col md={4} className="text-center">
                         <img
-                            src={`/images/ClubsLogo/${clubData.logo}`}  // Fix path
+                            src={clubData.logo ? `/images/ClubsLogo/${clubData.logo}` : "/images/default-logo.png"}
                             alt="Club Logo"
                             className="img-fluid rounded"
                             style={{ maxWidth: '300px' }}
-                            onError={(e) => e.target.src = "/images/default-logo.png"}  // Handle broken image
+                            onError={(e) => e.target.src = "/images/default-logo.png"}
                         />
                     </Col>
-
-                    {/* Club Info */}
                     <Col md={8}>
                         <Card className="p-4 shadow-sm" style={{ textAlign: 'left', maxWidth: '600px' }}>
                             <h2 className="mb-3">{clubData.name}</h2>
@@ -78,10 +97,9 @@ const ClubDescription = () => {
                     </Col>
                 </Row>
             ) : (
-                <p className="text-center">Loading Club Data...</p>  // Handle empty state
+                <p className="text-center">Loading Club Data...</p>
             )}
 
-            {/* Edit Section */}
             {isEditing && (
                 <div ref={editRef} className="mx-auto mt-4" style={{ maxWidth: '700px'}}>
                     <h4 className="text-center mb-3" style={{ marginTop: '55px' }}>Edit Club Information</h4>
@@ -113,7 +131,7 @@ const ClubDescription = () => {
                             <Form.Label>Club Logo</Form.Label>
                             <Form.Control
                                 type="file"
-                                onChange={(e) => setClubData({ ...clubData, logo: URL.createObjectURL(e.target.files[0]) })}
+                                onChange={handleFileChange}
                             />
                         </Form.Group>
 
