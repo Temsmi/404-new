@@ -173,7 +173,6 @@ const ManageClubs = () => {
                     <th>NAME</th>
                     <th>PRESIDENT</th>
                     <th>MEMBERS</th>
-                    <th>ACTIONS</th> {/* Added Actions column */}
                   </tr>
                 </thead>
                 <tbody>
@@ -200,7 +199,7 @@ const ManageClubs = () => {
                         <td className="align-middle">{club.member_count}</td>
                         <td className="text-center">
                           <Button variant="primary" onClick={() => handleEdit(club)} className="me-2">Edit</Button>
-                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
+                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Desactivate</Button>
                         </td>
                       </tr>
                     ))
