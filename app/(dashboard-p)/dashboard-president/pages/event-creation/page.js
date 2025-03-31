@@ -1,18 +1,17 @@
 'use client'
 
-// Import necessary libraries
 import { useState } from 'react';
 import { Container, Form, Button } from 'react-bootstrap';
 
 const EventCreationForm = () => {
     const [eventData, setEventData] = useState({
         eventName: '',
-        eventDesc: '',
-        eventDate: '',
-        eventImage: null,
-        includeFeedback: 'no',
+        description: '',
+        dateSelected: '',
+        isPostFeedback: 'no',
         zoomMeeting: 'no',
-        zoomLink: ''
+        zoomLink: '',
+        eventImage: null
     });
 
     const handleChange = (e) => {
@@ -24,9 +23,39 @@ const EventCreationForm = () => {
         setEventData({ ...eventData, eventImage: e.target.files[0] });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Event Data:', eventData);
+        
+        const formData = new FormData();
+        formData.append('eventName', eventData.eventName);
+        formData.append('description', eventData.description);
+        formData.append('dateSelected', eventData.dateSelected);
+        formData.append('isPostFeedback', eventData.isPostFeedback === 'yes' ? 'true' : 'false');
+        formData.append('zoomLink', eventData.zoomMeeting === 'yes' ? eventData.zoomLink : '');
+
+        if (eventData.eventImage) {
+            formData.append('eventImage', eventData.eventImage);
+        }
+
+        const response = await fetch('/api/eventcreation', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            alert('Event created successfully!');
+            setEventData({
+                eventName: '',
+                description: '',
+                dateSelected: '',
+                isPostFeedback: 'no',
+                zoomMeeting: 'no',
+                zoomLink: '',
+                eventImage: null
+            });
+        } else {
+            alert('Failed to create event.');
+        }
     };
 
     return (
@@ -49,8 +78,8 @@ const EventCreationForm = () => {
                         <Form.Label>Event Description</Form.Label>
                         <Form.Control
                             as="textarea"
-                            name="eventDesc"
-                            value={eventData.eventDesc}
+                            name="description"
+                            value={eventData.description}
                             onChange={handleChange}
                             rows={3}
                             required
@@ -61,21 +90,21 @@ const EventCreationForm = () => {
                         <Form.Label>Event Date</Form.Label>
                         <Form.Control
                             type="date"
-                            name="eventDate"
-                            value={eventData.eventDate}
+                            name="dateSelected"
+                            value={eventData.dateSelected}
                             onChange={handleChange}
                             required
                         />
                     </Form.Group>
-
-                    <Form.Group className="mb-3">
+                    
+                   <Form.Group className="mb-3">
                         <Form.Label>Event Image (Optional)</Form.Label>
                         <Form.Control
                             type="file"
                             name="eventImage"
                             onChange={handleFileChange}
                         />
-                    </Form.Group>
+                    </Form.Group> 
 
                     <Form.Group className="mb-3">
                         <Form.Label>Include Post-Feedback?</Form.Label>
@@ -84,18 +113,18 @@ const EventCreationForm = () => {
                                 inline
                                 label="Yes"
                                 type="radio"
-                                name="includeFeedback"
+                                name="isPostFeedback"
                                 value="yes"
-                                checked={eventData.includeFeedback === 'yes'}
+                                checked={eventData.isPostFeedback === 'yes'}
                                 onChange={handleChange}
                             />
                             <Form.Check
                                 inline
                                 label="No"
                                 type="radio"
-                                name="includeFeedback"
+                                name="isPostFeedback"
                                 value="no"
-                                checked={eventData.includeFeedback === 'no'}
+                                checked={eventData.isPostFeedback === 'no'}
                                 onChange={handleChange}
                             />
                         </div>
