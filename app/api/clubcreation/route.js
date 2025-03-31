@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 import { writeFile } from 'fs/promises';
 import path from 'path';
+import fs from 'fs';
 
 // Function to handle form data submission
 export async function POST(req) {
@@ -9,24 +10,29 @@ export async function POST(req) {
         const formData = await req.formData();
         const clubName = formData.get('clubName');
         const description = formData.get('description');
-       // const rules = formData.get('rules');
         const file = formData.get('clubLogo');
 
         let filePath = null;
 
-        // Handle file upload if a file is provided
+        // Check if file exists
         if (file) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
             const uploadDir = path.join(process.cwd(), 'public/images/ClubsLogo');
-            const fileName = `${Date.now()}-${file.name}`;
+
+            // Ensure directory exists
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+
+            const fileName = file.name.replace(/^\d+-/, '').replace(/\s/g, '_');
+
             filePath = `${fileName}`;
 
-            // Save the file to the 'public/uploads' directory
             await writeFile(path.join(uploadDir, fileName), buffer);
         }
 
-        // Insert club data into the database
+        // Insert into the database
         const query = `
             INSERT INTO club (name, logo, description)
             VALUES (?, ?, ?)
@@ -37,7 +43,8 @@ export async function POST(req) {
             values: [clubName, filePath, description]
         });
 
-        return NextResponse.json({ message: 'Club created successfully!' });
+        return NextResponse.json({ message: 'Club created successfully!' }, { status: 200 });
+
     } catch (error) {
         console.error("Database error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });

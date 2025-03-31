@@ -1,23 +1,44 @@
+.fullPage {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+}
 
-.chatContainer {
-    max-width: 600px;
-    background: white;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    padding: 20px;
-  }
-  
-  .pageContainer {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f8f9fa;
-  }
-  
-  .title {
-    text-align: center;
-    color: #007bff;
-    margin-bottom: 1rem;
-  }
-  
+.chatWrapper {
+  width: 90%;
+  max-width: 1200px;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.inputField {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.selectAllCheckbox {
+  margin-bottom: 15px;
+}
+
+.tableWrapper {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.startChatButton {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
