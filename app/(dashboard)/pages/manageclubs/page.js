@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Table } from 'react-bootstrap';
 import Image from "next/image";
 
+
 const ManageClubs = () => {
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -185,7 +186,7 @@ const ManageClubs = () => {
                       <tr key={index}>
                         <td className="align-middle">
                           <div className="d-flex align-items-center">
-                            <div>
+                          <div>
                               <Image src={`/images/ClubsLogo/${club.logo}`} alt={club.name} width={20} height={20} unoptimized loading="eager" className="border p-4 rounded-1" />
                             </div>
                             <div className="ms-3 lh-1">
