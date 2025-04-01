@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 // Import required modules
 import { useState, useEffect } from 'react';
@@ -35,8 +35,10 @@ const ClubRequests = () => {
       });
 
       if (res.ok) {
-        alert(` Club Request ${action}d!`);
+        alert(`Club Request ${action}d!`);
         setRequests(requests.filter(request => request.id !== id));
+      } else {
+        console.error('Failed to process request:', res.statusText);
       }
     } catch (error) {
       console.error(`Error ${action}ing request:`, error);
@@ -59,7 +61,7 @@ const ClubRequests = () => {
                 padding: "40px",
               }}
             >
-              <h2 className="text-black font-weight-bold mb-4">📋 Club Requests</h2>
+              <h2 className="text-black font-weight-bold mb-4"> Club Requests</h2>
               {loading ? (
                 <p className="text-black">Loading requests...</p>
               ) : requests.length > 0 ? (
@@ -83,7 +85,6 @@ const ClubRequests = () => {
                           <h5 className="mb-2 text-black">{request.name}</h5>
                           <p className="text-black">{request.description}</p>
                           <div className="d-flex justify-content-around mt-3">
-                          <Button variant="success" onClick={() => handleAction(request.id, 'viewalldetails')}>View All Details</Button>
                             <Button variant="success" onClick={() => handleAction(request.id, 'approve')}>Approve</Button>
                             <Button variant="danger" onClick={() => handleAction(request.id, 'reject')}>Reject</Button>
                           </div>
