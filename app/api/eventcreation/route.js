@@ -24,6 +24,7 @@ export async function POST(req) {
         const dateSelected = formData.get('dateSelected');
         const isPostFeedback = formData.get('isPostFeedback') === 'true' ? 1 : 0;
         const zoomLink = formData.get('zoomLink') || null;
+        const feedback = formData.get('feedback') || null;  // New feedback field
         const imageFile = formData.get('eventImage');
         const clubId = 15;
 
@@ -53,14 +54,14 @@ export async function POST(req) {
 
         // SQL query to insert the event data
         const query = `
-            INSERT INTO event1 (club_id, date_name, description, date_selected, is_postfeedback, zoom_link, image)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO event1 (club_id, date_name, description, date_selected, is_postfeedback, zoom_link, image, feedback)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         // Execute the database query
         await conn({
             query,
-            values: [clubId, eventName, description, dateSelected, isPostFeedback, zoomLink, imageUrl]
+            values: [clubId, eventName, description, dateSelected, isPostFeedback, zoomLink, imageUrl, feedback]
         });
 
         // Return a successful response

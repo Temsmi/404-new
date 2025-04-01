@@ -1,37 +1,162 @@
 'use client'
-// import node module libraries
-import { Container } from 'react-bootstrap';
 
-// import widget as custom components
-import { PageHeading } from 'widgets'
+import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button, Form, Image, Modal } from 'react-bootstrap';
 
-// import sub components
-import { Notifications, DeleteAccount, GeneralSetting, EmailSetting, Preferences } from 'sub-components'
+// Helper function to format date
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
 
-const Settings = () => {
+const ActivityRequests = () => {
+  const [requests, setRequests] = useState([]);
+  const [denyReasons, setDenyReasons] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
+  // Fetch data from API on component mount
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await fetch('/api/activityrequests');
+        const data = await res.json();
+        console.log("Fetched data:", data);
+
+        const requestsData = Array.isArray(data) ? data : [data]; // Wrap in array if it's not already
+        setRequests(requestsData);
+      } catch (error) {
+        console.error('Error fetching activity requests:', error);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  const handleApprove = async (id) => {
+    try {
+      // Send PUT request to update approval status to true
+      const res = await fetch(`/api/activityrequests/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,
+          status: true, // Set status to approved
+          feedback: null, // No feedback for approval
+        }),
+      });
+      const updatedRequest = await res.json();
+      // Update UI with the new status
+      setRequests(requests.map(req => req.id === id ? { ...req, status: "approved" } : req));
+    } catch (error) {
+      console.error('Error approving request:', error);
+    }
+  };
+
+  const handleOpenDenyModal = (request) => {
+    setSelectedRequest(request);
+    setShowModal(true);
+  };
+
+  const handleDeny = async () => {
+    if (selectedRequest && denyReasons[selectedRequest.id]) {
+      try {
+        // Send PUT request to update approval status to false and feedback
+        const res = await fetch(`/api/activityrequests/${selectedRequest.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: selectedRequest.id,
+            status: false, // Denied status
+            feedback: denyReasons[selectedRequest.id], // Set feedback reason
+          }),
+        });
+        const updatedRequest = await res.json();
+        // Update UI with the new status and feedback
+        setRequests(requests.map(req => req.id === selectedRequest.id ? { ...req, status: "denied", reason: denyReasons[selectedRequest.id] } : req));
+        setShowModal(false);
+      } catch (error) {
+        console.error('Error denying request:', error);
+      }
+    }
+  };
+
+  const handleReasonChange = (id, value) => {
+    setDenyReasons({ ...denyReasons, [id]: value });
+  };
+
   return (
-    <Container fluid className="p-6">
+    <Container className="py-5">
+      <Row className="justify-content-center">
+        <Col md={8}>
+          <h2 className="text-center mb-4">Activity Requests</h2>
+          {requests.length === 0 ? (
+            <p>No requests available.</p>
+          ) : (
+            requests.map((req) => (
+              <Card key={req.id} className="mb-3 shadow-sm">
+                <Card.Body>
+                  <Row>
+                    <Col md={4} className="d-flex align-items-center">
+                      <Image src={req.image} alt={req.title} fluid rounded />
+                    </Col>
+                    <Col md={8}>
+                      <h4>{req.title}</h4>
+                      <p className="text-muted">Created by: {req.createdBy}</p>
+                      <p><strong>Club:</strong> {req.clubName}</p>
+                      <p><strong>Date:</strong> {formatDate(req.date)}</p> {/* Display formatted date */}
+                      <p><strong>Description:</strong> {req.description}</p>
+                      <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p> {/* Display Zoom link or "No Link" */}
+                      <p><strong>Post Feedback:</strong> {req.hasFeedback ? "Included" : "Not Included"}</p>
+                      <p className={`fw-bold ${req.status === 'approved' ? 'text-success' : req.status === 'denied' ? 'text-danger' : 'text-warning'}`}>
+                        Status: {req.status === 1 ? "Approved" : req.status === 0 ? "Pending" : "Denied"}
+                      </p>
+                      {req.status === 0 && (  // Show buttons only for "pending" requests
+                        <div className="d-flex gap-2">
+                          <Button variant="success" onClick={() => handleApprove(req.id)}>Approve</Button>
+                          <Button variant="danger" onClick={() => handleOpenDenyModal(req)}>Deny</Button>
+                        </div>
+                      )}
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            ))
+          )}
+        </Col>
+      </Row>
 
-      {/* Page Heading */}
-      <PageHeading heading="General" />
-
-      {/* General Settings */}
-      <GeneralSetting />
-
-      {/* Email Settings */}
-      {/* // DONE ... <EmailSetting /> */}
-
-      {/* Settings for Preferences */}
-      {/* // DONE ...<Preferences /> */}
-
-      {/* Settings for Notifications */}
-      {/* <Notifications /> */}
-
-      {/* Delete Your Account */}
-      <DeleteAccount />
-
+      {/* Deny Reason Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Deny Activity Request</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Reason for Denial</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={selectedRequest ? denyReasons[selectedRequest.id] || "" : ""}
+              onChange={(e) => handleReasonChange(selectedRequest.id, e.target.value)}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button variant="danger" onClick={handleDeny}>Submit Denial</Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
-  )
-}
+  );
+};
 
-export default Settings
+export default ActivityRequests;
