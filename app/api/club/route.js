@@ -19,9 +19,9 @@ export async function GET() {
 
         const clubs = await conn({ query });
 
-        return NextResponse.json(clubs);
-    } catch (error) {
-        console.error(" Database error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    return NextResponse.json(clubs); 
+  } catch (error) {
+    console.error("Database error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 }); 
+  }
 }

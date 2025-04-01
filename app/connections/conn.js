@@ -1,19 +1,45 @@
 import mysql from "mysql2/promise";
 
-export async function conn({ query, values = [] }) {
-    const dbconnection = await mysql.createConnection({
-        host: "localhost",
-        database: "cms",
-        user: "root",
-        password: "",
-    });
+let pool; // Declare pool as a mutable variable
 
-    try {
-        const [results] = await dbconnection.execute(query, values);
-        await dbconnection.end(); // Use await to properly close the connection
-        return results;
-    } catch (error) {
-        console.error(" Database Error:", error);
-        return { error: error.message };
+async function createPool() {
+  if (!pool) {
+    pool = mysql.createPool({
+      host: process.env.DB_HOST || "localhost",
+      database: process.env.DB_NAME || "cms",
+      user: process.env.DB_USER || "root",
+      password: process.env.DB_PASSWORD || "",
+      waitForConnections: true,
+      connectionLimit: 50,
+      queueLimit: 0,
+    });
+  }
+}
+
+async function getPool() {
+  if (!pool) {
+    await createPool();
+  }
+  return pool;
+}
+
+// Function to execute queries
+export async function conn({ query, values = [] }) {
+  try {
+    let connectionPool = await getPool(); // Use a different variable name
+
+    // Ensure the pool is available
+    if (!connectionPool || connectionPool._closed) {
+      console.log("Recreating DB connection pool...");
+      pool = null; // No reassignment error now
+      await createPool();
+      connectionPool = await getPool(); // Re-fetch pool
     }
+
+    const [results] = await connectionPool.execute(query, values);
+    return results;
+  } catch (error) {
+    console.error("Database Error:", error);
+    return { error: error.message };
+  }
 }

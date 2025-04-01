@@ -28,7 +28,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Dashboard',
 		icon: 'home',
-		link: '/'
+		link: '/dashboard'
 	},
 	{
 		id: uuid(),
@@ -40,9 +40,9 @@ export const DashboardMenu = [
 		title: 'Clubs',
 		icon: 'layers',
 		children: [
-			{ id: uuid(), link: '/pages/manageclubs', name: 'Manage Clubs' },
-			{ id: uuid(), link: '/pages/requests', name: 'Activity requests'},
-			{ id: uuid(), link: '/pages/clubrequests', name: 'Club Requests' },
+			{ id: uuid(), link: '/dashbaord/pages/manageclubs', name: 'Manage Clubs' },
+			{ id: uuid(), link: '/dashboard/pages/requests', name: 'Activity requests'},
+			{ id: uuid(), link: '/dashboard/pages/clubrequests', name: 'Club Requests' },
 			/*{ id: uuid(), link: '/pages/clubcreation', name: 'Club Creation' },*/
 		]
 	},	
@@ -51,7 +51,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Elections',
 		icon: 'lock',
-		link: '/elections'
+		link: '/dashboard/elections'
 	},	
 	{
 		id: uuid(),
@@ -62,13 +62,13 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Calendar',
 		icon: 'calendar',
-		link: '/pages/calendar'
+		link: '/dashboard/pages/calendar'
 	},	
 	{
 		id: uuid(),
 		title: 'Help Page',
 		icon: 'info',
-		link: '/pages/help'
+		link: '/dashboard/pages/help'
 	},	
 ];
 

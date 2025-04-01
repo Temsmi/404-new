@@ -9,6 +9,7 @@ import {
 
 // import sub components
 import QuickMenu_p from 'layouts/QuickMenu-p';
+import SearchBar from 'layouts/SearchBar';
 
 const NavbarTop = (props) => {
     return (
@@ -23,11 +24,9 @@ const NavbarTop = (props) => {
                         <Menu size="18px" />
                     </Link>
                     <div className="ms-lg-3 d-none d-md-none d-lg-block">
-                        {/* Search Form */}
-                        <Form className="d-flex align-items-center">
-                            <Form.Control type="search" placeholder="Search" />
-                        </Form>
-                    </div>
+                                            {/* Search Form */}
+                                            <SearchBar/>                
+                 </div>
                 </div>
                 {/* Quick Menu */}
                 <Nav className="navbar-right-wrap ms-2 d-flex nav-top-wrap">

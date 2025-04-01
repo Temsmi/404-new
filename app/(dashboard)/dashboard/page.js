@@ -3,7 +3,6 @@
 import { Fragment } from "react";
 import Link from 'next/link';
 import { Container, Col, Row } from 'react-bootstrap';
-
 // import widget/custom components
 import { StatRightTopIcon } from "widgets";
 
@@ -21,7 +20,7 @@ const Home = () => {
             .then((data) => setClubs(data))
             .catch((error) => console.error("Fetch error:", error));
     }, []);
-    
+
     return (
         <Fragment>
             <div className="bg-primary pt-10 pb-21"></div>

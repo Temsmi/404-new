@@ -19,7 +19,7 @@ export async function GET() {
 
         const members = await conn({ query });
 
-        return NextResponse.json(clubs);
+        return NextResponse.json(members);
     } catch (error) {
         console.error(" Database error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });

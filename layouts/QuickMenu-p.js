@@ -18,17 +18,48 @@ import 'simplebar/dist/simplebar.min.css';
 import NotificationList from 'data/Notification';
 
 // import hooks
-import useMounted from 'hooks/useMounted';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { ToggleButton,ToggleButtonGroup } from 'react-bootstrap';
 
 
 const QuickMenu_p = () => {
-
-    const hasMounted = useMounted();
+    const [hasMounted, setHasMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     
     const isDesktop = useMediaQuery({
         query: '(min-width: 1224px)'
     })
+
+    const router = useRouter(); // Initialize useRouter here
+        useEffect(() => {
+            setHasMounted(true);
+          }, []);
+    
+        const handleSignOut = async () => {
+            setIsLoading(true);
+            try {
+              // Make a POST request to the sign-out API
+              const res = await fetch('/api/logout', {
+                method: 'POST',
+              });
+        
+              const data = await res.json();
+              if (data.success) {
+                router.push('/authentication/sign-in');
+              } else {
+                // Handle error if logout fails
+                console.error('Failed to log out');
+              }
+            } catch (error) {
+              console.error('Error logging out:', error);
+            }finally {
+                setIsLoading(false);
+              }
+          };
+          if (!hasMounted) {
+            return null; // Return nothing during SSR or before mount
+          }
 
     const Notifications = () => {
         return (
@@ -125,7 +156,7 @@ const QuickMenu_p = () => {
                   </Dropdown.Item>
                   
                     
-                    <Dropdown.Item>
+                    <Dropdown.Item onClick={handleSignOut}>
                         <i className="fe fe-power me-2"></i>Sign Out
                     </Dropdown.Item>
                 </Dropdown.Menu>
