@@ -78,7 +78,7 @@ const ClubDescription = () => {
                 <Row className="align-items-center">
                     <Col md={4} className="text-center">
                         <img
-                            src={clubData.logo ? `/images/ClubsLogo/${clubData.logo}` : "/images/default-logo.png"}
+                            src={clubData.club_logo  ? `/images/ClubsLogo/${clubData.club_logo }` : "/images/default-logo.png"}
                             alt="Club Logo"
                             className="img-fluid rounded"
                             style={{ maxWidth: '300px' }}
@@ -87,8 +87,9 @@ const ClubDescription = () => {
                     </Col>
                     <Col md={8}>
                         <Card className="p-4 shadow-sm" style={{ textAlign: 'left', maxWidth: '600px' }}>
-                            <h2 className="mb-3">{clubData.name}</h2>
-                            <p className="lead">{clubData.description}</p>
+                        <h2 className="mb-3">{clubData.club_name}</h2>
+<p className="lead">{clubData.club_description}</p>
+
 
                             <div className="text-end mt-3" style={{ marginRight: '10px' }}>
                                 <Button variant="primary" onClick={handleEditClick}>Edit</Button>
