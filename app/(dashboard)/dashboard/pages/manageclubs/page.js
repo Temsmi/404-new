@@ -186,9 +186,14 @@ const ManageClubs = () => {
                       <tr key={index}>
                         <td className="align-middle">
                           <div className="d-flex align-items-center">
-                          <div>
-                              <Image src={`/images/ClubsLogo/${club.logo}`} alt={club.name} width={20} height={20} unoptimized loading="eager" className="border p-4 rounded-1" />
-                            </div>
+                          <div md={4} className="text-center">
+                                        <img src={`/images/ClubsLogo/${club.logo}`}
+                                                    alt="Club Logo"
+                                                    className="img-fluid rounded"
+                                                    style={{ maxWidth: '50px' }}
+                                                    onError={(e) => e.target.src = "/images/default-logo.png"}  // Handle broken image
+                                                />
+                                                </div>
                             <div className="ms-3 lh-1">
                               <h5 className="mb-1">
                                 <Link href="#" className="text-inherit">{club.name}</Link>
