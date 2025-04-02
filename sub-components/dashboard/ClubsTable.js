@@ -20,7 +20,7 @@ export default function ClubsTable({ clubs }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {clubs.map((club, index) => (
+                            {clubs.slice(0, 5).map((club, index) => (
                                 <tr key={index}>
                                     <td className="align-middle">
                                         <div className="d-flex align-items-center">
@@ -51,7 +51,7 @@ export default function ClubsTable({ clubs }) {
                         </tbody>
                     </Table>
                     <Card.Footer className="bg-white text-center">
-                        <Link href="/pages/profile" className="link-primary">View All Clubs</Link>
+                        <Link href="/dashboard/pages/manageclubs" className="link-primary">See more</Link>
                     </Card.Footer>
                 </Card>
             </Col>

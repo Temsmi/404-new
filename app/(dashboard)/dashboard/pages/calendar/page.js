@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Container, Button, Modal, Form } from 'react-bootstrap';
+import { useState, useEffect, useRef } from 'react';
+import { Container, Form, Modal, Button } from 'react-bootstrap';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -11,119 +11,77 @@ const CalendarPage = () => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [events, setEvents] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [eventTitle, setEventTitle] = useState('');
-  const [selectedClub, setSelectedClub] = useState('');
-  const [description, setDescription] = useState('');
-
-  const clubs = ['Club A', 'Club B', 'Club C'];
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const calendarRef = useRef(null);
 
-  // Function to generate years from the current year to the next 10 years
-  const generateYears = () => {
-    return Array.from({ length: 11 }, (_, i) => currentYear + i);
-  };
+  useEffect(() => {
+    const fetchApprovedEvents = async () => {
+      try {
+        const res = await fetch('/api/activityrequests');
+        const data = await res.json();
+        console.log("Fetched events:", data);
 
-  // Handle date click (open modal)
-  const handleDateClick = (info) => {
-    setSelectedDate(info.dateStr);
-    setShowForm(true);
-  };
+        if (Array.isArray(data)) {
+          const approvedEvents = data
+            .filter(event => event.status === 1) // Only approved events
+            .map(event => ({
+              id: event.id,
+              title: `${event.title}`,
+              start: formatDateTime(event.date, event.time), // Combine date and time
+              allDay: false, // Ensures it appears in the correct time slot
+              description: event.description,
+              clubName: event.clubName,
+              backgroundColor: "#00FFFF", // Blue for approved events
+              textColor: "#fff",
+              classNames: ['approved-event'], // Custom class for styling
+            }));
 
-  // Handle form submission
-  const handleAddEvent = () => {
-    if (!eventTitle || !selectedClub) {
-      alert('Please fill in all fields!');
-      return;
-    }
-
-    const newEvent = {
-      title: `${eventTitle} (${selectedClub})`,
-      start: selectedDate,
-      description: description,
+          setEvents(approvedEvents);
+        }
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
     };
 
-    setEvents([...events, newEvent]);
-    setShowForm(false);
-    setEventTitle('');
-    setSelectedClub('');
-    setDescription('');
+    fetchApprovedEvents();
+  }, []);
+
+  // Helper function to format date and time correctly
+  const formatDateTime = (date, time) => {
+    if (!date) return null;
+
+    let formattedTime = "00:00:00"; // Default to midnight if no time provided
+    if (time) {
+      // Ensure time is in HH:MM:SS format
+      const timeParts = time.split(":");
+      formattedTime = timeParts.length === 3 ? time : `${time}:00`; // Handle missing seconds
+    }
+
+    return `${date.split('T')[0]}T${formattedTime}`;
   };
 
-  // Navigate to selected year without resetting to January
-  const handleYearChange = (e) => {
-    const newYear = Number(e.target.value);
-    setSelectedYear(newYear);
-
-    if (calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      const currentDate = calendarApi.getDate(); // Keep the current month
-      calendarApi.gotoDate(new Date(newYear, currentDate.getMonth(), 1));
-    }
+  // Handle event click (open modal)
+  const handleEventClick = (clickInfo) => {
+    setSelectedEvent(clickInfo.event);
+    setShowEventModal(true);
   };
 
   return (
     <Container className="mt-5">
       <h3 className="text-center mb-4">Club Events Calendar</h3>
 
-      {/* Custom Toolbar */}
       <div className="d-flex justify-content-left align-items-left mb-3">
         <Form.Select
           value={selectedYear}
-          onChange={handleYearChange} // Now correctly updates year while keeping month
+          onChange={(e) => setSelectedYear(Number(e.target.value))}
           style={{ width: '100px', display: 'inline-block' }}
         >
-          {generateYears().map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
+          {Array.from({ length: 11 }, (_, i) => currentYear + i).map(year => (
+            <option key={year} value={year}>{year}</option>
           ))}
         </Form.Select>
       </div>
-
-      {/* Event Modal */}
-      <Modal show={showForm} onHide={() => setShowForm(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add Event</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group>
-              <Form.Label>Event Title</Form.Label>
-              <Form.Control
-                type="text"
-                value={eventTitle}
-                onChange={(e) => setEventTitle(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Club</Form.Label>
-              <Form.Select value={selectedClub} onChange={(e) => setSelectedClub(e.target.value)}>
-                <option value="">Select Club</option>
-                {clubs.map((club) => (
-                  <option key={club} value={club}>
-                    {club}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowForm(false)}>Close</Button>
-          <Button variant="primary" onClick={handleAddEvent}>Add Event</Button>
-        </Modal.Footer>
-      </Modal>
 
       {/* FullCalendar Component */}
       <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
@@ -131,21 +89,45 @@ const CalendarPage = () => {
           ref={calendarRef}
           plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
           headerToolbar={{
-            left: 'prev,next',
+            left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek',
+            right: 'timeGridDay,timeGridWeek,dayGridMonth',
           }}
           initialView="dayGridMonth"
-          initialDate={new Date()} // Ensure the calendar starts on the current month
           nowIndicator={true}
-          editable={true}
           selectable={true}
-          selectMirror={true}
           events={events}
+          eventClick={handleEventClick} // Event click handler
+          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', meridiem: 'short' }} // Show event time
           height="auto"
-          dateClick={handleDateClick}
         />
       </div>
+
+      {/* Event Details Modal */}
+      <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Event Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedEvent && (
+            <>
+              <p><strong>Title:</strong> {selectedEvent.title}</p>
+              <p><strong>Club:</strong> {selectedEvent.extendedProps.clubName}</p>
+              <p><strong>Date:</strong> {new Date(selectedEvent.start).toLocaleDateString()}</p>
+              <p><strong>Time:</strong> {new Date(selectedEvent.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+              <p><strong>Description:</strong> {selectedEvent.extendedProps.description || 'No description available'}</p>
+            </>
+          )}
+        </Modal.Body>
+      </Modal>
+
+      {/* Custom Styles */}
+      <style jsx>{`
+        :global(.approved-event) {
+          background-color: #007bff !important;
+          color: #fff !important;
+        }
+      `}</style>
     </Container>
   );
 };

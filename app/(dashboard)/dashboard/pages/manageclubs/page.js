@@ -174,6 +174,8 @@ const ManageClubs = () => {
                     <th>NAME</th>
                     <th>PRESIDENT</th>
                     <th>MEMBERS</th>
+                    <th></th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,7 +202,9 @@ const ManageClubs = () => {
                         <td className="align-middle">{club.member_count}</td>
                         <td className="text-center">
                           <Button variant="primary" onClick={() => handleEdit(club)} className="me-2">Edit</Button>
-                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Desactivate</Button>
+                        </td>
+                        <td>
+                        <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
                         </td>
                       </tr>
                     ))
@@ -211,9 +215,6 @@ const ManageClubs = () => {
                   )}
                 </tbody>
               </Table>
-              <Card.Footer className="bg-white text-center">
-                <Link href="/pages/profile" className="link-primary">View All Clubs</Link>
-              </Card.Footer>
             </Card>
           </Col>
         </Row>
