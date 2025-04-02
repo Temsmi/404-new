@@ -15,8 +15,6 @@ export async function POST(req) {
     try {
        
         const session = await getSession(req);
-        console.log("Session:", session); // Log session for debugging
-
        
         let userId;
         if (session.userId) {
@@ -27,8 +25,6 @@ export async function POST(req) {
             console.error("No userId found in session.");
             return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
         }
-
-        console.log("User ID from session:", userId);
 
         // Step 3: Fetch the club_id for the president (user)
         const clubQuery = `SELECT club_id FROM president WHERE student_id = ?`;
@@ -49,6 +45,7 @@ export async function POST(req) {
         const formData = await req.formData();
         const eventName = formData.get('eventName');
         const description = formData.get('description');
+        const eventTime = formData.get('eventTime');
         const dateSelected = formData.get('dateSelected');
         const isPostFeedback = formData.get('isPostFeedback') === 'true' ? 1 : 0;
         const zoomLink = formData.get('zoomLink') || null;
@@ -85,14 +82,14 @@ export async function POST(req) {
 
         // Step 6: Insert event into the database
         const query = `
-            INSERT INTO event1 (club_id, date_name, description, date_selected, is_postfeedback, zoom_link, image, feedback)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO event1 (club_id, date_name, description, event_time, date_selected, is_postfeedback, zoom_link, image, feedback)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
 
         await conn({
             query,
-            values: [clubId, eventName, description, dateSelected, isPostFeedback, zoomLink, imageUrl, feedback]
+            values: [clubId, eventName, description, eventTime, dateSelected, isPostFeedback, zoomLink, imageUrl, feedback]
         });
 
         // Step 7: Return successful response

@@ -6,6 +6,7 @@ export async function GET() {
         const query = `
             SELECT 
                 e.id, 
+                e.club_id,
                 e.date_name AS title, 
                 e.description, 
                 e.event_time AS time,
