@@ -59,6 +59,7 @@ export async function PUT(req) {
 
   } catch (error) {
       console.error('Error updating request:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      res.status(500).json({ error: error.message });
+    }
   }
-}
+  
