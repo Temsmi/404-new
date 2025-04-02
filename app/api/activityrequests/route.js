@@ -21,8 +21,7 @@ export async function GET() {
         `;
         
         // Execute the query and get the results
-        const [events] = await conn({ query });
-        
+        const events = await conn({ query });
         // Return the events data as JSON
         return NextResponse.json(events);
     } catch (error) {
@@ -32,11 +31,15 @@ export async function GET() {
 }
 
 // Example PUT API to update approval status and feedback
-export async function PUT(req, res) {
-    const { id, status, feedback } = req.body; // Get the values from the request body
-  
-    try {
-      // Database query to update the request's approval status and feedback
+export async function PUT(req) {
+  try {
+      const body = await req.json();
+      console.log("Request Body:", body); //
+      const { id, status, feedback } = body;
+      console.log(`Updating activity request with ID: ${id}`);
+      if (!body || !body.id) {
+        return NextResponse.json({ error: "Missing 'id' in request" }, { status: 400 });
+    }
       const query = `
         UPDATE event1 
         SET approval = ?, feedback = ?
@@ -44,13 +47,18 @@ export async function PUT(req, res) {
       `;
   
       // Update approval status (true = approved, false = denied) and feedback
-      await conn.query(query, [status, feedback || null, id]);
-  
-      // Return success response
-      res.status(200).json({ message: 'Request updated successfully' });
-    } catch (error) {
+       await conn({ query, values: [status, feedback || null, id] });
+    
+
+      const updatedQuery = `SELECT * FROM event1 WHERE id = ?`;
+      const updatedRequest = await conn({ query: updatedQuery, values: [id] });
+      console.log("Updated request:", updatedRequest[0]); // Debugging log
+
+      return NextResponse.json(updatedRequest[0], { status: 200 });
+
+  } catch (error) {
       console.error('Error updating request:', error);
-      res.status(500).json({ error: error.message });
-    }
+      return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
   

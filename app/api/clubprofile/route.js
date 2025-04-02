@@ -3,7 +3,7 @@ import { conn } from '../../connections/conn';
 
 export async function GET() {
     try {
-        const query = `SELECT id, name, description, logo FROM club WHERE name = 'Unicorn1'`;
+        const query = `SELECT id, name, description, logo FROM club WHERE name = 'Unicorn'`;
         const [clubs] = await conn({ query });
         return NextResponse.json(clubs);
     } catch (error) {

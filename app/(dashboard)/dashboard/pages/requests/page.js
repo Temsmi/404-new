@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Image, Modal } from 'react-bootstrap';
@@ -26,9 +26,7 @@ const ActivityRequests = () => {
         const res = await fetch('/api/activityrequests');
         const data = await res.json();
         console.log("Fetched data:", data);
-
-        const requestsData = Array.isArray(data) ? data : [data]; // Wrap in array if it's not already
-        setRequests(requestsData);
+        setRequests(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching activity requests:', error);
       }
@@ -37,57 +35,74 @@ const ActivityRequests = () => {
     fetchRequests();
   }, []);
 
+  // Approve request function
   const handleApprove = async (id) => {
     try {
-      // Send PUT request to update approval status to true
-      const res = await fetch(`/api/activityrequests/${id}`, {
+      console.log("Approving request with ID:", id);
+      const res = await fetch(`/api/activityrequests`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id,
-          status: true, // Set status to approved
-          feedback: null, // No feedback for approval
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 1, feedback: null }),
       });
+
+      if (!res.ok) throw new Error("Failed to approve request");
       const updatedRequest = await res.json();
-      // Update UI with the new status
-      setRequests(requests.map(req => req.id === id ? { ...req, status: "approved" } : req));
+      console.log("Approved Request Response:", updatedRequest);
+
+      setRequests((prevRequests) =>
+        prevRequests.map((req) => (req.id === id ? { ...req, status: 1 } : req))
+      );
     } catch (error) {
-      console.error('Error approving request:', error);
+      console.error("Error approving request:", error);
     }
   };
 
+  // Open deny modal
   const handleOpenDenyModal = (request) => {
     setSelectedRequest(request);
     setShowModal(true);
   };
 
+  // Deny request function
   const handleDeny = async () => {
     if (selectedRequest && denyReasons[selectedRequest.id]) {
-      try {
-        // Send PUT request to update approval status to false and feedback
-        const res = await fetch(`/api/activityrequests/${selectedRequest.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: selectedRequest.id,
-            status: false, // Denied status
-            feedback: denyReasons[selectedRequest.id], // Set feedback reason
-          }),
-        });
-        const updatedRequest = await res.json();
-        // Update UI with the new status and feedback
-        setRequests(requests.map(req => req.id === selectedRequest.id ? { ...req, status: "denied", reason: denyReasons[selectedRequest.id] } : req));
-        setShowModal(false);
-      } catch (error) {
-        console.error('Error denying request:', error);
-      }
+        try {
+            console.log("Denying request with ID:", selectedRequest.id);
+            
+            const res = await fetch(`/api/activityrequests`, { 
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: selectedRequest.id,  // Make sure the ID is sent correctly
+                    status: -1,
+                    feedback: denyReasons[selectedRequest.id],
+                }),
+            });
+
+            const data = await res.json();
+            console.log("Server Response:", data); // Log server response for debugging
+
+            if (!res.ok) throw new Error(data.error || "Failed to deny request");
+
+            setRequests((prevRequests) =>
+                prevRequests.map((req) =>
+                    req.id === selectedRequest.id
+                        ? { ...req, status: -1, reason: denyReasons[selectedRequest.id] }
+                        : req
+                )
+            );
+
+            setShowModal(false);
+        } catch (error) {
+            console.error("Error denying request:", error);
+            alert("There was an error processing your request. Please check the console.");
+        }
+    } else {
+        alert("Please provide a reason for denial.");
     }
-  };
+
+};
+
 
   const handleReasonChange = (id, value) => {
     setDenyReasons({ ...denyReasons, [id]: value });
@@ -112,14 +127,15 @@ const ActivityRequests = () => {
                       <h4>{req.title}</h4>
                       <p className="text-muted">Created by: {req.createdBy}</p>
                       <p><strong>Club:</strong> {req.clubName}</p>
-                      <p><strong>Date:</strong> {formatDate(req.date)}</p> {/* Display formatted date */}
+                      <p><strong>Date:</strong> {formatDate(req.date)}</p>
                       <p><strong>Description:</strong> {req.description}</p>
-                      <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p> {/* Display Zoom link or "No Link" */}
+                      <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p>
                       <p><strong>Post Feedback:</strong> {req.hasFeedback ? "Included" : "Not Included"}</p>
-                      <p className={`fw-bold ${req.status === 'approved' ? 'text-success' : req.status === 'denied' ? 'text-danger' : 'text-warning'}`}>
+                      <p className={`fw-bold ${req.status === 1 ? 'text-success' : req.status === 0 ? 'text-warning' : 'text-danger'}`}>
                         Status: {req.status === 1 ? "Approved" : req.status === 0 ? "Pending" : "Denied"}
                       </p>
-                      {req.status === 0 && (  // Show buttons only for "pending" requests
+
+                      {req.status === 0 && ( // Show buttons only for "pending" requests
                         <div className="d-flex gap-2">
                           <Button variant="success" onClick={() => handleApprove(req.id)}>Approve</Button>
                           <Button variant="danger" onClick={() => handleOpenDenyModal(req)}>Deny</Button>
