@@ -33,22 +33,29 @@ const ClubDescription = () => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
+    
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setClubData({ ...clubData, club_logo: reader.result }); // Temporary preview
+        };
+        reader.readAsDataURL(file);
+    
         const formData = new FormData();
         formData.append("file", file);
-
+    
         fetch("/api/upload", {
             method: "POST",
             body: formData
         })
         .then((res) => res.json())
         .then((data) => {
-            if (data.url) {
-                setClubData({ ...clubData, logo: data.url });
+            if (data.filePath) { // Ensure this matches your API response
+                setClubData({ ...clubData, club_logo: data.filePath });
             }
         })
         .catch((error) => console.error("File upload error:", error));
     };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -77,13 +84,14 @@ const ClubDescription = () => {
             {clubData ? (
                 <Row className="align-items-center">
                     <Col md={4} className="text-center">
-                        <img
-                            src={clubData.club_logo  ? `/images/ClubsLogo/${clubData.club_logo }` : "/images/default-logo.png"}
-                            alt="Club Logo"
-                            className="img-fluid rounded"
-                            style={{ maxWidth: '300px' }}
-                            onError={(e) => e.target.src = "/images/default-logo.png"}
-                        />
+                    <img
+    src={clubData.club_logo.startsWith("data:image") ? clubData.club_logo : `/images/ClubsLogo/${clubData.club_logo}`}
+    alt="Club Logo"
+    className="img-fluid rounded"
+    style={{ maxWidth: "300px", marginTop: "10px" }}
+    onError={(e) => (e.target.src = "/images/default-logo.png")}
+/>
+
                     </Col>
                     <Col md={8}>
                         <Card className="p-4 shadow-sm" style={{ textAlign: 'left', maxWidth: '600px' }}>
@@ -109,8 +117,8 @@ const ClubDescription = () => {
                             <Form.Label>Club Name</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="name"
-                                value={clubData.name || ""}
+                                name="club_name"
+                                value={clubData.club_name || ""}
                                 onChange={handleChange}
                                 required
                             />
@@ -120,8 +128,8 @@ const ClubDescription = () => {
                             <Form.Label>Club Description</Form.Label>
                             <Form.Control
                                 as="textarea"
-                                name="description"
-                                value={clubData.description || ""}
+                                name="club_description"
+                                value={clubData.club_description || ""}
                                 onChange={handleChange}
                                 rows={3}
                                 required
