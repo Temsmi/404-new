@@ -1,41 +1,70 @@
-import 'dotenv/config';  // Ensure this is at the top
+import 'dotenv/config';
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { conn } from '../../connections/conn';
-
-// Debugging logs to check if .env values are loaded correctly
-console.log("Cloud Name:", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
-console.log("API Key:", process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
-console.log("API Secret:", process.env.CLOUDINARY_API_SECRET);  // Should NOT be undefined
+import { getSession } from 'app/lib/session'; // Adjust the import path for session
 
 // Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET  // Ensure this is defined
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// API route function
 export async function POST(req) {
     try {
+       
+        const session = await getSession(req);
+        console.log("Session:", session); // Log session for debugging
+
+       
+        let userId;
+        if (session.userId) {
+            userId = session.userId; // Direct access if userId is available
+        } else if (session.user && session.user.userId) {
+            userId = session.user.userId; // Access userId from nested user object
+        } else {
+            console.error("No userId found in session.");
+            return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
+        }
+
+        console.log("User ID from session:", userId);
+
+        // Step 3: Fetch the club_id for the president (user)
+        const clubQuery = `SELECT club_id FROM president WHERE student_id = ?`;
+        const clubResult = await conn({
+            query: clubQuery,
+            values: [userId],
+        });
+
+
+        // Check if the user is a president and is associated with a club
+        if (!clubResult.length) {
+            return NextResponse.json({ error: "Club not found for this user" }, { status: 404 });
+        }
+
+        const clubId = clubResult[0].club_id;
+
+        // Step 4: Get event data from the request
         const formData = await req.formData();
         const eventName = formData.get('eventName');
         const description = formData.get('description');
         const dateSelected = formData.get('dateSelected');
         const isPostFeedback = formData.get('isPostFeedback') === 'true' ? 1 : 0;
         const zoomLink = formData.get('zoomLink') || null;
-        const feedback = formData.get('feedback') || null;  // New feedback field
+        const feedback = formData.get('feedback') || null;
         const imageFile = formData.get('eventImage');
-        const clubId = 15;
 
+       
+
+        // Step 5: Upload image to Cloudinary (if provided)
         let imageUrl = null;
 
-        // Upload image to Cloudinary
         if (imageFile) {
             const bytes = await imageFile.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            // Wrap Cloudinary upload in a Promise
+            // Upload image to Cloudinary
             imageUrl = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: 'events_images' },
@@ -50,25 +79,29 @@ export async function POST(req) {
                 );
                 uploadStream.end(buffer);
             });
+
+           
         }
 
-        // SQL query to insert the event data
+        // Step 6: Insert event into the database
         const query = `
             INSERT INTO event1 (club_id, date_name, description, date_selected, is_postfeedback, zoom_link, image, feedback)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        // Execute the database query
+
         await conn({
             query,
             values: [clubId, eventName, description, dateSelected, isPostFeedback, zoomLink, imageUrl, feedback]
         });
 
-        // Return a successful response
+        // Step 7: Return successful response
         return NextResponse.json({ message: 'Event created successfully!' });
     } catch (error) {
+        // Log the error for debugging
         console.error("Database error:", error);
-        // Return an error response if something goes wrong
+
+        // Return error response
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

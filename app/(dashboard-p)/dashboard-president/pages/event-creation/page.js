@@ -39,8 +39,10 @@ const EventCreationForm = () => {
 
         const response = await fetch('/api/eventcreation', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin',  // Ensure the session cookie is sent along with the request
         });
+        const data = await response.json();  
 
         if (response.ok) {
             alert('Event created successfully!');
@@ -54,7 +56,7 @@ const EventCreationForm = () => {
                 eventImage: null
             });
         } else {
-            alert('Failed to create event.');
+            alert(`Failed to create event: ${data.error || 'Unknown error'}`);
         }
     };
 
