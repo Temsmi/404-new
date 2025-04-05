@@ -43,7 +43,6 @@ export const DashboardMenu = [
 			{ id: uuid(), link: '/dashboard/pages/manageclubs', name: 'Manage Clubs' },
 			{ id: uuid(), link: '/dashboard/pages/requests', name: 'Activity requests'},
 			{ id: uuid(), link: '/dashboard/pages/clubrequests', name: 'Club Requests' },
-			/*{ id: uuid(), link: '/pages/clubcreation', name: 'Club Creation' },*/
 		]
 	},	
 	

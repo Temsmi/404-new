@@ -6,8 +6,10 @@ export async function GET() {
         const query = `
             SELECT 
                 e.id, 
+                e.club_id,
                 e.date_name AS title, 
                 e.description, 
+                e.event_time AS time,
                 e.date_selected AS date, 
                 e.is_postfeedback AS hasFeedback, 
                 e.zoom_link AS zoomLink, 
@@ -58,7 +60,7 @@ export async function PUT(req) {
 
   } catch (error) {
       console.error('Error updating request:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      res.status(500).json({ error: error.message });
+    }
   }
-}
   

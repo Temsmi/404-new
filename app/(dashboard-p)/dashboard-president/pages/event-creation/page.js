@@ -7,6 +7,7 @@ const EventCreationForm = () => {
     const [eventData, setEventData] = useState({
         eventName: '',
         description: '',
+        eventTime:'',
         dateSelected: '',
         isPostFeedback: 'no',
         zoomMeeting: 'no',
@@ -29,6 +30,7 @@ const EventCreationForm = () => {
         const formData = new FormData();
         formData.append('eventName', eventData.eventName);
         formData.append('description', eventData.description);
+        formData.append('eventTime', eventData.eventTime);
         formData.append('dateSelected', eventData.dateSelected);
         formData.append('isPostFeedback', eventData.isPostFeedback === 'yes' ? 'true' : 'false');
         formData.append('zoomLink', eventData.zoomMeeting === 'yes' ? eventData.zoomLink : '');
@@ -39,14 +41,17 @@ const EventCreationForm = () => {
 
         const response = await fetch('/api/eventcreation', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin',  // Ensure the session cookie is sent along with the request
         });
+        const data = await response.json();  
 
         if (response.ok) {
             alert('Event created successfully!');
             setEventData({
                 eventName: '',
                 description: '',
+                eventTime: '',
                 dateSelected: '',
                 isPostFeedback: 'no',
                 zoomMeeting: 'no',
@@ -54,7 +59,7 @@ const EventCreationForm = () => {
                 eventImage: null
             });
         } else {
-            alert('Failed to create event.');
+            alert(`Failed to create event: ${data.error || 'Unknown error'}`);
         }
     };
 
@@ -82,6 +87,17 @@ const EventCreationForm = () => {
                             value={eventData.description}
                             onChange={handleChange}
                             rows={3}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Event Time</Form.Label>
+                        <Form.Control
+                            type="time"
+                            name="eventTime"
+                            value={eventData.eventTime}
+                            onChange={handleChange}
                             required
                         />
                     </Form.Group>

@@ -13,6 +13,17 @@ const formatDate = (dateString) => {
   });
 };
 
+const formatTime = (timeString) => {
+  if (!timeString) return "N/A"; // Handle missing values
+
+  const [hours, minutes] = timeString.split(":").map(Number);
+  const suffix = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 || 12; // Convert 0 -> 12, 13 -> 1, etc.
+
+  return `${formattedHours}:${String(minutes).padStart(2, "0")} ${suffix}`;
+};
+
+
 const ActivityRequests = () => {
   const [requests, setRequests] = useState([]);
   const [denyReasons, setDenyReasons] = useState({});
@@ -43,7 +54,11 @@ const ActivityRequests = () => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: 1, feedback: null }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 1, feedback: null }),
       });
+
+      if (!res.ok) throw new Error("Failed to approve request");
 
       if (!res.ok) throw new Error("Failed to approve request");
       const updatedRequest = await res.json();
@@ -52,11 +67,18 @@ const ActivityRequests = () => {
       setRequests((prevRequests) =>
         prevRequests.map((req) => (req.id === id ? { ...req, status: 1 } : req))
       );
+      console.log("Approved Request Response:", updatedRequest);
+
+      setRequests((prevRequests) =>
+        prevRequests.map((req) => (req.id === id ? { ...req, status: 1 } : req))
+      );
     } catch (error) {
+      console.error("Error approving request:", error);
       console.error("Error approving request:", error);
     }
   };
 
+  // Open deny modal
   // Open deny modal
   const handleOpenDenyModal = (request) => {
     setSelectedRequest(request);
@@ -64,8 +86,42 @@ const ActivityRequests = () => {
   };
 
   // Deny request function
+  // Deny request function
   const handleDeny = async () => {
     if (selectedRequest && denyReasons[selectedRequest.id]) {
+        try {
+            console.log("Denying request with ID:", selectedRequest.id);
+            
+            const res = await fetch(`/api/activityrequests`, { 
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: selectedRequest.id,  // Make sure the ID is sent correctly
+                    status: -1,
+                    feedback: denyReasons[selectedRequest.id],
+                }),
+            });
+
+            const data = await res.json();
+            console.log("Server Response:", data); // Log server response for debugging
+
+            if (!res.ok) throw new Error(data.error || "Failed to deny request");
+
+            setRequests((prevRequests) =>
+                prevRequests.map((req) =>
+                    req.id === selectedRequest.id
+                        ? { ...req, status: -1, reason: denyReasons[selectedRequest.id] }
+                        : req
+                )
+            );
+
+            setShowModal(false);
+        } catch (error) {
+            console.error("Error denying request:", error);
+            alert("There was an error processing your request. Please check the console.");
+        }
+    } else {
+        alert("Please provide a reason for denial.");
         try {
             console.log("Denying request with ID:", selectedRequest.id);
             
@@ -104,6 +160,9 @@ const ActivityRequests = () => {
 };
 
 
+};
+
+
   const handleReasonChange = (id, value) => {
     setDenyReasons({ ...denyReasons, [id]: value });
   };
@@ -128,12 +187,17 @@ const ActivityRequests = () => {
                       <p className="text-muted">Created by: {req.createdBy}</p>
                       <p><strong>Club:</strong> {req.clubName}</p>
                       <p><strong>Date:</strong> {formatDate(req.date)}</p>
+                      <p><strong>Time:</strong> {formatTime(req.time)}</p>
                       <p><strong>Description:</strong> {req.description}</p>
+                      <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p>
                       <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p>
                       <p><strong>Post Feedback:</strong> {req.hasFeedback ? "Included" : "Not Included"}</p>
                       <p className={`fw-bold ${req.status === 1 ? 'text-success' : req.status === 0 ? 'text-warning' : 'text-danger'}`}>
+                      <p className={`fw-bold ${req.status === 1 ? 'text-success' : req.status === 0 ? 'text-warning' : 'text-danger'}`}>
                         Status: {req.status === 1 ? "Approved" : req.status === 0 ? "Pending" : "Denied"}
                       </p>
+
+                      {req.status === 0 && ( // Show buttons only for "pending" requests
 
                       {req.status === 0 && ( // Show buttons only for "pending" requests
                         <div className="d-flex gap-2">

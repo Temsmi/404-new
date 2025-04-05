@@ -184,6 +184,8 @@ const ManageClubs = () => {
                     <th>NAME</th>
                     <th>PRESIDENT</th>
                     <th>MEMBERS</th>
+                    <th></th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -196,9 +198,14 @@ const ManageClubs = () => {
                       <tr key={index}>
                         <td className="align-middle">
                           <div className="d-flex align-items-center">
-                            <div>
-                              <Image src={`/images/ClubsLogo/${club.logo}`} alt={club.name} width={20} height={20} unoptimized loading="eager" className="border p-4 rounded-1" />
-                            </div>
+                          <div md={4} className="text-center">
+                                        <img src={`/images/ClubsLogo/${club.logo}`}
+                                                    alt="Club Logo"
+                                                    className="img-fluid rounded"
+                                                    style={{ maxWidth: '50px' }}
+                                                    onError={(e) => e.target.src = "/images/default-logo.png"}  // Handle broken image
+                                                />
+                                                </div>
                             <div className="ms-3 lh-1">
                               <h5 className="mb-1">
                                 <Link href="#" className="text-inherit">{club.name}</Link>
@@ -210,7 +217,9 @@ const ManageClubs = () => {
                         <td className="align-middle">{club.member_count}</td>
                         <td className="text-center">
                           <Button variant="primary" onClick={() => handleEdit(club)} className="me-2">Edit</Button>
-                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
+                        </td>
+                        <td>
+                        <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
                         </td>
                       </tr>
                     ))
@@ -221,9 +230,6 @@ const ManageClubs = () => {
                   )}
                 </tbody>
               </Table>
-              <Card.Footer className="bg-white text-center">
-                <Link href="/pages/profile" className="link-primary">View All Clubs</Link>
-              </Card.Footer>
             </Card>
           </Col>
         </Row>
