@@ -1,12 +1,18 @@
-'use client'
+'use client';
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Modal, Form, Table } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, Form, Table } from 'react-bootstrap';
+import Link from 'next/link';
 
 const ManageClubPresidents = () => {
   const [presidents, setPresidents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [currentPresident, setCurrentPresident] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    club_id: ''
+  });
+  const [selectedPresident, setSelectedPresident] = useState(null);
 
   useEffect(() => {
     const fetchPresidents = async () => {
@@ -25,135 +31,107 @@ const ManageClubPresidents = () => {
   }, []);
 
   const handleEdit = (president) => {
-    setCurrentPresident(president);
-    setShowModal(true);
+    setSelectedPresident(president);
+    setFormData({
+      name: president.president_name,
+      email: president.email,
+      club_id: president.club_id,
+    });
+    setIsEditing(true);
   };
 
   const handleClose = () => {
-    setShowModal(false);
-    setCurrentPresident(null);
+    setIsEditing(false);
+    setSelectedPresident(null);
+    setFormData({ name: '', email: '', club_id: '' });
   };
 
-  const handleSave = async () => {
-    if (!currentPresident.name || !currentPresident.email || !currentPresident.club) return;
+  // const handleSave = async () => {
+  //   if (!formData.name || !formData.email || !formData.club_id) {
+  //     alert('Please fill in all fields.');
+  //     return;
+  //   }
+  //   try {
+  //     const res = await fetch(`/api/mgmtpresi`, {
+  //       method: 'PUT',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         student_id: selectedPresident.student_id, // Assuming this is the ID to update
+  //         name: formData.name,
+  //         email: formData.email,
+  //         club_id: formData.club_id
+  //       }),
+  //     });
 
-    try {
-      const res = await fetch(`/api/mgmtpresi/${currentPresident.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentPresident),
-      });
+  //     if (res.ok) {
+  //       const updatedPresident = await res.json();
+  //       alert('Club President Updated!');
+  //       setPresidents(presidents.map(p => (p.student_id === updatedPresident.student_id ? updatedPresident : p)));
+  //       handleClose(); // Close the modal after saving
+  //     } else {
+  //       const errorMessage = await res.text();
+  //       console.error('Failed to update president:', errorMessage);
+  //       alert('Failed to update president: ' + errorMessage);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating president:', error);
+  //   }
+  // };
 
-      if (res.ok) {
-        setPresidents(presidents.map(p => 
-          p.id === currentPresident.id ? currentPresident : p
-        ));
-        alert('Club President Updated!');
-        handleClose();
-      }
-    } catch (error) {
-      console.error('Error updating club president:', error);
-    }
-  };
-
-  const handleChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCurrentPresident(prev => ({ ...prev, [name]: value }));
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
-    <Container className="mt-5"> {/* Add margin-top to the container */}
-      <Row className="justify-content-center">
-        <Col lg={10}>
-          <div className="p-5 rounded shadow-lg text-center"
-            style={{
-              background: "rgba(255, 255, 255, 0.15)",
-              backdropFilter: "blur(10px)",
-              borderRadius: "12px",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
-              boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.2)",
-              padding: "40px",
-            }}
-          >
-            <h2 className="text-black font-weight-bold mb-4">Manage Club Presidents</h2>
-            {loading ? (
-              <p>Loading...</p>
-            ) : presidents.length > 0 ? (
-              <Table striped bordered hover responsive>
-                <thead>
-                  <tr>
-                    <th>President Name</th>
-                    <th>Club</th>
-                    <th>Email</th>
-                    
-                  </tr>
-                </thead>
-                <tbody>
-                  {presidents.map((president) => (
-                    <tr key={president.id}>
-                      <td>{president.president_name}</td>
-                      <td>{president.club_id}</td>
-                      <td>{president.email}              
-                        <Button variant="danger" onClick={() => handleEdit(president)} style={{ display: 'flex', justifyContent: 'flex-end'}}>Edit</Button>
-                      </td>
+    <Container className="mt-5">
+     
+        <Row className="justify-content-center">
+          <Col lg={10}>
+            <div className="p-5 rounded shadow-lg text-center"
+              style={{
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(10px)",
+                borderRadius: "12px",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.2)",
+                padding: "40px",
+              }}
+            >
+              <h2 className="text-black font-weight-bold mb-4">Manage Club Presidents</h2>
+              {loading ? (
+                <p>Loading...</p>
+              ) : presidents.length > 0 ? (
+                <Table striped bordered hover responsive>
+                  <thead>
+                    <tr>
+                      <th>President Name</th>
+                      <th>Club</th>
+                      <th>Email</th>
+                      
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            ) : (
-              <h5 className="text-black mt-4">No club presidents found.</h5>
-            )}
-          </div>
-        </Col>
-      </Row>
-
-      {/* Edit Modal */}
-      <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Club President</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {currentPresident && (
-            <Form>
-              <Form.Group controlId="formPresidentName">
-                <Form.Label>Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="name"
-                  value={currentPresident.name}
-                  onChange={handleChange}
-                />
-              </Form.Group>
-              <Form.Group controlId="formPresidentEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  name="email"
-                  value={currentPresident.email}
-                  onChange={handleChange}
-                />
-              </Form.Group>
-              <Form.Group controlId="formPresidentClub">
-                <Form.Label>Club</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="club"
-                  value={currentPresident.club}
-                  onChange={handleChange}
-                />
-              </Form.Group>
-            </Form>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
+                  </thead>
+                  <tbody>
+                    {presidents.map((president) => (
+                      <tr key={president.student_id}>
+                        <td>{president.president_name}</td>
+                        <td>{president.club_name}</td>
+                        <td>{president.email}</td>
+                        
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              ) : (
+                <h5 className="text-black mt-4">No club presidents found.</h5>
+              )}
+            </div>
+          </Col>
+        </Row>
+  
     </Container>
   );
 };

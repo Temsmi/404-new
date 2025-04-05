@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Table } from 'react-bootstrap';
 import Image from "next/image";
 
-
 const ManageClubs = () => {
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,12 +43,16 @@ const ManageClubs = () => {
   };
 
   const handleSave = async () => {
+    if (!formData.name || !formData.description || !formData.logo) {
+      alert('Please fill in all fields.');
+      return;
+    }
     try {
-      const res = await fetch(`/api/club`, { // Ensure this matches your API endpoint
+      const res = await fetch(`/api/club`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: selectedClub.id, // Include the club ID
+          id: selectedClub.id,
           name: formData.name,
           description: formData.description,
           logo: formData.logo
@@ -57,13 +60,15 @@ const ManageClubs = () => {
       });
 
       if (res.ok) {
-        const updatedClub = await res.json(); // Get the updated club data from the response
+        const updatedClub = await res.json();
         alert('Club Updated!');
-        setClubs(clubs.map(club => (club.id === updatedClub.id ? updatedClub : club))); // Update the state with the new data
-        setIsEditing(false); // Exit editing mode
-        setSelectedClub(null); // Clear selected club
+        setClubs(clubs.map(club => (club.id === updatedClub.id ? updatedClub : club)));
+        setIsEditing(false);
+        setSelectedClub(null);
       } else {
-        console.error('Failed to update club:', res.statusText);
+        const errorMessage = await res.text();
+        console.error('Failed to update club:', errorMessage);
+        alert('Failed to update club: ' + errorMessage);
       }
     } catch (error) {
       console.error('Error updating club:', error);
@@ -75,13 +80,18 @@ const ManageClubs = () => {
       const res = await fetch(`/api/club/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description: 'This club has been Deactivated' }),
+        body: JSON.stringify({ 
+          id: id, // Include the club ID
+          description: 'This club has been Deactivated' 
+        }),
       });
       if (res.ok) {
         alert('Club Deactivated!');
         setClubs(clubs.map(club => club.id === id ? { ...club, description: 'This club has been Deactivated' } : club));
       } else {
-        console.error('Failed to deactivate club:', res.statusText);
+        const errorMessage = await res.text();
+        console.error('Failed to deactivate club:', errorMessage);
+        alert('Failed to deactivate club: ' + errorMessage);
       }
     } catch (error) {
       console.error('Error deactivating club:', error);
@@ -103,7 +113,7 @@ const ManageClubs = () => {
           <h2 className="text-black font-weight-bold">Manage Clubs</h2>
         </Col>
         <Col className="text-end">
-          <Link href="/pages/managepresident">
+          <Link href="/dashboard/pages/managepresident">
             <Button variant="dark">Manage Presidents</Button>
           </Link>
         </Col>
@@ -129,7 +139,7 @@ const ManageClubs = () => {
                   <Form.Group controlId="formDescription">
                     <Form.Label>Club Description</Form.Label>
                     <Form.Control
-                      as="textarea"
+                      as=" textarea"
                       rows={3}
                       name="description"
                       value={formData.description}
@@ -186,7 +196,7 @@ const ManageClubs = () => {
                       <tr key={index}>
                         <td className="align-middle">
                           <div className="d-flex align-items-center">
-                          <div>
+                            <div>
                               <Image src={`/images/ClubsLogo/${club.logo}`} alt={club.name} width={20} height={20} unoptimized loading="eager" className="border p-4 rounded-1" />
                             </div>
                             <div className="ms-3 lh-1">
@@ -200,7 +210,7 @@ const ManageClubs = () => {
                         <td className="align-middle">{club.member_count}</td>
                         <td className="text-center">
                           <Button variant="primary" onClick={() => handleEdit(club)} className="me-2">Edit</Button>
-                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Desactivate</Button>
+                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
                         </td>
                       </tr>
                     ))
