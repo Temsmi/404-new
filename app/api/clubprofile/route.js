@@ -69,3 +69,55 @@ export async function PUT(req) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+export async function PUT(req) {
+    try {
+      const {
+        president_id,
+        student_id,
+        club_id,
+        date_selected,
+        club_name,
+        club_logo,
+        club_description,
+        email,
+        password,
+      } = await req.json();
+  
+      // اگر ایمیل جدید فرستاده شده
+      if (email && student_id) {
+        const emailQuery = `UPDATE student SET email = ? WHERE id = ?`;
+        await conn({ query: emailQuery, values: [email, student_id] });
+      }
+  
+      // اگر پسورد جدید فرستاده شده
+      if (password && student_id) {
+        const passwordQuery = `UPDATE student SET password = ? WHERE id = ?`;
+        await conn({ query: passwordQuery, values: [password, student_id] });
+      }
+  
+      // اگر اطلاعات رئیس فرستاده شده
+      if (president_id && student_id && club_id && date_selected) {
+        const presidentQuery = `
+          UPDATE president 
+          SET student_id = ?, club_id = ?, date_selected = ? 
+          WHERE id = ?
+        `;
+        await conn({ query: presidentQuery, values: [student_id, club_id, date_selected, president_id] });
+      }
+  
+      // اگر اطلاعات باشگاه فرستاده شده
+      if (club_id && (club_name || club_logo || club_description)) {
+        const clubQuery = `
+          UPDATE club 
+          SET name = ?, logo = ?, description = ? 
+          WHERE id = ?
+        `;
+        await conn({ query: clubQuery, values: [club_name, club_logo, club_description, club_id] });
+      }
+  
+      return NextResponse.json({ success: true });
+    } catch (error) {
+      console.error('Database update error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+  }

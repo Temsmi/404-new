@@ -8,6 +8,7 @@ export async function GET() {
             SELECT 
                 club.id, 
                 club.name, 
+                club.description, 
                 club.logo, 
                 COUNT(members.id) AS member_count,
                 student.name AS president_name 

@@ -9,7 +9,8 @@ import { Col, Row, Form, Card, Button, Alert } from 'react-bootstrap';
 // import hooks
 import useMounted from 'hooks/useMounted';
 
-const EmailSetting = () => {
+
+const EmailAdmin = () => {
   const hasMounted = useMounted();
   const [userData, setUserData] = useState(null);
   const [newEmail, setNewEmail] = useState('');
@@ -19,7 +20,7 @@ const EmailSetting = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch('/api/setting');
+        const res = await fetch('/api/Admin');
         const data = await res.json();
         if (res.ok) {
           setUserData(data);
@@ -37,7 +38,7 @@ const EmailSetting = () => {
   const handleEmailChange = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/setting', {
+      const res = await fetch('/api/Admin', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -65,7 +66,7 @@ const EmailSetting = () => {
     }
 
     try {
-      const res = await fetch('/api/setting', {
+      const res = await fetch('/api/Admin', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -198,4 +199,4 @@ const EmailSetting = () => {
   );
 };
 
-export default EmailSetting;
+export default EmailAdmin;

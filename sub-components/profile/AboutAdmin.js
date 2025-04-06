@@ -1,27 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Col, Row, Card, Spinner } from 'react-bootstrap';
 
-const AboutMe = () => {
-  const [president, setPresident] = useState(null);
+const AboutAdmin = () => {
+  const [admin, setadmin] = useState(null);
 
   useEffect(() => {
-    const fetchPresident = async () => {
+    const fetchadmin = async () => {
       try {
-        const res = await fetch('/api/setting');
+        const res = await fetch('/api/Admin');
         const data = await res.json();
-        setPresident(data);
+        setadmin(data);
       } catch (error) {
-        console.error('Error fetching president:', error);
+        console.error('Error fetching admin:', error);
       }
     };
-    fetchPresident();
+    fetchadmin();
   }, []);
 
-  if (!president) {
+  if (!admin) {
     return (
       <div className="text-center mt-4">
         <Spinner animation="border" variant="primary" />
-        <p>Loading president's information...</p>
+        <p>Loading admin's information...</p>
       </div>
     );
   }
@@ -30,21 +30,21 @@ const AboutMe = () => {
     <Col xl={6} lg={12} md={12} xs={12} className="mb-6">
       <Card>
         <Card.Body>
-          <Card.Title as="h4">About {president.name} {president.surname}</Card.Title>
+          <Card.Title as="h4">About {admin.name} {admin.surname}</Card.Title>
           <span className="text-uppercase fw-medium text-dark fs-5 ls-2">Bio</span>
-          <p className="mt-2 mb-6">I was born to become a club president!</p>
+          <p className="mt-2 mb-6">I was born to become a Admin!</p>
           <Row>
             <Col xs={12} className="mb-5">
               <h6 className="text-uppercase fs-5 ls-2">Department</h6>
-              <p className="mb-0">{president.dept}</p>
+              <p className="mb-0">{admin.dept}</p>
             </Col>
             <Col xs={6} className="mb-5">
               <h6 className="text-uppercase fs-5 ls-2">Phone</h6>
-              <p className="mb-0">{president.phone_num}</p>
+              <p className="mb-0">{admin.phone_num}</p>
             </Col>
             <Col xs={6}>
               <h6 className="text-uppercase fs-5 ls-2">Email</h6>
-              <p className="mb-0">{president.email}</p>
+              <p className="mb-0">{admin.email}</p>
             </Col>
           </Row>
         </Card.Body>
@@ -53,4 +53,4 @@ const AboutMe = () => {
   );
 };
 
-export default AboutMe;
+export default AboutAdmin;
