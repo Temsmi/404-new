@@ -1,22 +1,49 @@
 'use client';
 
-import { useState } from 'react';
-import { Container, Table, Button } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Container, Table, Button, Spinner } from 'react-bootstrap';
 import { useRouter } from 'next/navigation';
 
 const EventLogs = () => {
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-    // Sample event logs
-    const [events] = useState([
-        { id: 1, name: 'Music Festival', date: '2025-04-10', status: 'Approved' },
-        { id: 2, name: 'Food Fair', date: '2025-05-15', status: 'Denied' },
-        { id: 3, name: 'Tech Meetup', date: '2025-06-20', status: 'Pending' }
-    ]);
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await fetch('/api/eventlogs');
+                const data = await response.json();
+                if (response.ok) {
+                    setEvents(data);
+                } else {
+                    console.error('Error fetching events:', data.error);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
+    }, []);
 
     const handleEdit = (id) => {
-        router.push(`/dashboard-president/pages/event-edition?id=${id}`);
+        router.push(`/event-edition/${id}`);
     };
+
+    const handleAnnounce = (eventName) => {
+        alert(`Announcing event: ${eventName}`);
+    };
+
+    if (loading) {
+        return (
+            <Container className="text-center mt-5">
+                <Spinner animation="border" />
+            </Container>
+        );
+    }
 
     return (
         <Container className="mt-4">
@@ -26,7 +53,7 @@ const EventLogs = () => {
                     <tr>
                         <th>#</th>
                         <th>Event Name</th>
-                        <th>Date of Event</th>
+                        <th>Date</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -36,7 +63,7 @@ const EventLogs = () => {
                         <tr key={event.id}>
                             <td>{index + 1}</td>
                             <td>{event.name}</td>
-                            <td>{event.date}</td>
+                            <td>{new Date(event.date).toLocaleDateString()}</td>
                             <td>
                                 <span
                                     className={`badge ${
@@ -51,8 +78,12 @@ const EventLogs = () => {
                                 </span>
                             </td>
                             <td>
-                                {event.status !== 'Approved' && (
-                                    <Button variant="warning" size="md" onClick={() => handleEdit(event.id)}>
+                                {event.status === 'Approved' ? (
+                                    <Button variant="primary" onClick={() => handleAnnounce(event.name)}>
+                                        Announce
+                                    </Button>
+                                ) : (
+                                    <Button variant="warning" onClick={() => handleEdit(event.id)}>
                                         Edit
                                     </Button>
                                 )}
