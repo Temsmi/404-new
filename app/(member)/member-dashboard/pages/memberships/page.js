@@ -32,7 +32,7 @@ const Memberships = () => {
           <Spinner animation="border" variant="primary" />
         </div>
       ) : clubs.length === 0 ? (
-        <p className="text-center">You haven't joined any clubs yet.</p>
+        <p className="text-center">You haven&apos;t joined any clubs yet.</p>
       ) : (
         <Row xs={1} md={2} className="g-4">
           {clubs.map((club) => (
