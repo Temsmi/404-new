@@ -32,8 +32,15 @@ const EventLogs = () => {
     }, []);
 
     const handleEdit = (event) => {
-        setSelectedEvent(event);
-        console.log(event);
+        setSelectedEvent({
+            ...event,
+            feedback: event.feedback === 1 ? 1 : 0,
+            zoomOption: event.link ? 'yes' : 'no',
+            link: event.link || '',
+            approvalRaw: event.approvalRaw,
+           // status: event.status, // keep status (-1 for Denied)
+            feedbackReason: event.feedbackReason || '', // assuming it's in the API response
+        });
         setShowModal(true);
     };
 
@@ -43,6 +50,23 @@ const EventLogs = () => {
             ...prev,
             [name]: value,
         }));
+    };
+
+    const handleRadioChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedEvent((prev) => {
+            if (name === 'feedback') {
+                return { ...prev, feedback: value === 'yes' ? 1 : 0 };
+            }
+            if (name === 'zoomOption') {
+                return {
+                    ...prev,
+                    zoomOption: value,
+                    link: value === 'yes' ? (prev.link || '') : null,
+                };
+            }
+            return prev;
+        });
     };
 
     const handleModalClose = () => {
@@ -65,12 +89,10 @@ const EventLogs = () => {
         formData.append('description', selectedEvent.description);
         formData.append('eventTime', selectedEvent.time);
         formData.append('dateSelected', selectedEvent.date);
-        formData.append('isPostFeedback', selectedEvent.feedback);
-        formData.append('zoomLink', selectedEvent.link);
-        formData.append('eventImage', selectedEvent.image);
-
-        if (selectedEvent.image) {
-            formData.append('eventImage', selectedEvent.image);
+        formData.append('isPostFeedback', selectedEvent.feedback === 1 ? 'true' : 'false');
+        formData.append('zoomLink', selectedEvent.zoomOption === 'yes' ? selectedEvent.link : 'no');
+        if (selectedEvent.eventImage) {
+            formData.append('eventImage', selectedEvent.eventImage);
         }
 
         try {
@@ -162,13 +184,18 @@ const EventLogs = () => {
                     <Modal.Title>Edit Event</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                {selectedEvent?.approvalRaw === -1 && selectedEvent.feedbackReason && (
+    <div className="alert alert-danger">
+        <strong>Reason for Denial:</strong> {selectedEvent.feedbackReason}
+    </div>
+)}
                     {selectedEvent && (
                         <Form onSubmit={handleSaveChanges}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Event Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    name="eventName"
+                                    name="name"
                                     value={selectedEvent.name}
                                     onChange={handleInputChange}
                                     required
@@ -191,7 +218,7 @@ const EventLogs = () => {
                                 <Form.Label>Event Time</Form.Label>
                                 <Form.Control
                                     type="time"
-                                    name="eventTime"
+                                    name="time"
                                     value={selectedEvent.time}
                                     onChange={handleInputChange}
                                     required
@@ -202,7 +229,7 @@ const EventLogs = () => {
                                 <Form.Label>Event Date</Form.Label>
                                 <Form.Control
                                     type="date"
-                                    name="dateSelected"
+                                    name="date"
                                     value={selectedEvent.date ? new Date(selectedEvent.date).toISOString().slice(0, 10) : ''}
                                     onChange={handleInputChange}
                                     required
@@ -216,16 +243,10 @@ const EventLogs = () => {
                                     name="eventImage"
                                     onChange={handleFileChange}
                                 />
-                                {selectedEvent.eventImage ? (
+                                {selectedEvent.image && (
                                     <div className="mt-2">
-                                        <strong>Current Image: </strong>{selectedEvent.image.name}
+                                        <strong>Current Image: </strong>{typeof selectedEvent.image === 'string' ? selectedEvent.image : selectedEvent.image.name}
                                     </div>
-                                ) : (
-                                    selectedEvent.image && (
-                                        <div className="mt-2">
-                                            <strong>Current Image: </strong>{selectedEvent.image}
-                                        </div>
-                                    )
                                 )}
                             </Form.Group>
 
@@ -236,19 +257,19 @@ const EventLogs = () => {
                                         inline
                                         label="Yes"
                                         type="radio"
-                                        name="isPostFeedback"
+                                        name="feedback"
                                         value="yes"
                                         checked={selectedEvent.feedback === 1}
-                                        onChange={handleInputChange}
+                                        onChange={handleRadioChange}
                                     />
                                     <Form.Check
                                         inline
                                         label="No"
                                         type="radio"
-                                        name="isPostFeedback"
+                                        name="feedback"
                                         value="no"
                                         checked={selectedEvent.feedback === 0}
-                                        onChange={handleInputChange}
+                                        onChange={handleRadioChange}
                                     />
                                 </div>
                             </Form.Group>
@@ -260,30 +281,30 @@ const EventLogs = () => {
                                         inline
                                         label="Yes"
                                         type="radio"
-                                        name="zoomMeeting"
+                                        name="zoomOption"
                                         value="yes"
-                                        checked={selectedEvent.link === 'yes'}
-                                        onChange={handleInputChange}
+                                        checked={selectedEvent.zoomOption === 'yes'}
+                                        onChange={handleRadioChange}
                                     />
                                     <Form.Check
                                         inline
                                         label="No"
                                         type="radio"
-                                        name="zoomMeeting"
+                                        name="zoomOption"
                                         value="no"
-                                        checked={selectedEvent.link === 'no'}
-                                        onChange={handleInputChange}
+                                        checked={selectedEvent.zoomOption === 'no'}
+                                        onChange={handleRadioChange}
                                     />
                                 </div>
                             </Form.Group>
 
-                            {selectedEvent.zoomMeeting === 'yes' && (
+                            {selectedEvent.zoomOption === 'yes' && (
                                 <Form.Group className="mb-3">
                                     <Form.Label>Zoom Meeting Link</Form.Label>
                                     <Form.Control
                                         type="url"
-                                        name="zoomLink"
-                                        value={selectedEvent.link}
+                                        name="link"
+                                        value={selectedEvent.link || ''}
                                         onChange={handleInputChange}
                                         required
                                     />

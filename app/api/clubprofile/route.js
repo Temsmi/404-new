@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
-import { getSession } from 'app/lib/session'; // Adjust the import path for session
+import { getSession } from 'app/lib/session';
 
+// GET: Fetch president and club info
 export async function GET(req) {
     try {
         const session = await getSession(req);
@@ -19,7 +20,6 @@ export async function GET(req) {
 
         console.log("User ID from session:", userId);
 
-        // Fetch president information using userId
         const query = `
             SELECT 
                 p.id AS president_id, 
@@ -33,7 +33,8 @@ export async function GET(req) {
             JOIN club c ON p.club_id = c.id 
             WHERE p.student_id = ?`;
 
-        const [presidentClub] = await conn({ query, values: [userId] });
+        const result = await conn({ query, values: [userId] });
+        const presidentClub = Array.isArray(result) ? result[0] : result;
 
         if (!presidentClub) {
             return NextResponse.json({ error: "No president club found" }, { status: 404 });
@@ -46,22 +47,50 @@ export async function GET(req) {
     }
 }
 
-// Update president and club data
+// PUT: Update student, president, and club info
 export async function PUT(req) {
     try {
-        const { president_id, student_id, club_id, date_selected, club_name, club_logo, club_description } = await req.json();
+        const {
+            president_id,
+            student_id,
+            club_id,
+            date_selected,
+            club_name,
+            club_logo,
+            club_description,
+            email,
+            password,
+        } = await req.json();
 
-        if (!president_id || !student_id || !club_id) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        // Update student email
+        if (email && student_id) {
+            const emailQuery = `UPDATE student SET email = ? WHERE id = ?`;
+            await conn({ query: emailQuery, values: [email, student_id] });
+        }
+
+        // Update student password
+        if (password && student_id) {
+            const passwordQuery = `UPDATE student SET password = ? WHERE id = ?`;
+            await conn({ query: passwordQuery, values: [password, student_id] });
         }
 
         // Update president info
-        const presidentQuery = `UPDATE president SET student_id = ?, club_id = ?, date_selected = ? WHERE id = ?`;
-        await conn({ query: presidentQuery, values: [student_id, club_id, date_selected, president_id] });
+        if (president_id && student_id && club_id && date_selected) {
+            const presidentQuery = `
+                UPDATE president 
+                SET student_id = ?, club_id = ?, date_selected = ? 
+                WHERE id = ?`;
+            await conn({ query: presidentQuery, values: [student_id, club_id, date_selected, president_id] });
+        }
 
         // Update club info
-        const clubQuery = `UPDATE club SET name = ?, logo = ?, description = ? WHERE id = ?`;
-        await conn({ query: clubQuery, values: [club_name, club_logo, club_description, club_id] });
+        if (club_id && (club_name || club_logo || club_description)) {
+            const clubQuery = `
+                UPDATE club 
+                SET name = ?, logo = ?, description = ? 
+                WHERE id = ?`;
+            await conn({ query: clubQuery, values: [club_name, club_logo, club_description, club_id] });
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -69,55 +98,3 @@ export async function PUT(req) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
-export async function PUT(req) {
-    try {
-      const {
-        president_id,
-        student_id,
-        club_id,
-        date_selected,
-        club_name,
-        club_logo,
-        club_description,
-        email,
-        password,
-      } = await req.json();
-  
-      // اگر ایمیل جدید فرستاده شده
-      if (email && student_id) {
-        const emailQuery = `UPDATE student SET email = ? WHERE id = ?`;
-        await conn({ query: emailQuery, values: [email, student_id] });
-      }
-  
-      // اگر پسورد جدید فرستاده شده
-      if (password && student_id) {
-        const passwordQuery = `UPDATE student SET password = ? WHERE id = ?`;
-        await conn({ query: passwordQuery, values: [password, student_id] });
-      }
-  
-      // اگر اطلاعات رئیس فرستاده شده
-      if (president_id && student_id && club_id && date_selected) {
-        const presidentQuery = `
-          UPDATE president 
-          SET student_id = ?, club_id = ?, date_selected = ? 
-          WHERE id = ?
-        `;
-        await conn({ query: presidentQuery, values: [student_id, club_id, date_selected, president_id] });
-      }
-  
-      // اگر اطلاعات باشگاه فرستاده شده
-      if (club_id && (club_name || club_logo || club_description)) {
-        const clubQuery = `
-          UPDATE club 
-          SET name = ?, logo = ?, description = ? 
-          WHERE id = ?
-        `;
-        await conn({ query: clubQuery, values: [club_name, club_logo, club_description, club_id] });
-      }
-  
-      return NextResponse.json({ success: true });
-    } catch (error) {
-      console.error('Database update error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-  }
