@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { conn } from '../../../connections/conn'; // Adjust the path accordingly
-import { getSession } from 'app/lib/session'; // Adjust the import path for session
+//import { getSession } from 'app/lib/session'; // Adjust the import path for session
 
 // Configure Cloudinary
 cloudinary.config({
