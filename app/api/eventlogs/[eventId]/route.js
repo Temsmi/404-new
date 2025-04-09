@@ -1,19 +1,25 @@
-export async function GET(request, { params }) {
+import { NextResponse } from 'next/server';
+import { conn } from '../../../connections/conn';
+
+export async function PUT(req, { params }) {
     const { eventId } = params;
-  
-    // Replace with DB fetch
-    const event = { id: eventId, name: 'Sample Event', description: 'Description here', date: '2025-04-05' };
-  
-    return new Response(JSON.stringify({ event }), { status: 200 });
-  }
-  
-  export async function PUT(request, { params }) {
-    const { eventId } = params;
-    const body = await request.json();
-  
-    // Replace with DB update logic
-    console.log(`Updating event ${eventId}`, body);
-  
-    return new Response(JSON.stringify({ message: 'Event updated' }), { status: 200 });
-  }
-  
+    const { eventName, description, eventTime, dateSelected, isPostFeedback, zoomLink, eventImage } = await req.json();
+
+    try {
+        const updateQuery = `
+            UPDATE event1
+            SET date_name = ?, description = ?, event_time = ?, date_selected = ?, is_postfeedback = ?, zoom_link = ?, image = ?
+            WHERE id = ?
+        `;
+
+        await conn({
+            query: updateQuery,
+            values: [eventName, description, eventTime, dateSelected, isPostFeedback, zoomLink, eventImage, eventId],
+        });
+
+        return NextResponse.json({ message: 'Event updated successfully' });
+    } catch (error) {
+        console.error('Error updating event:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
