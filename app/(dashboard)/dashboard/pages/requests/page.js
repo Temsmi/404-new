@@ -175,7 +175,6 @@ const ActivityRequests = () => {
                       <p><strong>Time:</strong> {formatTime(req.time)}</p>
                       <p><strong>Description:</strong> {req.description}</p>
                       <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p>
-                      <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p>
                       <p><strong>Post Feedback:</strong> {req.hasFeedback ? "Included" : "Not Included"}</p>
                       <p className={`fw-bold ${req.status === 1 ? 'text-success' : req.status === 0 ? 'text-warning' : 'text-danger'}`}>
                         Status: {req.status === 1 ? "Approved" : req.status === 0 ? "Pending" : "Denied"}

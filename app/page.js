@@ -24,8 +24,11 @@ const Home = () => {
                         case 'president':
                             router.push('/dashboard-president');
                             break;
-                        default:
+                        case 'member':
                             router.push('/member-dashboard');
+                            break; 
+                        default:
+                            router.push('/nonMember');
                             break;
                     }
                 } else {
