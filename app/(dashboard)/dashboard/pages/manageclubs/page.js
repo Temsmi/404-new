@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Table } from 'react-bootstrap';
 import Image from "next/image";
+import { Spinner } from 'react-bootstrap';
 
 const ManageClubs = () => {
   const [clubs, setClubs] = useState([]);
@@ -190,9 +191,15 @@ const ManageClubs = () => {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr>
-                      <td colSpan="4" className="text-center">Loading clubs...</td>
-                    </tr>
+      <tr>
+      <td colSpan="5" className="text-center py-5">
+        <div className="d-flex flex-column align-items-center justify-content-center">
+          <Spinner animation="border" variant="info" role="status" />
+          <p className="mt-2 mb-0">Loading...</p>
+        </div>
+      </td>
+    </tr>
+    
                   ) : clubs.length > 0 ? (
                     clubs.map((club, index) => (
                       <tr key={index}>

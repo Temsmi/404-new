@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Image, Modal } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 
 // Helper function to format date
 const formatDate = (dateString) => {
@@ -29,23 +30,24 @@ const ActivityRequests = () => {
   const [denyReasons, setDenyReasons] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   // Fetch data from API on component mount
   useEffect(() => {
     const fetchRequests = async () => {
       try {
         const res = await fetch('/api/activityrequests');
         const data = await res.json();
-        console.log("Fetched data:", data);
         setRequests(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching activity requests:', error);
+      } finally {
+        setLoading(false); // <-- always set loading to false after fetching
       }
     };
-
+  
     fetchRequests();
   }, []);
-
+  
   // Approve request function
   const handleApprove = async (id) => {
     try {
@@ -150,8 +152,13 @@ const ActivityRequests = () => {
       <Row className="justify-content-center">
         <Col md={8}>
           <h2 className="text-center mb-4">Activity Requests</h2>
-          {requests.length === 0 ? (
-            <p>No requests available.</p>
+          {loading ? (
+  <div className="text-center">
+    <Spinner animation="border" variant="info" role="status" />
+    <p>Loading...</p>
+  </div>
+) : requests.length === 0 ? (
+  <p className="text-center">No requests available.</p>
           ) : (
             requests.map((req) => (
               <Card key={req.id} className="mb-3 shadow-sm">
