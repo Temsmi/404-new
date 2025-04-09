@@ -26,7 +26,24 @@ import { ToggleButton,ToggleButtonGroup } from 'react-bootstrap';
 const QuickMenu_p = () => {
     const [hasMounted, setHasMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await fetch('/api/username'); // ✅ This was missing
+                const data = await res.json();
+                console.log("Fetched user data:", data);
+                setUser(data.user);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        };
     
+        fetchUser();
+    }, []);
+    
+
     const isDesktop = useMediaQuery({
         query: '(min-width: 1224px)'
     })
@@ -146,7 +163,11 @@ const QuickMenu_p = () => {
                     >
                     <Dropdown.Item as="div" className="px-4 pb-0 pt-2" bsPrefix=' '>
                             <div className="lh-1 ">
-                                <h5 className="mb-1"> Club President</h5>
+                            <h5 className="mb-1">{user && user.name && user.surname
+  ? `${user.name} ${user.surname}`
+  : 'Loading user...'}
+</h5>
+
                            
                             </div>
                             <div className=" dropdown-divider mt-3 mb-2"></div>
