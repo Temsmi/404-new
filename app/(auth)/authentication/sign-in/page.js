@@ -37,6 +37,7 @@ const SignIn = () => {
       let redirectTo = "/dashboard";
       if (result.role === "president") redirectTo = "/dashboard-president";
       else if (result.role === "member") redirectTo = "/member-dashboard";
+      else if (result.role === "non-member") redirectTo = "/nonMember";
 
       window.location.href = redirectTo;
     } catch (error) {

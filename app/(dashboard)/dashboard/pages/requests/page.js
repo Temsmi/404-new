@@ -54,38 +54,24 @@ const ActivityRequests = () => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: 1, feedback: null }),
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status: 1, feedback: null }),
       });
 
       if (!res.ok) throw new Error("Failed to approve request");
-
-      if (!res.ok) throw new Error("Failed to approve request");
-      const updatedRequest = await res.json();
-      console.log("Approved Request Response:", updatedRequest);
-
-      setRequests((prevRequests) =>
-        prevRequests.map((req) => (req.id === id ? { ...req, status: 1 } : req))
-      );
-      console.log("Approved Request Response:", updatedRequest);
 
       setRequests((prevRequests) =>
         prevRequests.map((req) => (req.id === id ? { ...req, status: 1 } : req))
       );
     } catch (error) {
       console.error("Error approving request:", error);
-      console.error("Error approving request:", error);
     }
   };
 
-  // Open deny modal
   // Open deny modal
   const handleOpenDenyModal = (request) => {
     setSelectedRequest(request);
     setShowModal(true);
   };
 
-  // Deny request function
   // Deny request function
   const handleDeny = async () => {
     if (selectedRequest && denyReasons[selectedRequest.id]) {
@@ -103,7 +89,6 @@ const ActivityRequests = () => {
             });
 
             const data = await res.json();
-            console.log("Server Response:", data); // Log server response for debugging
 
             if (!res.ok) throw new Error(data.error || "Failed to deny request");
 
@@ -153,15 +138,8 @@ const ActivityRequests = () => {
             console.error("Error denying request:", error);
             alert("There was an error processing your request. Please check the console.");
         }
-    } else {
-        alert("Please provide a reason for denial.");
-    }
-
+    } 
 };
-
-
-};
-
 
   const handleReasonChange = (id, value) => {
     setDenyReasons({ ...denyReasons, [id]: value });
@@ -193,11 +171,9 @@ const ActivityRequests = () => {
                       <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p>
                       <p><strong>Post Feedback:</strong> {req.hasFeedback ? "Included" : "Not Included"}</p>
                       <p className={`fw-bold ${req.status === 1 ? 'text-success' : req.status === 0 ? 'text-warning' : 'text-danger'}`}>
-                      <p className={`fw-bold ${req.status === 1 ? 'text-success' : req.status === 0 ? 'text-warning' : 'text-danger'}`}>
                         Status: {req.status === 1 ? "Approved" : req.status === 0 ? "Pending" : "Denied"}
                       </p>
 
-                      {req.status === 0 && ( // Show buttons only for "pending" requests
 
                       {req.status === 0 && ( // Show buttons only for "pending" requests
                         <div className="d-flex gap-2">

@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 export function middleware(req) {
   const session = req.cookies.get("session");
 
-  console.log("Session from cookies:", session); // Debugging
 
   if (!session && req.nextUrl.pathname !== "/authentication/sign-in") {
     return NextResponse.redirect(new URL("/authentication/sign-in", req.url));
@@ -14,5 +13,5 @@ export function middleware(req) {
 
 // Apply middleware to protect specific routes
 export const config = {
-  matcher: ["/dashboard/:path*", "/dashboard-president/:path*", "/member-dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/dashboard-president/:path*", "/member-dashboard/:path*", "/nonMember/:path*"],
 };
