@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Container, Table, Button, Form } from 'react-bootstrap';
-import styles from '../../styles/chatSelection.module.css';
+import styles from 'styles/chatSelection.module.scss';
 
 
 const members = [
