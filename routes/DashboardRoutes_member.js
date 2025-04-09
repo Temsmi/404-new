@@ -39,7 +39,10 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Memberships',
 		icon: 'lock',
-		link: '/dashboard/elections'
+		children: [
+			{ id: uuid(), link: '/member-dashboard/pages/memberships', name: ' My Memberships' },
+			{ id: uuid(), link: '/member-dashboard/pages/clubs', name: ' Clubs'},
+		]
 	},
 	{
 		id: uuid(),
