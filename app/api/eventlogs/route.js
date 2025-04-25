@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import 'dotenv/config';
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';

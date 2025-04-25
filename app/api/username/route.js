@@ -1,4 +1,5 @@
-// app/api/username/route.js
+export const dynamic = "force-dynamic";
+
 import { getSession } from 'app/lib/session';
 import { conn } from 'app/connections/conn';
 import { NextResponse } from 'next/server';

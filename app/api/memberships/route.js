@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 import { getSession } from 'app/lib/session'; // Make sure this path is correct!

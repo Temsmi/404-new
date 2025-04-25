@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { conn } from '../../connections/conn'; // Adjust import path
 import { getSession } from 'app/lib/session';
 
