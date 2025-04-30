@@ -26,7 +26,7 @@ export async function POST(req) {
         values: [email, password],
       });
     }
-
+    console.log(result);
     if (!result || result.length === 0) {
       return NextResponse.json({ success: false, message: 'Invalid credentials' }, { status: 401 });
     }

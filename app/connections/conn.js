@@ -12,9 +12,6 @@ async function createPool() {
       waitForConnections: true,
       connectionLimit: 50,
       queueLimit: 0,
-      ssl: {
-        rejectUnauthorized: true,
-      },
     });
   }
 }
