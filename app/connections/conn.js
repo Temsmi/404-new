@@ -1,22 +1,9 @@
 import mysql from "mysql2/promise";
-import fs from 'fs';
-import path from 'path';
 
-const globalForMySQL = globalThis;
-
-let pool = globalForMySQL.mysqlPool || null;
+let pool; // Declare pool as a mutable variable
 
 async function createPool() {
   if (!pool) {
-    let caCert;
-    if (process.env.DB_CA_CERT) {
-      // Use env var version (replace escaped newlines)
-      caCert = process.env.DB_CA_CERT.replace(/\\n/g, "\n");
-    } else {
-      // Fallback to reading the local file
-      const certPath = path.join(process.cwd(), "lib", "ca.pem");
-      caCert = fs.readFileSync(certPath, "utf-8");
-    }
     pool = mysql.createPool({
       host: process.env.DB_HOST,
       database: process.env.DB_NAME ,
@@ -26,11 +13,9 @@ async function createPool() {
       connectionLimit: 50,
       queueLimit: 0,
       ssl: {
-        ca: caCert,
         rejectUnauthorized: true,
       },
     });
-    globalForMySQL.mysqlPool = pool;
   }
 }
 
@@ -57,7 +42,7 @@ export async function conn({ query, values = [] }) {
     const [results] = await connectionPool.execute(query, values);
     return results;
   } catch (error) {
-    console.error("Database Error:", error.message, "\nQuery:", query);
+    console.error("Database Error:", error);
     return { error: error.message };
   }
 }
