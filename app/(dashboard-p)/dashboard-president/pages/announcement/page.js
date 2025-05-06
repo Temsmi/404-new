@@ -1,80 +1,112 @@
-// 'use client';
+'use client';
 
-// import React, { useState } from 'react';
-// import { Container, Form, Button, Alert } from 'react-bootstrap';
-// import ReactQuill from 'react-quill';  // Import react-quill for text editing
-// import 'react-quill/dist/quill.snow.css';  // Import the styling for the editor
+import React, { useRef, useState } from 'react';
+import { Container, Form, Button, ButtonGroup, Dropdown, DropdownButton } from 'react-bootstrap';
 
+const CreateAnnouncementPage = () => {
+    const editorRef = useRef(null);
+    const [announcementData, setAnnouncementData] = useState({
+        date: new Date().toLocaleDateString(),
+        message: '',
+    });
 
-// const CreateAnnouncementPage = () => {
-//     const [announcementData, setAnnouncementData] = useState({
-//         date: new Date().toLocaleDateString(),  // Today's date
-//         message: '',
-//     });
+    const formatText = (command, value = null) => {
+        document.execCommand(command, false, value);
+    };
 
-//     const handleChange = (value) => {
-//         setAnnouncementData({ ...announcementData, message: value });
-//     };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const content = editorRef.current.innerHTML;
+        setAnnouncementData((prev) => ({ ...prev, message: content }));
+        console.log('Announcement Submitted:', { ...announcementData, message: content });
+        // Submit to server here if needed
+    };
 
-//     const handleSubmit = (e) => {
-//         e.preventDefault();
-//         console.log('Announcement Submitted:', announcementData);
-//         // You can send this data to the server here for admin approval
-//     };
+    return (
+        <Container className="d-flex justify-content-center align-items-start" style={{ minHeight: '100vh' }}>
+            <div className="p-4" style={{ width: '600px', flex: 1 }}>
+                <h3 className="mb-3 text-center">Create Announcement</h3>
 
-//     return (
-//         <Container className="d-flex justify-content-center align-items-start" style={{ minHeight: '100vh' }}>
-//             <div className="p-4" style={{ width: '600px', flex: 1  }}>
-//                 <h3 className="mb-3 text-center">Create Announcement</h3>
+                {/* Date Field */}
+                <Form.Group className="mb-3">
+                    <Form.Label>Date</Form.Label>
+                    <Form.Control type="text" value={announcementData.date} readOnly />
+                </Form.Group>
 
-//                 {/* Today's Date (Non-editable) */}
-//                 <Form.Group className="mb-3">
-//                     <Form.Label>Date</Form.Label>
-//                     <Form.Control
-//                         type="text"
-//                         value={announcementData.date}
-//                         readOnly
-//                     />
-//                 </Form.Group>
+                {/* Toolbar */}
+                <div className="mb-2 d-flex flex-wrap gap-2">
+                    <ButtonGroup>
+                        <Button variant="outline-secondary" onClick={() => formatText('bold')}><b>B</b></Button>
+                        <Button variant="outline-secondary" onClick={() => formatText('italic')}><i>I</i></Button>
+                        <Button variant="outline-secondary" onClick={() => formatText('underline')}><u>U</u></Button>
+                        <Button variant="outline-secondary" onClick={() => formatText('insertUnorderedList')}>• List</Button>
+                        <Button variant="outline-secondary" onClick={() => formatText('insertOrderedList')}>1. List</Button>
+                        <Button variant="outline-secondary" onClick={() => formatText('justifyLeft')}>⬅</Button>
+                        <Button variant="outline-secondary" onClick={() => formatText('justifyCenter')}>↔</Button>
+                        <Button variant="outline-secondary" onClick={() => formatText('justifyRight')}>➡</Button>
+                        <Button variant="outline-secondary" onClick={() => formatText('removeFormat')}>Clear</Button>
+                    </ButtonGroup>
 
-//                 {/* Important Message for Club Members */}
-//                 <Form.Group className="mb-3">
-//                     <Form.Label>Message </Form.Label>
-//                     <ReactQuill
-//                         value={announcementData.message}
-//                         onChange={handleChange}
-//                         theme="snow"
-//                         modules={{
-//                             toolbar: [
-//                                 [{ 'header': '1'}, { 'header': '2'}, { 'font': [] }],
-//                                 [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-//                                 ['bold', 'italic', 'underline', 'strike'],
-//                                 [{ 'color': [] }, { 'background': [] }],
-//                                 [{ 'align': [] }],
-//                                 ['link'],
-//                                 ['blockquote', 'code-block'],
-//                                 [{ 'size': ['small', 'normal', 'large', 'huge'] }],
-//                                 [{ 'indent': '-1'}, { 'indent': '+1' }],
-//                                 [{ 'direction': 'rtl' }],
-//                                 ['clean']
-//                             ],
-//                         }}
-//                         placeholder="Write your announcement here..."
-//                         style={{
-//                             height: '300px',              // Set the height for the editor
-                                    
-//                         }}
-//                     />
-//                 </Form.Group>
+                    {/* Font Size */}
+                    <DropdownButton title="Size" variant="outline-secondary">
+                        <Dropdown.Item onClick={() => formatText('fontSize', 1)}>Small</Dropdown.Item>
+                        <Dropdown.Item onClick={() => formatText('fontSize', 3)}>Normal</Dropdown.Item>
+                        <Dropdown.Item onClick={() => formatText('fontSize', 5)}>Large</Dropdown.Item>
+                        <Dropdown.Item onClick={() => formatText('fontSize', 7)}>Huge</Dropdown.Item>
+                    </DropdownButton>
 
-//                 {/* Submit Button */}
-//                 <Button variant="primary" type="submit" className="w-100 mt-8" onClick={handleSubmit}>
-//                     Submit
-//                 </Button>
+                    {/* Headings */}
+                    <DropdownButton title="Heading" variant="outline-secondary">
+                        <Dropdown.Item onClick={() => formatText('formatBlock', 'H1')}>H1</Dropdown.Item>
+                        <Dropdown.Item onClick={() => formatText('formatBlock', 'H2')}>H2</Dropdown.Item>
+                        <Dropdown.Item onClick={() => formatText('formatBlock', 'P')}>Paragraph</Dropdown.Item>
+                    </DropdownButton>
 
-//             </div>
-//         </Container>
-//     );
-// };
+                    {/* Text Color */}
+                    <DropdownButton title="Text Color" variant="outline-secondary">
+                        <Dropdown.Item onClick={() => formatText('foreColor', 'red')}>Red</Dropdown.Item>
+                        <Dropdown.Item onClick={() => formatText('foreColor', 'blue')}>Blue</Dropdown.Item>
+                        <Dropdown.Item onClick={() => formatText('foreColor', 'green')}>Green</Dropdown.Item>
+                        <Dropdown.Item onClick={() => formatText('foreColor', 'black')}>Black</Dropdown.Item>
+                    </DropdownButton>
 
-// export default CreateAnnouncementPage;
+                    {/* Link */}
+                    <Button
+                        variant="outline-secondary"
+                        onClick={() => {
+                            const url = prompt('Enter URL:', 'https://');
+                            if (url) formatText('createLink', url);
+                        }}
+                    >
+                        🔗 Link
+                    </Button>
+                </div>
+
+                {/* Rich Text Editor */}
+                <Form.Group className="mb-3">
+                    <Form.Label>Message</Form.Label>
+                    <div
+                        ref={editorRef}
+                        contentEditable
+                        style={{
+                            border: '1px solid #ccc',
+                            minHeight: '300px',
+                            padding: '10px',
+                            borderRadius: '5px',
+                            backgroundColor: 'white',
+                            overflowY: 'auto',
+                        }}
+                        placeholder="Write your announcement here..."
+                    />
+                </Form.Group>
+
+                {/* Submit Button */}
+                <Button variant="primary" type="submit" className="mt-3 mx-auto d-block" onClick={handleSubmit}>
+                    Submit
+                </Button>
+            </div>
+        </Container>
+    );
+};
+
+export default CreateAnnouncementPage;

@@ -57,7 +57,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Elections',
 		icon: 'lock',
-		link: '/dashboard/elections'
+		link: '/member-dashboard/pages/VotePage'
 	},	
 	{
 		id: uuid(),
