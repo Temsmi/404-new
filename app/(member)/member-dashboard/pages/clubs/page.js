@@ -2,14 +2,21 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Modal, Spinner } from 'react-bootstrap';
-import Image from "next/image";
+import { Container, Row, Col, Card, Button, Modal, Spinner, Form } from 'react-bootstrap';
+import Image from 'next/image';
+
+const truncateText = (text, maxLength) => {
+  if (!text) return '';
+  return text.length <= maxLength ? text : text.substring(0, text.lastIndexOf(' ', maxLength)) + '...';
+};
 
 const ManageClubs = () => {
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedClub, setSelectedClub] = useState(null);
   const [joinedClubs, setJoinedClubs] = useState(new Set());
+  const [search, setSearch] = useState('');
+  const [sortField, setSortField] = useState('name');
 
   useEffect(() => {
     const fetchClubs = async () => {
@@ -17,6 +24,8 @@ const ManageClubs = () => {
         const res = await fetch('/api/club-join');
         const data = await res.json();
         setClubs(Array.isArray(data) ? data : []);
+        const joined = data.filter(c => c.is_member).map(c => c.id);
+        setJoinedClubs(new Set(joined));
       } catch (error) {
         console.error('Error fetching clubs:', error);
         setClubs([]);
@@ -29,14 +38,24 @@ const ManageClubs = () => {
   }, []);
 
   const handleJoin = async (id) => {
+    if (joinedClubs.has(id)) return;
+    if (joinedClubs.size >= 3) {
+      alert('You can only join up to 3 clubs.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/club-join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clubId: id })
       });
+
       if (res.ok) {
-        setJoinedClubs(new Set([...joinedClubs, id]));
+        setJoinedClubs(prev => new Set([...prev, id]));
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to join club.');
       }
     } catch (error) {
       console.error('Error joining club:', error);
@@ -50,14 +69,29 @@ const ManageClubs = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clubId: id })
       });
-      if (res.ok) {
-        setJoinedClubs(new Set(data.filter(c => c.is_member).map(c => c.id)));
 
+      if (res.ok) {
+        setJoinedClubs(prev => {
+          const updated = new Set(prev);
+          updated.delete(id);
+          return updated;
+        });
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to drop club.');
       }
     } catch (error) {
       console.error('Error dropping club:', error);
     }
   };
+
+  const filteredAndSortedClubs = [...clubs]
+    .filter(club => club.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortField === 'name') return a.name.localeCompare(b.name);
+      if (sortField === 'date') return new Date(a.join_date) - new Date(b.join_date);
+      return 0;
+    });
 
   return (
     <Container className="py-4">
@@ -67,44 +101,88 @@ const ManageClubs = () => {
           <p>Loading...</p>
         </div>
       ) : (
-        <Row>
-          {clubs.map((club) => (
-            <Col key={club.id} md={4} className="mb-4">
-              <Card className="shadow-sm text-center h-100 p-3">
-                <div
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => setSelectedClub(club)}
-                >
-              <Image
-  src={club.logo ? `/images/ClubsLogo/${club.logo}` : "/images/default-logo.png"}
-  alt={club.name}
-  width={100}
-  height={100}
-  className="img-fluid rounded-circle mx-auto"
-/>
+        <>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <Form.Control
+              type="text"
+              placeholder="Search clubs..."
+              style={{ width: '50%' }}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
 
-                  <Card.Body>
-                    <Card.Title className="mb-2">{club.name}</Card.Title>
-                    <Card.Text style={{ fontSize: "0.9rem", color: "#666" }}>
-                      {club.description.substring(0, 60)}...
-                    </Card.Text>
-                  </Card.Body>
-                </div>
-                <div className="d-flex justify-content-center mb-2">
-                  {joinedClubs.has(club.id) ? (
-                    <Button variant="danger" onClick={() => handleDrop(club.id)}>
-                      Drop
-                    </Button>
-                  ) : (
-                    <Button variant="success" onClick={() => handleJoin(club.id)}>
-                      Join
-                    </Button>
-                  )}
-                </div>
-              </Card>
+            <Form.Select
+              value={sortField}
+              onChange={(e) => setSortField(e.target.value)}
+              style={{ width: '200px' }}
+            >
+              <option value="name">Sort by Name (A-Z)</option>
+              <option value="date">Sort by Join Date</option>
+            </Form.Select>
+          </div>
+
+          <Row className="justify-content-center">
+            <Col md={10}>
+              <div className="table-responsive">
+                <table className="table table-bordered table-hover bg-white">
+                  <thead className="table-light">
+                    <tr>
+                      <th style={{ width: '60px' }}>Logo</th>
+                      <th>Name</th>
+                      <th>Description</th>
+                      <th style={{ width: '160px' }} className="text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredAndSortedClubs.map((club) => (
+                      <tr key={club.id}>
+                        <td className="text-center">
+                          <Image
+                            src={club.logo ? `/images/ClubsLogo/${club.logo}` : "/images/default-logo.png"}
+                            alt={`Logo of ${club.name} club`}
+                            width={40}
+                            height={40}
+                            className="rounded-circle"
+                          />
+                        </td>
+                        <td>{club.name}</td>
+                        <td>{truncateText(club.description, 80)}</td>
+                        <td className="text-center">
+                          <Button
+                            variant="outline-info"
+                            size="sm"
+                            className="me-2 mb-1"
+                            onClick={() => setSelectedClub(club)}
+                          >
+                            View
+                          </Button>
+                          {joinedClubs.has(club.id) ? (
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleDrop(club.id)}
+                            >
+                              Drop
+                            </Button>
+                          ) : (
+                            <Button
+                              variant={joinedClubs.size >= 3 ? "secondary" : "outline-success"}
+                              size="sm"
+                              onClick={() => handleJoin(club.id)}
+                              disabled={joinedClubs.size >= 3}
+                            >
+                              {joinedClubs.size >= 3 ? "Limit Reached" : "Join"}
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </Col>
-          ))}
-        </Row>
+          </Row>
+        </>
       )}
 
       {/* Modal for Full Club Details */}
@@ -115,14 +193,13 @@ const ManageClubs = () => {
           </Modal.Header>
           <Modal.Body>
             <div className="text-center mb-3">
-             <Image
-  src={selectedClub.logo ? `/images/ClubsLogo/${selectedClub.logo}` : "/images/default-logo.png"}
-  alt={selectedClub.name}
-  width={100}
-  height={100}
-  className="img-fluid rounded-circle mx-auto"
-/>
-
+              <Image
+                src={selectedClub.logo ? `/images/ClubsLogo/${selectedClub.logo}` : "/images/default-logo.png"}
+                alt={`Logo of ${selectedClub.name} club`}
+                width={100}
+                height={100}
+                className="img-fluid rounded-circle mx-auto"
+              />
             </div>
             <p><strong>Description:</strong> {selectedClub.description}</p>
             <p><strong>President:</strong> {selectedClub.president_name || 'N/A'}</p>
