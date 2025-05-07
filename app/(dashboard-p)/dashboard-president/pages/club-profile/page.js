@@ -6,6 +6,7 @@ import { Container, Row, Col, Button, Form, Card } from 'react-bootstrap';
 const ClubDescription = () => {
     const [clubData, setClubData] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const fileInputRef = useRef(null); // Ref برای پاک کردن مقدار فایل
 
     useEffect(() => {
         fetch("/api/clubprofile")
@@ -34,26 +35,39 @@ const ClubDescription = () => {
         const file = e.target.files[0];
         if (!file) return;
     
+        // پیش‌نمایش موقت
         const reader = new FileReader();
         reader.onloadend = () => {
-            setClubData({ ...clubData, club_logo: reader.result }); // Temporary preview
+            setClubData(prev => ({ ...prev, club_logo_preview: reader.result }));
         };
         reader.readAsDataURL(file);
     
+        // آپلود واقعی
         const formData = new FormData();
         formData.append("file", file);
     
-        fetch("/api/upload", {
+        fetch("/api/clubprofile", {
             method: "POST",
             body: formData
         })
         .then((res) => res.json())
         .then((data) => {
-            if (data.filePath) { // Ensure this matches your API response
-                setClubData({ ...clubData, club_logo: data.filePath });
+            if (data.filePath) {
+                setClubData(prev => ({
+                    ...prev,
+                    
+                    club_logo: data.filePath  // فقط اسم فایل
+                }));
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = ''; // این مقدار را پاک می‌کند
+                  }            } else {
+                alert("مشکل در آپلود تصویر");
             }
         })
-        .catch((error) => console.error("File upload error:", error));
+        .catch((error) => {
+            console.error("File upload error:", error);
+            alert("خطا در آپلود عکس");
+        });
     };
     
 
@@ -90,7 +104,9 @@ const ClubDescription = () => {
     className="img-fluid rounded"
     style={{ maxWidth: "300px", marginTop: "10px" }}
     onError={(e) => (e.target.src = "/images/default-logo.png")}
+
 />
+
 
                     </Col>
                     <Col md={8}>
@@ -140,7 +156,11 @@ const ClubDescription = () => {
                             <Form.Label>Club Logo</Form.Label>
                             <Form.Control
                                 type="file"
+                                accept="image/*"
+
                                 onChange={handleFileChange}
+                                ref={fileInputRef} // مقدار را پاک می‌کند
+
                             />
                         </Form.Group>
 
