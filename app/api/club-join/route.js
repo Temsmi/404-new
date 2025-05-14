@@ -38,41 +38,63 @@ export async function GET() {
 }
 
 export async function POST(req) {
-    try {
-      const session = await getSession();
-      if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
-      const { clubId } = await req.json();
-      if (!clubId) return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
-  
-      const result = await conn({
-        query: 'INSERT INTO members (student_id, club_id, date_joined) VALUES (?, ?, CURDATE())',
-        values: [session.userId, clubId],
-      });
-  
-      return NextResponse.json({ message: 'Joined club successfully' });
-    } catch (error) {
-      console.error('Join error:', error);
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { clubId } = await req.json();
+    if (!clubId) return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
+
+    // چک کردن عضویت تکراری
+    const duplicateCheck = await conn({
+      query: 'SELECT 1 FROM members WHERE student_id = ? AND club_id = ?',
+      values: [session.userId, clubId],
+    });
+
+    if (duplicateCheck.length > 0) {
+      return NextResponse.json({ error: 'You are already a member of this club' }, { status: 400 });
     }
-  }
-  
-  export async function DELETE(req) {
-    try {
-      const session = await getSession();
-      if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
-      const { clubId } = await req.json();
-      if (!clubId) return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
-  
-      const result = await conn({
-        query: 'DELETE FROM members WHERE student_id = ? AND club_id = ?',
-        values: [session.userId, clubId],
-      });
-  
-      return NextResponse.json({ message: 'Dropped club successfully' });
-    } catch (error) {
-      console.error('Drop error:', error);
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+
+    // بررسی اینکه بیشتر از ۳ کلاب عضو نشود
+    const checkRes = await conn({
+      query: 'SELECT COUNT(*) AS count FROM members WHERE student_id = ?',
+      values: [session.userId],
+    });
+
+    if (checkRes[0]?.count >= 3) {
+      return NextResponse.json({ error: 'Maximum 3 club memberships allowed' }, { status: 400 });
     }
+
+    // ثبت عضویت جدید
+    await conn({
+      query: 'INSERT INTO members (student_id, club_id, date_joined) VALUES (?, ?, CURDATE())',
+      values: [session.userId, clubId],
+    });
+
+    return NextResponse.json({ message: 'Joined club successfully' });
+  } catch (error) {
+    console.error('Join error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
+}
+export async function DELETE(req) {
+  try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const body = await req.text(); // چون Edge runtime ممکنه با req.json مشکل داشته باشه
+    const { clubId } = JSON.parse(body);
+
+    if (!clubId) return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
+
+    await conn({
+      query: 'DELETE FROM members WHERE student_id = ? AND club_id = ?',
+      values: [session.userId, clubId],
+    });
+
+    return NextResponse.json({ message: 'Dropped club successfully' });
+  } catch (error) {
+    console.error('Drop error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

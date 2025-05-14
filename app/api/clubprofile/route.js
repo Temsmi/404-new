@@ -1,24 +1,18 @@
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 import { getSession } from 'app/lib/session';
+import fs from 'fs';
+import path from 'path';
 
-// GET: Fetch president and club info
+// کنترل ورودی‌های مختلف (GET, PUT, POST)
 export async function GET(req) {
     try {
         const session = await getSession(req);
-        console.log("Session:", session);
 
-        let userId;
-        if (session?.userId) {
-            userId = session.userId;
-        } else if (session?.user?.userId) {
-            userId = session.user.userId;
-        } else {
-            console.error("No userId found in session.");
+        let userId = session?.userId || session?.user?.userId;
+        if (!userId) {
             return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
         }
-
-        console.log("User ID from session:", userId);
 
         const query = `
             SELECT 
@@ -42,12 +36,10 @@ export async function GET(req) {
 
         return NextResponse.json(presidentClub);
     } catch (error) {
-        console.error('Database error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
-// PUT: Update student, president, and club info
 export async function PUT(req) {
     try {
         const {
@@ -62,39 +54,58 @@ export async function PUT(req) {
             password,
         } = await req.json();
 
-        // Update student email
         if (email && student_id) {
-            const emailQuery = `UPDATE student SET email = ? WHERE id = ?`;
-            await conn({ query: emailQuery, values: [email, student_id] });
+            await conn({ query: `UPDATE student SET email = ? WHERE id = ?`, values: [email, student_id] });
         }
 
-        // Update student password
         if (password && student_id) {
-            const passwordQuery = `UPDATE student SET password = ? WHERE id = ?`;
-            await conn({ query: passwordQuery, values: [password, student_id] });
+            await conn({ query: `UPDATE student SET password = ? WHERE id = ?`, values: [password, student_id] });
         }
 
-        // Update president info
         if (president_id && student_id && club_id && date_selected) {
-            const presidentQuery = `
-                UPDATE president 
-                SET student_id = ?, club_id = ?, date_selected = ? 
-                WHERE id = ?`;
-            await conn({ query: presidentQuery, values: [student_id, club_id, date_selected, president_id] });
+            await conn({
+                query: `UPDATE president SET student_id = ?, club_id = ?, date_selected = ? WHERE id = ?`,
+                values: [student_id, club_id, date_selected, president_id],
+            });
         }
 
-        // Update club info
         if (club_id && (club_name || club_logo || club_description)) {
-            const clubQuery = `
-                UPDATE club 
-                SET name = ?, logo = ?, description = ? 
-                WHERE id = ?`;
-            await conn({ query: clubQuery, values: [club_name, club_logo, club_description, club_id] });
+            await conn({
+                query: `UPDATE club SET name = ?, logo = ?, description = ? WHERE id = ?`,
+                values: [club_name, club_logo, club_description, club_id],
+            });
         }
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Database update error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+export async function POST(req) {
+    try {
+        const formData = await req.formData();
+        const file = formData.get('file');
+
+        if (!file) {
+            return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+        }
+
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        const fileName = file.name.replace(/^\d+-/, '').replace(/\s/g, '_');
+        const uploadPath = path.join(process.cwd(), 'public/images/ClubsLogo');
+
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+
+        const filePath = path.join(uploadPath, fileName);
+        fs.writeFileSync(filePath, buffer);
+
+        return NextResponse.json({ filePath: fileName });
+    } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
