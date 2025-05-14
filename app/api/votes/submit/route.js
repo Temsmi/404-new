@@ -60,7 +60,7 @@ export async function POST(req) {
 
     // Update vote count
     await conn({
-      query: 'UPDATE candidates SET amount_of_votes = amount_of_votes + 1 WHERE id = ?',
+      query: 'UPDATE candidate SET amount_of_votes = amount_of_votes + 1 WHERE id = ?',
       values: [candidate_id],
     });
 

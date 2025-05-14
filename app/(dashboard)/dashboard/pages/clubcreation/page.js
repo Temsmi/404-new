@@ -6,8 +6,7 @@ const ClubCreationForm = () => {
   const [clubName, setClubName] = useState('');
   const [description, setDescription] = useState('');
   const [logo, setLogo] = useState(null);
-  const fileInputRef = useRef(null); // Ref برای پاک کردن مقدار فایل
-
+  const fileInputRef = useRef(null); 
   const handleImageUpload = (event) => {
     setLogo(event.target.files[0]);
   };
@@ -40,7 +39,7 @@ const ClubCreationForm = () => {
 
         // Reset file input
         if (fileInputRef.current) {
-          fileInputRef.current.value = ''; // این مقدار را پاک می‌کند
+          fileInputRef.current.value = ''; 
         }
       } else {
         alert('Error: ' + result.error);
