@@ -5,62 +5,52 @@ import { getSession } from 'app/lib/session';
 export async function POST(req) {
   try {
     const session = await getSession();
-    const stdno = session?.stdno;
+   
 
-    if (!stdno) {
+    if (!session?.userId) { 
+      console.warn('Unauthorized access: No session or userId');
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
+   
+    const { candidate_id, club_id } = await req.json();
 
-    const body = await req.json();
-    const { candidate_id, club_id } = body;
-
-    // Get student_id
-    const studentRows = await conn({
-      query: 'SELECT id FROM student WHERE std_no = ?',
-      values: [stdno],
-    });
-
-    if (studentRows.length === 0) {
-      return NextResponse.json({ message: 'Student not found' }, { status: 404 });
-    }
-
-    const student_id = studentRows[0].id;
-
-    // Check if already voted
-    const voteCheck = await conn({
-      query: `
-        SELECT v.id FROM votes v
-        JOIN members m ON v.member_id = m.id
-        WHERE m.student_id = ? AND v.club_id = ?
-      `,
-      values: [student_id, club_id],
-    });
-
-    if (voteCheck.length > 0) {
-      return NextResponse.json({ message: 'You already voted in this club' }, { status: 400 });
-    }
-
-    // Get member_id
-    const memberRow = await conn({
+    // Get the member_id for this student and club
+    const [member] = await conn({
       query: 'SELECT id FROM members WHERE student_id = ? AND club_id = ?',
-      values: [student_id, club_id],
+      values: [session.userId, club_id],
     });
 
-    if (memberRow.length === 0) {
-      return NextResponse.json({ message: 'Not a member of this club' }, { status: 403 });
+    if (!member) {
+      return NextResponse.json({ message: 'You are not a member of this club' }, { status: 403 });
     }
 
-    const member_id = memberRow[0].id;
+    const member_id = member.id;
 
-    // Insert vote
+    // Check if the student has already voted in this club
+    const [existingVote] = await conn({
+      query: 'SELECT id FROM votes WHERE member_id = ? AND club_id = ?',
+      values: [member_id, club_id],
+    });
+
+    if (existingVote) {
+      return NextResponse.json({ message: 'You have already voted in this club' }, { status: 400 });
+    }
+
+    // Record the vote
     await conn({
-      query: 'INSERT INTO votes (member_id, candidate_id, club_id, date) VALUES (?, ?, ?, NOW())',
+      query: `
+        INSERT INTO votes (member_id, candidate_id, club_id, date)
+        VALUES (?, ?, ?, NOW())
+      `,
       values: [member_id, candidate_id, club_id],
     });
 
-    // Update vote count
+    // Update candidate's vote count
     await conn({
-      query: 'UPDATE candidate SET amount_of_votes = amount_of_votes + 1 WHERE id = ?',
+      query: `
+        UPDATE candidate SET amount_of_votes = amount_of_votes + 1
+        WHERE id = ?
+      `,
       values: [candidate_id],
     });
 

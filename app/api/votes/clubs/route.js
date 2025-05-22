@@ -8,7 +8,7 @@ export async function GET(req) {
 
    
 
-    if (!session?.userId) { // Check for userId instead of stdno
+    if (!session?.userId) { 
       console.warn('Unauthorized access: No session or userId');
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
