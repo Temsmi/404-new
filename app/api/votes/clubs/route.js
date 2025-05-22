@@ -6,7 +6,7 @@ export async function GET(req) {
   try {
     const session = await getSession(); // Retrieve the session
 
-    console.log('Session:', session); // Check the session object
+   
 
     if (!session?.userId) { // Check for userId instead of stdno
       console.warn('Unauthorized access: No session or userId');
