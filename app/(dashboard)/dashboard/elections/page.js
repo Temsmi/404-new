@@ -1,118 +1,228 @@
-// 'use client'
-// // import node module libraries
-// import Link from 'next/link';
-// import { Col, Row, Container, Image } from 'react-bootstrap';
+'use client';
 
-// const Layout = () => {
-//   return (
-//     <Container fluid className="px-6 py-4">
-//       <Row>
-//         <Col xl={12} lg={12} md={12} sm={12}>
-//           <div className="text-center mb-7">
-//             <h1 className="display-4">Layouts</h1>
-//             <p>Customize your overview page layout. Choose the one that best fits your needs.</p>
-//           </div>
-//           <span className="divider fw-bold my-3">Demo layouts</span>
-//         </Col>
-//       </Row>
-//       <Row className="justify-content-center">
-//         <Col lg={3} sm={6} className="my-4 ">
-//           <Link className="card" href="/">
-//             <Image className="card-img-top" src="/images/layouts/default-classic.svg" alt="Image Description" />
-//             <div className="card-body text-center">
-//               <h5 className="mb-0">Classic</h5>
-//             </div>
-//           </Link>
-//         </Col>
-//       </Row>
-//     </Container>
-//   )
-// }
+import { useState, useEffect, useRef } from 'react';
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  ListGroup,
+  Badge,
+  Button,
+  InputGroup,
+  Form,
+  Spinner,
+  Alert,
+} from 'react-bootstrap';
 
-// export default Layout
-"use client";
+// Timer helper function for weeks, days, hours, minutes, seconds
+const getElapsedTime = (startTime) => {
+  if (!startTime) return '0w 0d 0h 0m 0s';
+  const now = Date.now();
+  let elapsed = Math.floor((now - startTime) / 1000); // total seconds
 
-import { useState } from "react";
+  const weeks = Math.floor(elapsed / (7 * 24 * 3600));
+  elapsed %= 7 * 24 * 3600;
 
-// Custom Card Component
-function Card({ children }) {
-  return <div className="bg-white p-6 rounded-2xl shadow-lg border border-[#624bff]">{children}</div>;
-}
+  const days = Math.floor(elapsed / (24 * 3600));
+  elapsed %= 24 * 3600;
 
-// Custom Button Component (Dark Blue)
-function Button({ children, onClick, disabled }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`mt-4 w-full py-2 text-lg rounded-xl transition font-semibold text-black shadow-md ${
-        disabled ? "bg-gray-400 cursor-not-allowed" : "bg-blue-400 hover:bg-blue-900"
-      }`}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  );
-}
+  const hours = Math.floor(elapsed / 3600);
+  elapsed %= 3600;
 
-const clubs = [
-  {
-    id: 1,
-    name: "Tech Club",
-    candidates: [
-      { name: "Alice", votes: 65},
-      { name: "Bob", votes: 55 },
-    ],
-    published: false,
-  },
-  {
-    id: 2,
-    name: "Art Club",
-    candidates: [
-      { name: "Emma", votes: 50},
-      { name: "David", votes: 45 },
-    ],
-    published: false,
-  },
-  {
-    id: 3,
-    name: "Sports Club",
-    candidates: [
-      { name: "John", votes: 75 },
-      { name: "Mike", votes: 65 },
-    ],
-    published: false,
-  },
-];
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+
+  return `${weeks}w ${days}d ${hours}h ${minutes}m ${seconds}s`;
+};
 
 export default function ElectionAdmin() {
-  const [clubResults, setClubResults] = useState(clubs);
+  const [clubs, setClubs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handlePublish = (id) => {
-    setClubResults(
-      clubResults.map((club) =>
-        club.id === id ? { ...club, published: true } : club
-      )
-    );
+  // Load startTime from localStorage or null
+  const [startTime, setStartTime] = useState(() => {
+    const saved = localStorage.getItem('electionStartTime');
+    return saved ? Number(saved) : null;
+  });
+
+  const [elapsed, setElapsed] = useState(getElapsedTime(startTime));
+  const intervalRef = useRef(null);
+
+  // Timer interval setup/cleanup
+  useEffect(() => {
+    if (startTime) {
+      intervalRef.current = setInterval(() => {
+        setElapsed(getElapsedTime(startTime));
+      }, 1000);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [startTime]);
+
+  // Fetch clubs data from API on mount
+  useEffect(() => {
+    async function fetchClubs() {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch('/api/admin-elections'); // Adjust path if needed
+        if (!res.ok) throw new Error(`Error: ${res.status}`);
+
+        const data = await res.json();
+        setClubs(data);
+      } catch (err) {
+        setError('Failed to load clubs data.');
+        setClubs([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchClubs();
+  }, []);
+
+  // Global actions
+  const handleGlobalAction = (action) => {
+    if (action === 'start') {
+      if (!startTime) {
+        const now = Date.now();
+        setStartTime(now);
+        localStorage.setItem('electionStartTime', now.toString());
+      }
+      setClubs((prev) => prev.map((club) => ({ ...club, started: true })));
+    }
+
+    if (action === 'stop') {
+      setClubs((prev) => prev.map((club) => ({ ...club, started: false })));
+      clearInterval(intervalRef.current);
+    }
+
+    if (action === 'publish') {
+      setClubs((prev) => prev.map((club) => ({ ...club, published: true })));
+    }
   };
 
+  const filteredClubs = clubs.filter((club) =>
+    club.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-[#f4f6fc] p-8">
-      <h1 className="text-4xl font-bold text-center text-[#ffff] mb-8">
-        Election Results
-      </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {clubResults.map((club) => (
-          <Card key={club.id}>
-            <h2 className="text-2xl font-semibold text-[#624bff] mb-4">{club.name}</h2>
-            <ul>
-              
-            </ul>
-            <Button onClick={() => handlePublish(club.id)} disabled={club.published}>
-              {club.published ? "Published" : "Publish"}
-            </Button>
-          </Card>
+    <Container className="py-5">
+      {/* Timer displayed once at the top */}
+      <Row className="justify-content-center mb-4">
+        <Col xs={12} md={6} lg={4} className="text-center">
+          <h2 className="fw-bold text-primary">Election Timer</h2>
+          <div
+            style={{
+              fontSize: '2rem',
+              fontWeight: '600',
+              color: '#624bff',
+              backgroundColor: '#e7e6ff',
+              borderRadius: '12px',
+              padding: '15px 25px',
+              userSelect: 'none',
+            }}
+          >
+            {elapsed}
+          </div>
+        </Col>
+      </Row>
+
+      {/* Search Input - smaller and aligned left */}
+      <Row className="justify-content-start mb-4">
+        <Col xs={12} md={4} lg={3}>
+          <InputGroup>
+            <InputGroup.Text>Search Club</InputGroup.Text>
+            <Form.Control
+              placeholder="Type club name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        </Col>
+      </Row>
+
+      {/* Global Buttons */}
+      <Row className="justify-content-center mb-5">
+        <Col
+          xs={12}
+          md={10}
+          lg={8}
+          className="d-flex gap-3 justify-content-center flex-wrap"
+        >
+          <Button variant="success" onClick={() => handleGlobalAction('start')}>
+            Start All Elections
+          </Button>
+          <Button variant="danger" onClick={() => handleGlobalAction('stop')}>
+            Stop All Elections
+          </Button>
+          <Button variant="primary" onClick={() => handleGlobalAction('publish')}>
+            Publish All Results
+          </Button>
+        </Col>
+      </Row>
+
+      {/* Loading and Error */}
+      {loading && (
+        <Row className="justify-content-center mb-4">
+          <Col xs={12} md={10} lg={8} className="text-center">
+            <Spinner animation="border" role="status" />
+            <span className="ms-2">Loading clubs...</span>
+          </Col>
+        </Row>
+      )}
+
+      {error && (
+        <Row className="justify-content-center mb-4">
+          <Col xs={12} md={10} lg={8}>
+            <Alert variant="danger" className="text-center">
+              {error}
+            </Alert>
+          </Col>
+        </Row>
+      )}
+
+      {/* Clubs List */}
+      {!loading && filteredClubs.length === 0 && (
+        <Row className="justify-content-center">
+          <Col xs={12} md={10} lg={8}>
+            <p className="text-center text-muted">No clubs match your search.</p>
+          </Col>
+        </Row>
+      )}
+
+      {!loading &&
+        filteredClubs.map((club) => (
+          <Row key={club.id} className="justify-content-center mb-4">
+            <Col xs={12} md={12} lg={10} xl={8}>
+              <Card className="shadow border-primary">
+                <Card.Body>
+                  <Card.Title className="text-primary fs-3">{club.name}</Card.Title>
+                  <Card.Subtitle className="mb-3 text-muted fs-4">
+                    Candidates (sorted by votes)
+                  </Card.Subtitle>
+
+                  <ListGroup>
+                    {club.candidates
+                      .sort((a, b) => b.votes - a.votes)
+                      .map((candidate, index) => (
+                        <ListGroup.Item
+                          key={index}
+                          className="d-flex justify-content-between align-items-center"
+                        >
+                          <span className="fs-5">{candidate.name}</span>
+                          <Badge bg="secondary" className="fs-5">
+                            {candidate.votes} votes
+                          </Badge>
+                        </ListGroup.Item>
+                      ))}
+                  </ListGroup>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
         ))}
-      </div>
-    </div>
+    </Container>
   );
 }

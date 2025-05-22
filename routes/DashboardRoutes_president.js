@@ -38,7 +38,7 @@ export const DashboardMenu = [
 	{
 		id: uuid(),
 		title: 'Club profile',
-		icon: 'hands',
+		icon: 'hand',
 		link: '/dashboard-president/pages/club-profile'
 	},	
 	{
@@ -73,7 +73,7 @@ export const DashboardMenu = [
 	{
 		id: uuid(),
 		title: 'Suggestions & Complaints',
-		icon: 'lock',
+		icon: 'send',
 		link: '/dashboard-president/pages/suggestion'
 	},	
 
