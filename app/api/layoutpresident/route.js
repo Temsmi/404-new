@@ -18,8 +18,6 @@ export async function GET(req) {
             return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
         }
 
-        console.log("User ID (student_id):", userId);
-
         const query = `
             SELECT c.name AS club_name 
             FROM president p
