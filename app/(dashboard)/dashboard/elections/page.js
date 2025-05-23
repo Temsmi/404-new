@@ -15,11 +15,11 @@ import {
   Alert,
 } from 'react-bootstrap';
 
-// Timer helper function for weeks, days, hours, minutes, seconds
+// Timer helper function
 const getElapsedTime = (startTime) => {
   if (!startTime) return '0w 0d 0h 0m 0s';
   const now = Date.now();
-  let elapsed = Math.floor((now - startTime) / 1000); // total seconds
+  let elapsed = Math.floor((now - startTime) / 1000);
 
   const weeks = Math.floor(elapsed / (7 * 24 * 3600));
   elapsed %= 7 * 24 * 3600;
@@ -39,77 +39,132 @@ const getElapsedTime = (startTime) => {
 export default function ElectionAdmin() {
   const [clubs, setClubs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loadingClubs, setLoadingClubs] = useState(true);
+  const [errorClubs, setErrorClubs] = useState(null);
 
-  // Load startTime from localStorage or null
-  const [startTime, setStartTime] = useState(() => {
-    const saved = localStorage.getItem('electionStartTime');
-    return saved ? Number(saved) : null;
-  });
-
-  const [elapsed, setElapsed] = useState(getElapsedTime(startTime));
+  const [startTime, setStartTime] = useState(null);
+  const [elapsed, setElapsed] = useState('0w 0d 0h 0m 0s');
   const intervalRef = useRef(null);
 
-  // Timer interval setup/cleanup
+  // Election status state
+  const [electionStatus, setElectionStatus] = useState(null);
+  const [loadingStatus, setLoadingStatus] = useState(true);
+  const [errorStatus, setErrorStatus] = useState(null);
+
+  // Status message shown under buttons
+  const [statusMessage, setStatusMessage] = useState('');
+
+  // Load startTime from localStorage on mount
   useEffect(() => {
+    const saved = localStorage.getItem('electionStartTime');
+    if (saved) setStartTime(Number(saved));
+  }, []);
+
+  // Timer interval effect - updates elapsed every second if started
+  useEffect(() => {
+    clearInterval(intervalRef.current);
+
     if (startTime) {
+      setElapsed(getElapsedTime(startTime));
       intervalRef.current = setInterval(() => {
         setElapsed(getElapsedTime(startTime));
       }, 1000);
+    } else {
+      setElapsed('0w 0d 0h 0m 0s');
     }
+
     return () => clearInterval(intervalRef.current);
   }, [startTime]);
 
-  // Fetch clubs data from API on mount
+  // Fetch clubs on mount
   useEffect(() => {
     async function fetchClubs() {
       try {
-        setLoading(true);
-        setError(null);
-        const res = await fetch('/api/admin-elections'); // Adjust path if needed
+        setLoadingClubs(true);
+        setErrorClubs(null);
+
+        const res = await fetch('/api/admin-elections');
         if (!res.ok) throw new Error(`Error: ${res.status}`);
 
         const data = await res.json();
         setClubs(data);
-      } catch (err) {
-        setError('Failed to load clubs data.');
+      } catch {
+        setErrorClubs('Failed to load clubs data.');
         setClubs([]);
       } finally {
-        setLoading(false);
+        setLoadingClubs(false);
       }
     }
     fetchClubs();
   }, []);
 
-  // Global actions
-  const handleGlobalAction = (action) => {
-    if (action === 'start') {
-      if (!startTime) {
+  // Fetch election status on mount
+  useEffect(() => {
+    async function fetchStatus() {
+      try {
+        setLoadingStatus(true);
+        setErrorStatus(null);
+
+        const res = await fetch('/api/votes/election-status');
+        if (!res.ok) throw new Error(`Error: ${res.status}`);
+
+        const data = await res.json();
+        setElectionStatus(data.status || 'unknown');
+      } catch {
+        setErrorStatus('Failed to load election status.');
+        setElectionStatus(null);
+      } finally {
+        setLoadingStatus(false);
+      }
+    }
+    fetchStatus();
+  }, []);
+
+  // Handle start, stop, publish actions
+  const handleGlobalAction = async (action) => {
+    try {
+      const res = await fetch('/api/votes/election-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+
+      if (!res.ok) {
+        setStatusMessage('Failed to update election status.');
+        return;
+      }
+
+      const data = await res.json();
+
+      if (action === 'start') {
+        // Reset timer on start
         const now = Date.now();
         setStartTime(now);
         localStorage.setItem('electionStartTime', now.toString());
+        setClubs((prev) => prev.map((club) => ({ ...club, started: true })));
+        setStatusMessage('Elections have started.');
+      } else if (action === 'stop') {
+        // Stop timer interval but keep elapsed time
+        clearInterval(intervalRef.current);
+        setClubs((prev) => prev.map((club) => ({ ...club, started: false })));
+        setStatusMessage('Elections have stopped.');
+      } else if (action === 'publish') {
+        setClubs((prev) => prev.map((club) => ({ ...club, published: true })));
+        setStatusMessage('Results have been published.');
       }
-      setClubs((prev) => prev.map((club) => ({ ...club, started: true })));
-    }
-
-    if (action === 'stop') {
-      setClubs((prev) => prev.map((club) => ({ ...club, started: false })));
-      clearInterval(intervalRef.current);
-    }
-
-    if (action === 'publish') {
-      setClubs((prev) => prev.map((club) => ({ ...club, published: true })));
+    } catch (error) {
+      setStatusMessage('Error updating election status.');
     }
   };
 
+  // Filter clubs by search term
   const filteredClubs = clubs.filter((club) =>
     club.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <Container className="py-5">
-      {/* Timer displayed once at the top */}
+      {/* Timer */}
       <Row className="justify-content-center mb-4">
         <Col xs={12} md={6} lg={4} className="text-center">
           <h2 className="fw-bold text-primary">Election Timer</h2>
@@ -129,7 +184,7 @@ export default function ElectionAdmin() {
         </Col>
       </Row>
 
-      {/* Search Input - smaller and aligned left */}
+      {/* Search */}
       <Row className="justify-content-start mb-4">
         <Col xs={12} md={4} lg={3}>
           <InputGroup>
@@ -143,7 +198,7 @@ export default function ElectionAdmin() {
         </Col>
       </Row>
 
-      {/* Global Buttons */}
+      {/* Buttons */}
       <Row className="justify-content-center mb-5">
         <Col
           xs={12}
@@ -152,19 +207,30 @@ export default function ElectionAdmin() {
           className="d-flex gap-3 justify-content-center flex-wrap"
         >
           <Button variant="success" onClick={() => handleGlobalAction('start')}>
-            Start All Elections
+            Start Elections
           </Button>
           <Button variant="danger" onClick={() => handleGlobalAction('stop')}>
-            Stop All Elections
+            Stop Elections
           </Button>
           <Button variant="primary" onClick={() => handleGlobalAction('publish')}>
-            Publish All Results
+            Publish Results
           </Button>
         </Col>
       </Row>
 
-      {/* Loading and Error */}
-      {loading && (
+      {/* Status message */}
+      <Row className="justify-content-center mb-3">
+        <Col xs={12} md={10} lg={8} className="text-center">
+          {statusMessage && (
+            <Alert variant="info" className="py-2">
+              {statusMessage}
+            </Alert>
+          )}
+        </Col>
+      </Row>
+
+      {/* Clubs Loading/Error */}
+      {loadingClubs && (
         <Row className="justify-content-center mb-4">
           <Col xs={12} md={10} lg={8} className="text-center">
             <Spinner animation="border" role="status" />
@@ -173,18 +239,18 @@ export default function ElectionAdmin() {
         </Row>
       )}
 
-      {error && (
+      {errorClubs && (
         <Row className="justify-content-center mb-4">
           <Col xs={12} md={10} lg={8}>
             <Alert variant="danger" className="text-center">
-              {error}
+              {errorClubs}
             </Alert>
           </Col>
         </Row>
       )}
 
-      {/* Clubs List */}
-      {!loading && filteredClubs.length === 0 && (
+      {/* Clubs list */}
+      {!loadingClubs && filteredClubs.length === 0 && (
         <Row className="justify-content-center">
           <Col xs={12} md={10} lg={8}>
             <p className="text-center text-muted">No clubs match your search.</p>
@@ -192,7 +258,7 @@ export default function ElectionAdmin() {
         </Row>
       )}
 
-      {!loading &&
+      {!loadingClubs &&
         filteredClubs.map((club) => (
           <Row key={club.id} className="justify-content-center mb-4">
             <Col xs={12} md={12} lg={10} xl={8}>
@@ -200,9 +266,8 @@ export default function ElectionAdmin() {
                 <Card.Body>
                   <Card.Title className="text-primary fs-3">{club.name}</Card.Title>
                   <Card.Subtitle className="mb-3 text-muted fs-4">
-                    Candidates (sorted by votes)
+                    Candidates
                   </Card.Subtitle>
-
                   <ListGroup>
                     {club.candidates
                       .sort((a, b) => b.votes - a.votes)

@@ -11,42 +11,42 @@ export async function GET(req) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // 1. Get all clubs (no filtering by session user, since you're an admin)
     const clubs = await conn({
+  query: `
+    SELECT id, name, logo FROM club;
+
+  `,
+  values: [],
+});
+
+const clubsWithCandidates = await Promise.all(
+  clubs.map(async (club) => {
+    const candidates = await conn({
       query: `
-        SELECT id, name
-        FROM club
+        SELECT 
+          c.id AS candidate_id,
+          s.name AS student_name,
+          c.amount_of_votes AS votes
+        FROM candidate c
+        JOIN student s ON c.student_id = s.id
+        WHERE c.club_id = ?
+        ORDER BY votes DESC
       `,
-      values: [],
+      values: [club.id],
     });
 
-    // 2. For each club, get its candidates and their vote counts
-    const clubsWithCandidates = await Promise.all(
-      clubs.map(async (club) => {
-        const candidates = await conn({
-          query: `
-            SELECT 
-              c.id AS candidate_id,
-              s.name AS student_name,
-              c.amount_of_votes AS votes
-            FROM candidate c
-            JOIN student s ON c.student_id = s.id
-            WHERE c.club_id = ?
-            ORDER BY votes DESC
-          `,
-          values: [club.id],
-        });
+   return {
+  id: club.id,
+  name: club.name,
+  logo: club.logo,
+  candidates: candidates.map((c) => ({
+    name: c.student_name,
+    votes: Number(c.votes),
+  })),
+};
 
-        return {
-          id: club.id,
-          name: club.name,
-          candidates: candidates.map((c) => ({
-            name: c.student_name,
-            votes: Number(c.votes),
-          })),
-        };
-      })
-    );
+  })
+);
 
     return NextResponse.json(clubsWithCandidates);
   } catch (err) {
