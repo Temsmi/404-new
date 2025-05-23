@@ -1,77 +1,140 @@
 'use client';
-
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function VotePage() {
   const [clubs, setClubs] = useState([]);
-  const [selectedClubId, setSelectedClubId] = useState(null);
-  const [candidates, setCandidates] = useState([]);
+  const [candidatesByClub, setCandidatesByClub] = useState({});
+  const [votedClubs, setVotedClubs] = useState(new Set());
+  const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/votes/clubs')
+    
+    fetch('/api/votes/clubs', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
-        console.log('Fetched clubs:', data);  // Log to verify the response
         if (Array.isArray(data)) {
           setClubs(data);
-        } else {
-          console.error('Expected an array but got:', data);
-          setClubs([]); // Set clubs to empty if not an array
+
+          // Fetch candidates for each club
+          data.forEach(club => {
+            fetch(`/api/votes/candidates?clubId=${club.id}`, { credentials: 'include' })
+              .then(res => res.json())
+              .then(candidates => {
+                setCandidatesByClub(prev => ({
+                  ...prev,
+                  [club.id]: Array.isArray(candidates) ? candidates : [],
+                }));
+              })
+              .catch(err =>
+                console.error(`Error loading candidates for club ${club.id}:`, err)
+              );
+          });
+
+          // Fetch already voted clubs for this user
+          fetch('/api/votes/voted-clubs', { credentials: 'include' })
+            .then(res => res.json())
+            .then(({ votedClubs }) => {
+              setVotedClubs(new Set(votedClubs));
+            })
+            .catch(err => console.error('Error fetching voted clubs:', err));
         }
       })
-      .catch(err => console.error('Error fetching clubs:', err));  // Handle fetch errors
+      .catch(err => console.error('Error fetching clubs:', err));
   }, []);
 
-  const loadCandidates = (clubId) => {
-    setSelectedClubId(clubId);
-    fetch(`/api/votes/candidates?clubId=${clubId}`)
-      .then(res => res.json())
-      .then(setCandidates);
-  };
-
-  const vote = (candidateId) => {
+  const vote = (candidateId, clubId) => {
     fetch('/api/votes/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ candidate_id: candidateId, club_id: selectedClubId }),
+      credentials: 'include',
+      body: JSON.stringify({ candidate_id: candidateId, club_id: clubId }),
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        alert("Vote submitted.");
-      } else {
-        alert(data.message);
-      }
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Vote submitted successfully!');
+          setVotedClubs(prev => new Set(prev).add(clubId)); // update local state
+        } else {
+          alert(data.message || 'Vote failed');
+        }
+      })
+      .catch(() => alert('Something went wrong while submitting your vote.'));
   };
 
   return (
-    <div className="p-5">
-      <h1 className="text-2xl font-bold">Vote for Club Presidents</h1>
+    <div className="container py-5">
+      <h1 className="mb-4 fw-bold text-center">Club President Elections</h1>
+
+      <div className="mb-4 text-center">
+        <button
+          onClick={() => router.push('./become-candidate')}
+          className="btn btn-outline-primary"
+        >
+          Become a Candidate
+        </button>
+      </div>
 
       {clubs.map(club => (
-        <div key={club.id} className="my-3">
-          <h2 className="text-xl">{club.name}</h2>
-          <button onClick={() => loadCandidates(club.id)} className="bg-blue-500 text-white px-3 py-1 rounded">
-            Show Candidates
-          </button>
+        <div key={club.id} className="card mb-5 shadow-sm border-0 mx-auto" style={{ maxWidth: '950px' }} >
+          <div className="card-body" >
+            <h3 className="card-title fw-bold">{club.name}</h3>
+            <hr className="mb-4" />
+            <h4 className="text-muted mb-4">Candidates</h4>
+
+            {(!candidatesByClub[club.id] ||
+              candidatesByClub[club.id].length === 0) ? (
+              <p className="text-secondary">No candidates found for this club.</p>
+            ) : (
+              candidatesByClub[club.id].map(c => (
+                <div
+                  key={c.id}
+                  className="card mb-3 p-3 shadow-sm border"
+                  style={{ backgroundColor: '#f8f9fa' }}
+                >
+                  <div className="row g-3 align-items-center">
+                    <div className="col-md-2 text-center">
+                      <img
+                        src={c.photo}
+                        alt="Candidate"
+                        className="img-fluid rounded"
+                        style={{
+                          maxHeight: '100px',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </div>
+                    <div className="col-md-7">
+                      <h4 className="fw-semibold">{c.student_name}</h4>
+                      <p className="mb-1 text-muted">{c.bio}</p>
+                    </div>
+                    <div className="col-md-3 text-end">
+                      <button
+                        onClick={() => vote(c.id, club.id)}
+                        disabled={votedClubs.has(club.id)}
+                        className="btn btn-primary w-100"
+                        style={{
+                          backgroundColor: '#6f42c1',
+                          borderColor: '#6f42c1',
+                          opacity: votedClubs.has(club.id) ? 0.6 : 1,
+                          cursor: votedClubs.has(club.id)
+                            ? 'not-allowed'
+                            : 'pointer',
+                        }}
+                      >
+                        {votedClubs.has(club.id) ? 'Already Voted' : 'Vote'}
+                      </button>
+                      <button className="btn btn-outline-secondary btn-sm mt-2 d-block w-100">
+                        Ask Question
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       ))}
-
-      {selectedClubId && candidates.length > 0 && (
-        <div className="mt-5">
-          {candidates.map(c => (
-            <div key={c.id} className="border p-4 my-2 rounded shadow">
-              <img src={c.photo} alt="Candidate" width="100" />
-              <h4 className="text-lg">{c.student_name}</h4>
-              <p>{c.bio}</p>
-              <button onClick={() => vote(c.id)} className="mt-2 bg-green-500 text-white px-3 py-1 rounded">
-                Vote
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

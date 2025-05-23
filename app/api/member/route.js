@@ -5,7 +5,7 @@ export async function GET() {
     try {
         const query = `
             SELECT 
-                members.id,
+                members.id, 
                 members.date_joined,
                 student.name AS std_name, 
                 student.surname AS std_sname,
