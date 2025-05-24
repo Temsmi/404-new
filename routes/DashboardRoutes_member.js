@@ -38,7 +38,7 @@ export const DashboardMenu = [
     {
 		id: uuid(),
 		title: 'Memberships',
-		icon: 'lock',
+		icon: 'list',
 		children: [
 			{ id: uuid(), link: '/member-dashboard/pages/memberships', name: ' My Memberships' },
 			{ id: uuid(), link: '/member-dashboard/pages/clubs', name: ' Clubs'},
@@ -57,7 +57,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Elections',
 		icon: 'lock',
-		link: '/member-dashboard/pages/VotePage'
+		link: 'member-dashboard/pages/VotePage'
 	},	
 	{
 		id: uuid(),
@@ -68,12 +68,12 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Calendar',
 		icon: 'calendar',
-		link: '/dashboard/pages/calendar'
+		link: 'member-dashboard/pages/calendar'
 	},	
     {
 		id: uuid(),
 		title: 'Club Request',
-		icon: 'info',
+		icon: 'arrow-down',
 		link: '/dashboard/pages/help'
 	},
 	{

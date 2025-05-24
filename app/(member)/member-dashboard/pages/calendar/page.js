@@ -28,7 +28,7 @@ const CalendarPage = () => {
           return;
         }
         // Step 2: Fetch the club_id for the logged-in president
-        const clubRes = await fetch(`/api/Pres-Calendar?userId=${userId}`); // API route for fetching the club by userId
+        const clubRes = await fetch(`/api/mem-calendar?userId=${userId}`); // API route for fetching the club by userId
         const clubData = await clubRes.json();
         
         if (!clubData.clubId) {

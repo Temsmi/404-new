@@ -13,7 +13,7 @@ export async function GET(req) {
     const candidates = await conn({
       query: `
         SELECT c.id, c.bio, c.photo, c.amount_of_votes, s.name AS student_name
-        FROM candidates c
+        FROM candidate c
         JOIN student s ON c.student_id = s.id
         WHERE c.club_id = ?
       `,
