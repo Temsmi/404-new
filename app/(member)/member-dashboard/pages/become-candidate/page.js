@@ -78,7 +78,7 @@ export default function BecomeCandidatePage() {
         alert('You are now a candidate!');
         router.push('/');
       } else {
-        alert(result.message || 'Submission failed');
+        alert(result.error || 'You are already a candidate for this club!');
       }
     } catch (error) {
       console.error(error);

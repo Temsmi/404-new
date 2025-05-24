@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Container, Table, Button, Spinner, Form } from 'react-bootstrap';
 
 const Memberships = () => {
+  
   const [clubs, setClubs] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);

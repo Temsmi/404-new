@@ -1,4 +1,3 @@
-// /app/api/member-info/route.js
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 
@@ -10,13 +9,12 @@ export async function GET(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const query = `
-      SELECT id, std_no, name, surname
-      FROM student
-      WHERE id = ?
-    `;
-
+    const query = `SELECT id, name, surname, std_no, email, role, dept FROM student WHERE id = ?`;
     const result = await conn({ query, values: [studentId] });
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    }
 
     return NextResponse.json(result[0]);
   } catch (error) {
