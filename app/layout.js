@@ -1,7 +1,7 @@
 // import theme style scss file
 import Link from 'next/link';
 import 'styles/theme.scss';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 export const metadata = {
     title: 'Club Management System',
     description: '',

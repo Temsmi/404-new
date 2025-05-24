@@ -77,7 +77,9 @@ export async function PUT(req, { params }) {
                 date_selected = ?, 
                 is_postfeedback = ?, 
                 zoom_link = ?, 
-                image = ?
+                image = ?,
+                is_announced = ?
+
             WHERE id = ?
         `;
 
@@ -92,6 +94,8 @@ export async function PUT(req, { params }) {
                 zoomLink,
                 imageUrl,
                 eventId,
+                isAnnounced, // ✅ این خط جدید
+
             ],
         });
 

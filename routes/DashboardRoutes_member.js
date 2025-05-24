@@ -57,7 +57,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Elections',
 		icon: 'lock',
-		link: 'member-dashboard/pages/VotePage'
+		link: '/member-dashboard/pages/VotePage'
 	},	
 	{
 		id: uuid(),
@@ -68,7 +68,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Calendar',
 		icon: 'calendar',
-		link: 'member-dashboard/pages/calendar'
+		link: '/member-dashboard/pages/calendar'
 	},	
     {
 		id: uuid(),
