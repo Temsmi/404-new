@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'; 
 import { conn } from '../../connections/conn';
 
 export async function POST(req) {
@@ -6,10 +6,12 @@ export async function POST(req) {
     const { student_id, reg_num, type, text, club_id, anonymous } = await req.json();
 
     const query = `
-      INSERT INTO request (student_id, type, text, club_id, anonymous, status)
-      VALUES (?, ?, ?, ?, ?, 'Pending')
+      INSERT INTO request (student_id, reg_num, type, text, club_id, anonymous, status)
+      VALUES (?, ?, ?, ?, ?, ?, 'Pending')
     `;
+    
     const values = [student_id, reg_num, type, text, club_id, anonymous];
+
     await conn({ query, values });
 
     return NextResponse.json({ message: 'Request submitted successfully' });

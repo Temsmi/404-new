@@ -1,61 +1,76 @@
-'use client';
+import { useEffect, useState, useRef } from "react";
+import { Button, Modal, Form } from "react-bootstrap";
+import axios from "axios";
 
-import { useState, useEffect, useRef } from 'react';
-import { Button, Modal, Form, Alert, Row, Col } from 'react-bootstrap';
-import { MessageSquareMore } from 'lucide-react';
 
-const RequestButton = () => {
+
+
+const RequestButton = ({ student_id }) => {
   const [show, setShow] = useState(false);
-  const handleToggle = () => setShow(!show);
-
   const [clubs, setClubs] = useState([]);
-  const [student, setStudent] = useState(null);
-  const [form, setForm] = useState({
-    student_id: '',
-    type: 'request',
-    text: '',
-    club_id: '',
-    anonymous: false,
-  });
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [selectedClubId, setSelectedClubId] = useState("");
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackType, setFeedbackType] = useState("request");
+  const [anonymous, setAnonymous] = useState(false);
 
-  // --- Draggable Floating Button ---
-  const btnRef = useRef(null);
-  const [position, setPosition] = useState({ x: 30, y: 30 });
+  // Added missing states for draggable button
   const [dragging, setDragging] = useState(false);
+  const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight - 80 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const btnRef = useRef(null);
 
-  // Fetch student info + their clubs
+  // Fetch clubs when modal is shown and student_id exists
   useEffect(() => {
-    const saved = localStorage.getItem('request-button-position');
-    if (saved) {
-      const pos = JSON.parse(saved);
-      setPosition(pos);
-    } else {
-      const btnWidth = 60;
-      const btnHeight = 60;
-      setPosition({
-        x: window.innerWidth - btnWidth - 30,
-        y: window.innerHeight - btnHeight - 30,
-      });
+  const fetchClubs = async () => {
+    try {
+      const response = await axios.get('/api/member-clubs');
+      console.log('Fetched clubs:', response.data); // <-- Add this
+      
+      setClubs(response.data);
+    } catch (error) {
+      console.error('Error fetching clubs:', error);
+    }
+  };
+
+  fetchClubs();
+}, []);
+
+
+  const handleSubmit = async () => {
+    if (!selectedClubId) {
+      alert("Please select a club.");
+      return;
     }
 
-    // Fetch student data
-    fetch('/api/student-info') // You need to create this endpoint to return student { id }
-      .then(res => res.json())
-      .then(data => {
-        setStudent(data);
-        setForm(prev => ({ ...prev, student_id: data.id }));
+    try {
+      const response = await fetch("/api/submit-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+       body: JSON.stringify({
+  student_id,
+  id: parseInt(selectedClubId, 10), // ✅ Use correct key
+  type: feedbackType,
+  text: feedbackText,
+  anonymous,
+}),
+
       });
 
-    // Fetch clubs the student is a member of
-    fetch('/api/member-clubs') // This should return clubs the student is part of
-      .then(res => res.json())
-      .then(data => setClubs(data))
-      .catch(err => console.error('Failed to fetch clubs:', err));
-  }, []);
+      if (!response.ok) {
+        throw new Error("Failed to submit feedback.");
+      }
+
+      alert("Feedback submitted successfully.");
+      setShow(false);
+      setFeedbackText("");
+      setSelectedClubId("");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   const handleMouseDown = (e) => {
+    if (!btnRef.current) return;
     setDragging(true);
     setOffset({
       x: e.clientX - btnRef.current.getBoundingClientRect().left,
@@ -73,164 +88,107 @@ const RequestButton = () => {
 
   const handleMouseUp = () => {
     setDragging(false);
-    localStorage.setItem('request-button-position', JSON.stringify(position));
+    localStorage.setItem("request-button-position", JSON.stringify(position));
   };
 
+  // Load saved position from localStorage on mount
   useEffect(() => {
-    if (dragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    } else {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+    const savedPos = localStorage.getItem("request-button-position");
+    if (savedPos) {
+      try {
+        const posObj = JSON.parse(savedPos);
+        setPosition(posObj);
+      } catch {}
     }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [dragging]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage({ text: '', type: '' });
-
-    const payload = {
-      ...form,
-      student_id: form.anonymous ? null : student?.id,
-    };
-
-    try {
-      const res = await fetch('/api/submit-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
-      if (res.ok) {
-        setMessage({ type: 'success', text: result.message });
-        setForm({ student_id: student?.id || '', type: 'request', text: '', club_id: '', anonymous: false });
-        setTimeout(() => setShow(false), 2000);
-      } else {
-        setMessage({ type: 'danger', text: result.error || 'Submission failed' });
-      }
-    } catch (err) {
-      setMessage({ type: 'danger', text: 'Network error' });
-    }
-  };
+  }, []);
 
   return (
     <>
       <Button
-        ref={btnRef}
-        onClick={handleToggle}
         variant="primary"
-        className="request-btn"
-        style={{ left: position.x, top: position.y, position: 'fixed' }}
+        onClick={() => setShow(true)}
+        style={{
+          position: "fixed",
+          bottom: position.y,
+          right: position.x,
+          zIndex: 9999,
+          cursor: dragging ? "grabbing" : "grab",
+          userSelect: "none",
+        }}
         onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={dragging ? handleMouseUp : undefined}
+        ref={btnRef}
       >
-        <MessageSquareMore size={24} />
+        Request / Complaint
       </Button>
 
-      <Modal show={show} onHide={() => setShow(false)} centered>
+      <Modal show={show} onHide={() => setShow(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Submit Feedback</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {message.text && (
-            <Alert variant={message.type} onClose={() => setMessage({ text: '', type: '' })} dismissible>
-              {message.text}
-            </Alert>
-          )}
-          <Form onSubmit={handleSubmit}>
-            {!form.anonymous && (
-              <Row className="mb-3">
-                <Col>
-                  <Form.Label>Student ID</Form.Label>
-                  <Form.Control type="text" value={student?.id || ''} readOnly />
-                </Col>
-                
-              </Row>
-            )}
+          <Form.Group>
+            <Form.Label>Feedback Type</Form.Label>
+            <Form.Select
+              value={feedbackType}
+              onChange={(e) => setFeedbackType(e.target.value)}
+            >
+              <option value="request">Request</option>
+              <option value="suggestion">Suggestion</option>
+              <option value="complaint">Complaint</option>
+            </Form.Select>
+          </Form.Group>
+        <Form.Group className="mt-3">
+            <Form.Label>Select Club</Form.Label>
+                <Form.Select
+                     value={selectedClubId}
+                      onChange={(e) => setSelectedClubId(e.target.value)}
+                      required
+                  >
+    <option value="">-- Select a Club --</option>
+   {clubs.map((club) => (
+  <option key={club.id} value={club.id}>
+    {club.name}
+  </option>
+))}
 
-            <Form.Group className="mb-3">
-              <Form.Label>Feedback Type</Form.Label>
-              <Form.Select
-                value={form.type}
-                onChange={(e) => setForm({ ...form, type: e.target.value })}
-              >
-                <option value="request">Request</option>
-                <option value="complaint">Complaint</option>
-                <option value="suggestion">Suggestion</option>
-              </Form.Select>
-            </Form.Group>
+  </Form.Select>
+</Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Select Club</Form.Label>
-              <Form.Select
-                value={form.club_id}
-                onChange={(e) => setForm({ ...form, club_id: e.target.value })}
-                required
-              >
-                <option value="">-- Select a Club --</option>
-                {clubs.map(club => (
-                  <option key={club.id} value={club.id}>{club.name}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Message</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                required
-                value={form.text}
-                onChange={(e) => setForm({ ...form, text: e.target.value })}
-              />
-            </Form.Group>
+          <Form.Group className="mt-3">
+            <Form.Label>Message</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+            />
+          </Form.Group>
 
+          <Form.Group className="mt-3">
             <Form.Check
               type="checkbox"
-              label="Send anonymously"
-              checked={form.anonymous}
-              onChange={(e) => setForm({ ...form, anonymous: e.target.checked })}
-              className="mb-3"
+              label="Submit anonymously"
+              checked={anonymous}
+              onChange={(e) => setAnonymous(e.target.checked)}
             />
-
-            <Button variant="primary" type="submit">
-              send
-            </Button>
-          </Form>
+          </Form.Group>
         </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShow(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSubmit}>
+            Submit
+          </Button>
+        </Modal.Footer>
       </Modal>
-
-      <style jsx>{`
-        .request-btn {
-          border-radius: 50%;
-          padding: 15px;
-          width: 60px;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          animation: bounce 2s infinite;
-          z-index: 9999;
-          cursor: grab;
-          user-select: none;
-        }
-
-        @keyframes bounce {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-6px);
-          }
-        }
-      `}</style>
     </>
   );
 };
 
 export default RequestButton;
+

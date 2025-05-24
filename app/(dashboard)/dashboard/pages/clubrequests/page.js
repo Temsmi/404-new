@@ -12,7 +12,7 @@ const ClubRequests = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await fetch('/api/club-requests');
+        const res = await fetch('/api/request');
         const data = await res.json();
         setRequests(data);
         setLoading(false);
@@ -28,7 +28,7 @@ const ClubRequests = () => {
   // Handle Approve / Reject
   const handleAction = async (id, action) => {
     try {
-      const res = await fetch('/api/club-requests', {
+      const res = await fetch('/api/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, action }),

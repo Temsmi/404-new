@@ -2,27 +2,32 @@
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn'; // Adjust the path as necessary
 
+
 export async function POST(req) {
-    try {
-        const { id, action } = await req.json();
+  try {
+    const body = await req.json();
+    const { student_id, reg_num, type, text, club_id, anonymous } = body;
 
-        let query;
-        if (action === 'approve') {
-            query = `UPDATE club_requests SET status = 'approved' WHERE id = ?`;
-        } else if (action === 'reject') {
-            query = `UPDATE club_requests SET status = 'rejected' WHERE id = ?`;
-        } else {
-            return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-        }
-
-        await conn({ query, values: [id] });
-
-        return NextResponse.json({ message: `Club request ${action}d!` });
-    } catch (error) {
-        console.error("Database error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!text || !club_id || !type) {
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
+
+    const query = `
+      INSERT INTO request (student_id, reg_num, type, text, club_id, anonymous, status)
+      VALUES (?, ?, ?, ?, ?, ?, 'pending')
+    `;
+
+    const result = await conn({
+      query,
+      values: [student_id, reg_num || null, type, text, club_id, anonymous ? 1 : 0],
+    });
+
+    return NextResponse.json({ message: 'Request submitted successfully', id: result.insertId });
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
+
 
 export async function GET() {
     try {
