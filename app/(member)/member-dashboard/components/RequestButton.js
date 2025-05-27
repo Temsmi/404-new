@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import axios from "axios";
+import Draggable from 'react-draggable';
 
 
 
@@ -45,14 +46,15 @@ const RequestButton = ({ student_id }) => {
     try {
       const response = await fetch("/api/submit-request", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-       body: JSON.stringify({
+        body: JSON.stringify({
   student_id,
-  id: parseInt(selectedClubId, 10), // ✅ Use correct key
+  reg_num: '', // Optional: provide real reg_num if available
   type: feedbackType,
   text: feedbackText,
+  club_id: parseInt(selectedClubId, 10), // ✅ correct key
   anonymous,
 }),
+
 
       });
 
@@ -105,24 +107,25 @@ const RequestButton = ({ student_id }) => {
   return (
     <>
       <Button
-        variant="primary"
-        onClick={() => setShow(true)}
-        style={{
-          position: "fixed",
-          bottom: position.y,
-          right: position.x,
-          zIndex: 9999,
-          cursor: dragging ? "grabbing" : "grab",
-          userSelect: "none",
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={dragging ? handleMouseUp : undefined}
-        ref={btnRef}
-      >
-        Request / Complaint
-      </Button>
+  variant="primary"
+  onClick={() => setShow(true)}
+  style={{
+    position: "fixed",
+    top: position.y,
+    left: position.x,
+    zIndex: 9999,
+    cursor: dragging ? "grabbing" : "grab",
+    userSelect: "none",
+  }}
+  onMouseDown={handleMouseDown}
+  onMouseMove={handleMouseMove}
+  onMouseUp={handleMouseUp}
+  onMouseLeave={dragging ? handleMouseUp : undefined}
+  ref={btnRef}
+>
+  Request / Complaint
+</Button>
+
 
       <Modal show={show} onHide={() => setShow(false)}>
         <Modal.Header closeButton>

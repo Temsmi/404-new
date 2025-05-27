@@ -1,89 +1,133 @@
 'use client';
 
-import { useState } from 'react';
-import { Container, Table, Button, Modal, Form, Badge } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Container, Table, Modal, Button, Form } from 'react-bootstrap';
 
-const feedbackData = [
-  { id: 1, name: 'Alice', category: 'Events', feedback: 'Can we have more workshops?', status: 'Open' },
-  { id: 2, name: 'Bob', category: 'Website', feedback: 'Login page has issues.', status: 'In Progress' },
-  { id: 3, name: 'Charlie', category: 'Facilities', feedback: 'Gym equipment needs maintenance.', status: 'Resolved' },
-];
-
-/*const getStatusBadge = (status) => {
-  switch (status) {
-    case 'Open': return <Badge bg="primary">Open</Badge>;
-    case 'In Progress': return <Badge bg="warning">In Progress</Badge>;
-    case 'Resolved': return <Badge bg="success">Resolved</Badge>;
-    default: return <Badge bg="secondary">Unknown</Badge>;
-  }
-};*/
-
-export default function MemberFeedback() {
-  const [feedbacks, setFeedbacks] = useState(feedbackData);
-  const [selectedFeedback, setSelectedFeedback] = useState(null);
+export default function SuggestionPage() {
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  
-  const handleViewFeedback = (feedback) => {
-    setSelectedFeedback(feedback);
-    setShowModal(true);
-  };
-  
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedFeedback(null);
-  };
-  
+  const [typeFilter, setTypeFilter] = useState(''); // '' = all
+
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      try {
+        const url = typeFilter ? `/api/club-feedbacks?type=${typeFilter}` : '/api/club-feedbacks';
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Fetch error:', errorText);
+          return;
+        }
+
+        const json = await res.json();
+console.log('Received feedback data:', json); // ← Add this
+setFeedbacks(Array.isArray(json.data) ? json.data : []);
+
+      } catch (err) {
+        console.error('Error fetching feedbacks:', err);
+      }
+    };
+
+    fetchFeedbacks();
+  }, [typeFilter]);
+
   return (
     <Container className="mt-5">
-      <h1 className="text-center text-primary mb-4">Member Suggestions & Complaints</h1>
-      <Table striped bordered hover responsive>
-        <thead className="table-light">
-          <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Feedback</th>
-            
-            <th className="text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {feedbacks.map((feedback) => (
-            <tr key={feedback.id}>
-              <td>{feedback.name}</td>
-              <td>{feedback.category}</td>
-              <td>{feedback.feedback}</td>
-             
-              <td className="text-center">
-                <Button variant="info" size="sm" onClick={() => handleViewFeedback(feedback)}>View</Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+  <div className="p-4 shadow-sm bg-white rounded">
+    <h2 className="mb-4 text-primary"> Club Feedback</h2>
 
-      {selectedFeedback && (
-        <Modal show={showModal} onHide={handleCloseModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>Feedback Details</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p><strong>Name:</strong> {selectedFeedback.name}</p>
-            <p><strong>Category:</strong> {selectedFeedback.category}</p>
-            <p><strong>Feedback:</strong> {selectedFeedback.feedback}</p>
-            
-            <Form>
-              <Form.Group>
-                <Form.Label>Response</Form.Label>
-                <Form.Control as="textarea" rows={3} placeholder="Write a response..." />
-              </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="success" onClick={handleCloseModal}>Send Response</Button>
-            <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
-          </Modal.Footer>
-        </Modal>
+    {/* Filter */}
+    <Form.Group className="mb-4" controlId="typeFilter">
+      <Form.Label><strong>Filter by Feedback Type:</strong></Form.Label>
+      <Form.Select
+        value={typeFilter}
+        onChange={(e) => setTypeFilter(e.target.value)}
+        style={{ maxWidth: '300px', borderRadius: '10px' }}
+      >
+        <option value="">All Types</option>
+        <option value="suggestion">Suggestion</option>
+        <option value="complaint">Complaint</option>
+        <option value="request">Request</option>
+      </Form.Select>
+    </Form.Group>
+
+    {/* Table */}
+    <Table striped bordered hover responsive className="rounded">
+      <thead className="table-light">
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <th>Submitted By</th>
+          <th>Message</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {feedbacks.map((fb, index) => (
+          <tr key={fb.id}>
+            <td>{index + 1}</td>
+            <td className="text-capitalize">{fb.type}</td>
+            <td>{fb.anonymous ? 'Anonymous' : fb.student_name || '—'}</td>
+<td>{fb.text && fb.text.length > 40 ? fb.text.slice(0, 40) + '...' : fb.text || '—'}</td>
+            <td>
+              <Form.Select
+                value={fb.status}
+                onChange={async (e) => {
+                  const newStatus = e.target.value;
+                  await fetch('/api/patch', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: fb.id, status: newStatus }),
+                  });
+                  setFeedbacks(prev =>
+                    prev.map(f => f.id === fb.id ? { ...f, status: newStatus } : f)
+                  );
+                }}
+                className="form-select-sm rounded"
+              >
+                <option value="pending">Pending</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="resolved">Resolved</option>
+              </Form.Select>
+            </td>
+            <td>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => { setSelected(fb); setShowModal(true); }}
+              >
+                View
+              </Button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
+  </div>
+
+  {/* Modal */}
+  <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+    <Modal.Header closeButton>
+      <Modal.Title> Feedback Detail</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      {selected && (
+        <>
+          <p><strong>Type:</strong> {selected.type}</p>
+          <p><strong>Submitted By:</strong> {selected.anonymous ? 'Anonymous' : selected.student_name}</p>
+          <p><strong>Message:</strong><br />{selected.text}</p>
+        </>
       )}
-    </Container>
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={() => setShowModal(false)}>
+        Close
+      </Button>
+    </Modal.Footer>
+  </Modal>
+</Container>
   );
 }

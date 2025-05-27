@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import CalendarWidget from './components/CalendarWidget';
+import RequestButton from "./components/RequestButton";
 
 export default function MemberDashboard() {
   const [events, setEvents] = useState([]);
@@ -118,8 +119,12 @@ export default function MemberDashboard() {
               </Card.Body>
             </Card>
           </Col>
+          
         </Row>
+        
       </Container>
+          <RequestButton /> {/* ✅ This adds the floating button without affecting layout */}
+
     </>
   );
 }

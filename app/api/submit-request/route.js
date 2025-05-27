@@ -1,22 +1,48 @@
-import { NextResponse } from 'next/server'; 
+import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
+import { getSession } from 'app/lib/session';
 
 export async function POST(req) {
   try {
-    const { student_id, reg_num, type, text, club_id, anonymous } = await req.json();
+    const session = await getSession(req);
+    const userId = session?.userId || session?.user?.userId;
 
-    const query = `
-      INSERT INTO request (student_id, reg_num, type, text, club_id, anonymous, status)
-      VALUES (?, ?, ?, ?, ?, ?, 'Pending')
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { club_id, type, text, anonymous } = await req.json();
+
+    if (!club_id || !type || !text) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Step 1: Ensure student exists in the members table
+    const memberResult = await conn({
+      query: 'SELECT student_id FROM members WHERE student_id = ? LIMIT 1',
+      values: [userId],
+    });
+
+    if (!memberResult.length) {
+      return NextResponse.json({ error: 'Student not found in members table' }, { status: 404 });
+    }
+
+    const student_id = memberResult[0].student_id;
+
+    // Step 2: Insert the request (without reg_num)
+    const insertQuery = `
+      INSERT INTO request (student_id, type, text, club_id, anonymous, status)
+      VALUES (?, ?, ?, ?, ?, 'Pending')
     `;
-    
-    const values = [student_id, reg_num, type, text, club_id, anonymous];
 
-    await conn({ query, values });
+    await conn({
+      query: insertQuery,
+      values: [student_id, type, text, club_id, anonymous],
+    });
 
-    return NextResponse.json({ message: 'Request submitted successfully' });
+    return NextResponse.json({ message: 'Feedback submitted successfully.' });
   } catch (error) {
-    console.error('Error saving request:', error);
-    return NextResponse.json({ error: 'Failed to submit request' }, { status: 500 });
+    console.error('Submit request error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

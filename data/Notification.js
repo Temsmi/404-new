@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 
 import { useEffect, useState } from 'react';
 import { ListGroup, Row, Col, Spinner } from 'react-bootstrap';
@@ -15,7 +15,12 @@ const Notification = () => {
 			const res = await fetch('/api/notification');
 			if (!res.ok) throw new Error('Failed to fetch notifications');
 			const data = await res.json();
-			setNotifications(data);
+
+			  // Defensive: check if data.notifications exists and is an array
+    const notificationsArray = Array.isArray(data.notifications) ? data.notifications : [];
+    setNotifications(notificationsArray);
+
+
 		} catch (err) {
 			setError(err.message);
 		} finally {
