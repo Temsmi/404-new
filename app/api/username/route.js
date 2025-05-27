@@ -10,25 +10,46 @@ export async function GET() {
       return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
     }
 
-    // First try student table
+    // Fetch student data along with clubs (no JSON aggregation)
     let result = await conn({
-      query: 'SELECT name, surname, role FROM student WHERE id = ?',
+      query: `
+        SELECT s.id AS student_id, s.name, s.surname, s.role,
+               c.id AS club_id, c.name AS club_name
+        FROM student s
+        LEFT JOIN members m ON s.id = m.student_id
+        LEFT JOIN club c ON m.club_id = c.id
+        WHERE s.id = ?
+      `,
       values: [session.userId],
     });
 
     if (!result || result.length === 0) {
       // Try admin table
-      result = await conn({
+      const adminResult = await conn({
         query: 'SELECT name, surname, role FROM admin WHERE id = ?',
         values: [session.userId],
       });
+
+      if (!adminResult || adminResult.length === 0) {
+        return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true, user: adminResult[0] });
     }
 
-    if (!result || result.length === 0) {
-      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
-    }
+    // Build user object and clubs list
+    const { name, surname, role } = result[0];
+    const clubs = result
+      .filter(row => row.club_id !== null)
+      .map(row => ({ id: row.club_id, name: row.club_name }));
 
-    const user = result[0];
+    const user = {
+      name,
+      surname,
+      role,
+      clubs,
+    };
+
     return NextResponse.json({ success: true, user });
 
   } catch (err) {

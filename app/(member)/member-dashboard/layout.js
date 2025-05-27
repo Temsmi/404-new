@@ -7,7 +7,7 @@ import 'styles/theme.scss';
 
 // import sub components
 import NavbarVertical from '/layouts/navbars/NavbarVertical-m';
-import NavbarTop from '/layouts/navbars/NavbarTop-p';
+import NavbarTop from '/layouts/navbars/NavbarTop-m';
 
 export default function DashboardLayout({ children }) {
     const [showMenu, setShowMenu] = useState(true);

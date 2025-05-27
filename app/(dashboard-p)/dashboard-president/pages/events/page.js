@@ -117,9 +117,29 @@ const EventLogs = () => {
         }
     };
 
-    const handleAnnounce = (eventName) => {
-        alert(`Announcing event: ${eventName}`);
-    };
+  const handleAnnounce = async (eventId) => {
+    try {
+        const response = await fetch(`/api/eventlogs/${eventId}/announce`, {
+            method: 'PUT',
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            const updatedEvents = events.map((event) =>
+                event.id === eventId
+                    ? { ...event, is_announced: data.newStatus }
+                    : event
+            );
+            setEvents(updatedEvents);
+        } else {
+            alert('Failed to toggle announcement: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Network error:', error);
+    }
+};
+
+
 
     if (loading) {
         return (
@@ -164,15 +184,19 @@ const EventLogs = () => {
                                 </span>
                             </td>
                             <td>
-                                {event.status === 'Approved' ? (
-                                    <Button variant="primary" onClick={() => handleAnnounce(event.name)}>
-                                        Announce
-                                    </Button>
-                                ) : (
-                                    <Button variant="warning" onClick={() => handleEdit(event)}>
-                                        Edit
-                                    </Button>
-                                )}
+          {event.status === 'Approved' ? (
+    <Button
+        variant={event.is_announced ? 'success' : 'primary'}
+        onClick={() => handleAnnounce(event.id)}
+    >
+        {event.is_announced ? 'Announced ✅ (Click to Undo)' : 'Announce'}
+    </Button>
+) : (
+    <Button variant="warning" onClick={() => handleEdit(event)}>
+        Edit
+    </Button>
+)}
+
                             </td>
                         </tr>
                     ))}
