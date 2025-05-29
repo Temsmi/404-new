@@ -6,7 +6,7 @@ import CalendarWidget from './components/CalendarWidget';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import MembersInfo from "sub-components/dashboard/MembersInfo";
-
+import RequestButton from "./components/RequestButton";
 const stripHtml = (html) => {
   if (!html) return '';
   return html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
@@ -223,6 +223,7 @@ console.log("User Clubs Normalized:", userClubs.map(c => normalizeName(c.name)))
           </Col>
         </Row>
       </Container>
+                <RequestButton /> {/*  This adds the floating button without affecting layout */}
       <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
   <Modal.Header closeButton>
     <Modal.Title>
