@@ -6,12 +6,13 @@ export async function GET() {
     try {
         const query = `
             SELECT 
-                club.id, 
-                club.name, 
-                club.description, 
-                club.logo, 
-                COUNT(members.id) AS member_count,
-                student.name AS president_name 
+                 club.id, 
+    club.name, 
+    club.description, 
+    club.logo, 
+    club.is_active,
+    COUNT(members.id) AS member_count,
+    student.name AS president_name 
             FROM club
             LEFT JOIN members ON club.id = members.club_id
             LEFT JOIN president ON club.id = president.club_id
@@ -29,23 +30,42 @@ export async function GET() {
 }
 
 export async function PUT(req) {
-    try {
-        const { id, name, description, logo } = await req.json();
+  try {
+    const body = await req.json();
+    const { id, name, description, logo, is_active } = body;
 
-        // Update the club in the database
-        const query = `
-            UPDATE club
-            SET name = ?, description = ?, logo = ?
-            WHERE id = ?
-        `;
+    let fields = [];
+    let values = [];
 
-        const values = [name, description, logo, id];
-        await conn({ query, values });
-
-        // Return the updated club data
-        return NextResponse.json({ id, name, description, logo });
-    } catch (error) {
-        console.error("Database error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    if (typeof name !== 'undefined') {
+      fields.push("name = ?");
+      values.push(name);
     }
+    if (typeof description !== 'undefined') {
+      fields.push("description = ?");
+      values.push(description);
+    }
+    if (typeof logo !== 'undefined') {
+      fields.push("logo = ?");
+      values.push(logo);
+    }
+    if (typeof is_active !== 'undefined') {
+      fields.push("is_active = ?");
+      values.push(is_active);
+    }
+
+    if (fields.length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+    }
+
+    values.push(id);
+    const query = `UPDATE club SET ${fields.join(', ')} WHERE id = ?`;
+
+    await conn({ query, values });
+
+    return NextResponse.json({ id, ...body });
+  } catch (error) {
+    console.error("Database error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
