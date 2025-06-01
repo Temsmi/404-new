@@ -11,18 +11,20 @@ const Memberships = () => {
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState('name');
 
-  const fetchClubs = async () => {
-    try {
-      const res = await fetch('/api/memberships');
-      const data = await res.json();
-      setClubs(data);
-      setFiltered(data);
-    } catch (err) {
-      console.error('Failed to fetch clubs:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchClubs = async () => {
+  try {
+    const res = await fetch('/api/memberships');
+    const data = await res.json();
+    console.log('Fetched clubs:', data); // ← این خط رو اضافه کن
+    setClubs(data);
+    setFiltered(data);
+  } catch (err) {
+    console.error('Failed to fetch clubs:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchClubs();
@@ -45,26 +47,33 @@ const Memberships = () => {
     setFiltered(filteredClubs);
   }, [search, sortField, clubs]);
 
-  const handleDrop = async (id) => {
-    if (!confirm('Are you sure you want to leave this club?')) return;
+const handleDrop = async (clubId) => {
+  console.log("Dropping club with ID:", clubId);
+  if (!confirm('Are you sure you want to leave this club?')) return;
 
-    try {
-      const res = await fetch('/api/club-join', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clubId: id }),
-      });
+  try {
+    const res = await fetch('/api/memberships', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clubId }),
+    });
 
-      if (res.ok) {
-        fetchClubs(); // Refresh the list
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to leave club.');
-      }
-    } catch (error) {
-      console.error('Drop error:', error);
+    const result = await res.json();
+    console.log('Drop result:', result);
+
+    if (res.ok) {
+      
+ setClubs(prev => prev.filter(club => club.club_id !== clubId));
+setFiltered(prev => prev.filter(club => club.club_id !== clubId));
+
+    } else {
+      alert(result.error || 'Failed to leave club.');
     }
-  };
+  } catch (error) {
+    console.error('Drop error:', error);
+  }
+};
+
 
   return (
     <Container className="py-5">
@@ -113,13 +122,14 @@ const Memberships = () => {
                         : '—'}
                     </td>
                     <td>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => handleDrop(club.id)}
-                      >
-                        Leave
-                      </Button>
+                  <Button
+  variant="outline-danger"
+  size="sm"
+  onClick={() => handleDrop(club.club_id)}
+>
+  Leave
+</Button>
+
                     </td>
                   </tr>
                 ))}
