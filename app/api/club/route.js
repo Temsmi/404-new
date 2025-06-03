@@ -1,40 +1,41 @@
+// pages/api/club.js
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 
 export async function GET() {
-    try {
-        const query = `
-            SELECT 
-                 club.id, 
-    club.name, 
-    club.description, 
-    club.logo, 
-    club.is_active,
-    COUNT(members.id) AS member_count,
-    student.name AS president_name 
-            FROM club
-            LEFT JOIN members ON club.id = members.club_id
-            LEFT JOIN president ON club.id = president.club_id
-            LEFT JOIN student ON president.student_id = student.id
-            GROUP BY club.id, student.name
-        `;
+  try {
+    // Query clubs from club table
+    const clubQuery = `
+      SELECT 
+        club.id, 
+        club.name, 
+        club.description, 
+        club.logo, 
+        club.is_active,
+        COUNT(members.id) AS member_count,
+        student.name AS president_name 
+      FROM club
+      LEFT JOIN members ON club.id = members.club_id
+      LEFT JOIN president ON club.id = president.club_id
+      LEFT JOIN student ON president.student_id = student.id
+      GROUP BY club.id, club.name, club.description, club.logo, club.is_active, student.name
+    `;
 
-    // Query approved club requests NOT in club table yet
-    // assuming club_requests table has id, name, logo, description, student_id, status
+    // Query approved club requests not yet in club table
     const clubRequestsQuery = `
       SELECT
-        id + 1000000 AS id, -- offset to avoid id clash with club table
+        id + 1000000 AS id,  -- large offset to avoid ID collision
         name,
         description,
         logo,
+        NULL AS is_active,
         0 AS member_count,
         NULL AS president_name
       FROM club_requests
       WHERE status = 'approved' 
-      AND id NOT IN (SELECT id FROM club) -- avoid duplicates if already inserted
+      AND id NOT IN (SELECT id FROM club)
     `;
 
-    // Combine both results with UNION ALL
     const fullQuery = `
       (${clubQuery})
       UNION ALL
@@ -80,6 +81,7 @@ export async function PUT(req) {
     }
 
     values.push(id);
+
     const query = `UPDATE club SET ${fields.join(', ')} WHERE id = ?`;
 
     await conn({ query, values });
