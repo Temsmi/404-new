@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
-import { getSession } from 'app/lib/session'; // Make sure this path is correct!
+import { getSession } from 'app/lib/session'; 
 
 export async function GET(req) {
   try {
@@ -22,6 +22,7 @@ export async function GET(req) {
     const query = `
       SELECT 
         members.id,
+        members.club_id,
         members.date_joined,
         club.name AS name,
         club.description AS description,
@@ -40,3 +41,44 @@ export async function GET(req) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req) {
+  try {
+    const session = await getSession(req);
+    const userId = session?.userId || session?.user?.userId;
+
+    if (!userId) {
+      console.error("No userId in session");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { clubId } = body;
+
+    if (!clubId) {
+      console.error("No clubId provided");
+      return NextResponse.json({ error: "Missing clubId" }, { status: 400 });
+    }
+
+    console.log("Attempting DELETE for student_id =", userId, "club_id =", clubId);
+
+    const deleteQuery = `
+      DELETE FROM members 
+      WHERE student_id = ? AND club_id = ?
+    `;
+
+    const result = await conn({ query: deleteQuery, values: [userId, clubId] });
+
+    console.log("DELETE result:", result);
+
+    if (result.affectedRows === 0) {
+      return NextResponse.json({ error: "No rows deleted - check student_id and club_id" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("DELETE /api/memberships error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+

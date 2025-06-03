@@ -27,20 +27,27 @@ const QuickMenu_p = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await fetch('/api/username'); // ✅ This was missing
-                const data = await res.json();
-                console.log("Fetched user data:", data);
-                setUser(data.user);
-            } catch (error) {
-                console.error('Error fetching user:', error);
-            }
-        };
-    
-        fetchUser();
-    }, []);
+const [profileLink, setProfileLink] = useState('');
+
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await fetch('/api/username');
+      const data = await res.json();
+      setUser(data.user);
+      // مشخص کردن مسیر بر اساس نقش
+      if (data.user.role === 'member') {
+        setProfileLink('/member-dashboard/pages/settings');
+      } else if (data.user.role === 'president') {
+        setProfileLink('/dashboard-president/pages/settings');
+      }
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    }
+  };
+  fetchUser();
+}, []);
+
     
 
     // const isDesktop = useMediaQuery({
@@ -157,9 +164,10 @@ const QuickMenu_p = () => {
                             </div>
                             <div className=" dropdown-divider mt-3 mb-2"></div>
                     </Dropdown.Item>
-                     <Dropdown.Item eventKey="2" href="/dashboard-president/pages/settings">
-    <i className="fe fe-user me-2"></i> View Profile
-                  </Dropdown.Item>
+                    <Dropdown.Item eventKey="2" href={profileLink}>
+  <i className="fe fe-user me-2"></i> View Profile
+</Dropdown.Item>
+
                   
                     
                     <Dropdown.Item onClick={handleSignOut}>

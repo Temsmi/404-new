@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Table, Spinner } from 'react-bootstrap';
-import Image from "next/image";
 
 const ManageClubs = () => {
   const [clubs, setClubs] = useState([]);
@@ -79,9 +78,9 @@ const ManageClubs = () => {
       const res = await fetch(`/api/club/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: JSON.stringify({ 
           id: id,
-          description: 'This club has been Deactivated'
+          description: 'This club has been Deactivated' 
         }),
       });
 
@@ -97,6 +96,34 @@ const ManageClubs = () => {
       }
     } catch (error) {
       console.error('Error deactivating club:', error);
+    }
+  };
+
+  const handleToggleActive = async (club) => {
+    const newStatus = !club.is_active;
+    try {
+  const res = await fetch(`/api/club`, {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    id: club.id,
+    is_active: newStatus,
+    description: newStatus ? club.description : 'This club has been Deactivated'
+  }),
+});
+
+      if (res.ok) {
+        alert(`Club ${newStatus ? 'Activated' : 'Deactivated'}!`);
+        setClubs(clubs.map(c => 
+          c.id === club.id ? { ...c, is_active: newStatus, description: newStatus ? club.description : 'This club has been Deactivated' } : c
+        ));
+      } else {
+        const errorMessage = await res.text();
+        console.error('Failed to toggle club:', errorMessage);
+        alert('Failed to toggle club: ' + errorMessage);
+      }
+    } catch (error) {
+      console.error('Error toggling club:', error);
     }
   };
 
@@ -192,15 +219,18 @@ const ManageClubs = () => {
                     </tr>
                   ) : clubs.length > 0 ? (
                     clubs.map((club, index) => (
-                      <tr key={index}>
+                      <tr key={index} className={!club.is_active ? 'opacity-50' : ''}>
                         <td className="align-middle">
                           <div className="d-flex align-items-center">
-                            <div className="text-center">
+                            <div md={4} className="text-center">
                               <img
                                 src={`/images/ClubsLogo/${club.logo}`}
                                 alt="Club Logo"
                                 className="img-fluid rounded"
-                                style={{ maxWidth: '50px' }}
+                                style={{
+                                  maxWidth: '50px',
+                                  opacity: club.is_active ? 1 : 0.3
+                                }}
                                 onError={(e) => e.target.src = "/images/default-logo.png"}
                               />
                             </div>
@@ -216,8 +246,14 @@ const ManageClubs = () => {
                         <td className="text-center">
                           <Button variant="primary" onClick={() => handleEdit(club)} className="me-2">Edit</Button>
                         </td>
-                        <td className="text-center">
-                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
+                        <td>
+                         <Button
+  variant={club.is_active ? 'warning' : 'success'}
+  onClick={() => handleToggleActive(club)}
+>
+  {club.is_active ? 'Deactivate' : 'Activate'}
+</Button>
+
                         </td>
                       </tr>
                     ))
