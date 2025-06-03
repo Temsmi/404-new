@@ -2,9 +2,8 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Form, Table } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Table, Spinner } from 'react-bootstrap';
 import Image from "next/image";
-import { Spinner } from 'react-bootstrap';
 
 const ManageClubs = () => {
   const [clubs, setClubs] = useState([]);
@@ -29,7 +28,6 @@ const ManageClubs = () => {
         setLoading(false);
       }
     };
-
     fetchClubs();
   }, []);
 
@@ -81,14 +79,17 @@ const ManageClubs = () => {
       const res = await fetch(`/api/club/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          id: id, // Include the club ID
-          description: 'This club has been Deactivated' 
+        body: JSON.stringify({
+          id: id,
+          description: 'This club has been Deactivated'
         }),
       });
+
       if (res.ok) {
         alert('Club Deactivated!');
-        setClubs(clubs.map(club => club.id === id ? { ...club, description: 'This club has been Deactivated' } : club));
+        setClubs(clubs.map(club =>
+          club.id === id ? { ...club, description: 'This club has been Deactivated' } : club
+        ));
       } else {
         const errorMessage = await res.text();
         console.error('Failed to deactivate club:', errorMessage);
@@ -110,7 +111,7 @@ const ManageClubs = () => {
   return (
     <Container>
       <Row className="justify-content-between align-items-center mb-4">
-        <Col className="justify-content-between align-items-center w-100 mb-4">
+        <Col className="w-100 mb-4">
           <h2 className="text-black font-weight-bold">Manage Clubs</h2>
         </Col>
         <Col className="text-end">
@@ -120,7 +121,6 @@ const ManageClubs = () => {
         </Col>
       </Row>
 
-      {/* Club Edit Form */}
       {isEditing && selectedClub ? (
         <Row>
           <Col md={12}>
@@ -140,7 +140,7 @@ const ManageClubs = () => {
                   <Form.Group controlId="formDescription">
                     <Form.Label>Club Description</Form.Label>
                     <Form.Control
-                      as=" textarea"
+                      as="textarea"
                       rows={3}
                       name="description"
                       value={formData.description}
@@ -156,25 +156,16 @@ const ManageClubs = () => {
                       onChange={handleInputChange}
                     />
                   </Form.Group>
-                  <Button variant="success" type="submit" className="mt-3">
-                    Save Changes
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setIsEditing(false)}
-                    className="mt-3 ms-2"
-                  >
-                    Cancel
-                  </Button>
+                  <Button variant="success" type="submit" className="mt-3">Save Changes</Button>
+                  <Button variant="secondary" onClick={() => setIsEditing(false)} className="mt-3 ms-2">Cancel</Button>
                 </Form>
               </Card.Body>
             </Card>
           </Col>
         </Row>
       ) : (
-        // Clubs Display in Table
         <Row className="mt-6">
-          <Col md={12} xs={12}>
+          <Col md={12}>
             <Card>
               <Card.Header className="bg-white py-4">
                 <h4 className="mb-0">All Clubs</h4>
@@ -191,28 +182,28 @@ const ManageClubs = () => {
                 </thead>
                 <tbody>
                   {loading ? (
-      <tr>
-      <td colSpan="5" className="text-center py-5">
-        <div className="d-flex flex-column align-items-center justify-content-center">
-          <Spinner animation="border" variant="info" role="status" />
-          <p className="mt-2 mb-0">Loading...</p>
-        </div>
-      </td>
-    </tr>
-    
+                    <tr>
+                      <td colSpan="5" className="text-center py-5">
+                        <div className="d-flex flex-column align-items-center justify-content-center">
+                          <Spinner animation="border" variant="info" role="status" />
+                          <p className="mt-2 mb-0">Loading...</p>
+                        </div>
+                      </td>
+                    </tr>
                   ) : clubs.length > 0 ? (
                     clubs.map((club, index) => (
                       <tr key={index}>
                         <td className="align-middle">
                           <div className="d-flex align-items-center">
-                          <div md={4} className="text-center">
-                                        <img src={`/images/ClubsLogo/${club.logo}`}
-                                                    alt="Club Logo"
-                                                    className="img-fluid rounded"
-                                                    style={{ maxWidth: '50px' }}
-                                                    onError={(e) => e.target.src = "/images/default-logo.png"}  // Handle broken image
-                                                />
-                                                </div>
+                            <div className="text-center">
+                              <img
+                                src={`/images/ClubsLogo/${club.logo}`}
+                                alt="Club Logo"
+                                className="img-fluid rounded"
+                                style={{ maxWidth: '50px' }}
+                                onError={(e) => e.target.src = "/images/default-logo.png"}
+                              />
+                            </div>
                             <div className="ms-3 lh-1">
                               <h5 className="mb-1">
                                 <Link href="#" className="text-inherit">{club.name}</Link>
@@ -225,14 +216,14 @@ const ManageClubs = () => {
                         <td className="text-center">
                           <Button variant="primary" onClick={() => handleEdit(club)} className="me-2">Edit</Button>
                         </td>
-                        <td>
-                        <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
+                        <td className="text-center">
+                          <Button variant="warning" onClick={() => handleDeactivate(club.id)}>Deactivate</Button>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="text-center">No clubs available.</td>
+                      <td colSpan="5" className="text-center">No clubs available.</td>
                     </tr>
                   )}
                 </tbody>

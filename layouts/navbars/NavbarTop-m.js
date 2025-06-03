@@ -8,7 +8,7 @@ import {
 } from 'react-bootstrap';
 
 // import sub components
-import QuickMenu_m from 'layouts/QuickMenu-m';
+import QuickMenu_p from 'layouts/QuickMenu-p';
 import SearchBar from 'layouts/SearchBar';
 
 const NavbarTop = (props) => {
@@ -30,7 +30,7 @@ const NavbarTop = (props) => {
                 </div>
                 {/* Quick Menu */}
                 <Nav className="navbar-right-wrap ms-2 d-flex nav-top-wrap">
-                    <QuickMenu_m />
+                    <QuickMenu_p />
                 </Nav>
             </div>
         </Navbar>
