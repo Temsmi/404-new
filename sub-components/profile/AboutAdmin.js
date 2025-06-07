@@ -34,10 +34,7 @@ const AboutAdmin = () => {
           <span className="text-uppercase fw-medium text-dark fs-5 ls-2">Bio</span>
           <p className="mt-2 mb-6">I was born to become a Admin!</p>
           <Row>
-            <Col xs={12} className="mb-5">
-              <h6 className="text-uppercase fs-5 ls-2">Department</h6>
-              <p className="mb-0">{admin.dept}</p>
-            </Col>
+           
             <Col xs={6} className="mb-5">
               <h6 className="text-uppercase fs-5 ls-2">Phone</h6>
               <p className="mb-0">{admin.phone_num}</p>

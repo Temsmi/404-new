@@ -83,9 +83,12 @@ const ManageClubs = () => {
           description: 'This club has been Deactivated' 
         }),
       });
+
       if (res.ok) {
         alert('Club Deactivated!');
-        setClubs(clubs.map(club => club.id === id ? { ...club, description: 'This club has been Deactivated' } : club));
+        setClubs(clubs.map(club =>
+          club.id === id ? { ...club, description: 'This club has been Deactivated' } : club
+        ));
       } else {
         const errorMessage = await res.text();
         console.error('Failed to deactivate club:', errorMessage);
@@ -189,7 +192,7 @@ const ManageClubs = () => {
         </Row>
       ) : (
         <Row className="mt-6">
-          <Col md={12} xs={12}>
+          <Col md={12}>
             <Card>
               <Card.Header className="bg-white py-4">
                 <h4 className="mb-0">All Clubs</h4>
@@ -256,7 +259,7 @@ const ManageClubs = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="text-center">No clubs available.</td>
+                      <td colSpan="5" className="text-center">No clubs available.</td>
                     </tr>
                   )}
                 </tbody>
