@@ -77,7 +77,6 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
     }
 
-    // ✅ Get form data (only once!)
     const formData = await req.formData();
     const clubId = formData.get('club_id');
     const bio = formData.get('bio');
@@ -87,18 +86,20 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // ✅ Check for existing candidate
-    const candidateCheckQuery = `SELECT * FROM candidate WHERE student_id = ? AND club_id = ?`;
-    const candidateCheckResult = await conn({
-      query: candidateCheckQuery,
-      values: [userId, clubId],
+    // **New check:** Has this student already applied for any club?
+    const existingCandidateCheck = await conn({
+      query: `SELECT * FROM candidate WHERE student_id = ?`,
+      values: [userId],
     });
 
-    if (candidateCheckResult.length > 0) {
-      return NextResponse.json({ error: 'You are already a candidate for this club.' }, { status: 400 });
+    if (existingCandidateCheck.length > 0) {
+      return NextResponse.json({ error: 'You have already applied as a candidate for another club.' }, { status: 400 });
     }
 
-    // ✅ Upload photo
+    // (Optional) You can still keep the same club check if you want,
+    // but it's redundant now because the previous check covers all clubs.
+
+    // Upload photo (same as before)
     let photoUrl = null;
     if (photo && typeof photo.arrayBuffer === 'function') {
       const buffer = Buffer.from(await photo.arrayBuffer());
@@ -119,7 +120,7 @@ export async function POST(req) {
       });
     }
 
-    // ✅ Insert into DB
+    // Insert candidate
     const insertQuery = `
       INSERT INTO candidate (student_id, club_id, bio, photo, amount_of_votes)
       VALUES (?, ?, ?, ?, 0)

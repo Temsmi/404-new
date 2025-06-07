@@ -66,7 +66,12 @@ export async function GET(req) {
     else if (start) status = 'running';
     else if (stop) status = 'stopped';
 
-    return NextResponse.json({ status });
+   return NextResponse.json({
+  start: Boolean(start),
+  stop: Boolean(stop),
+  publish: Boolean(publish),
+  status
+});
   } catch (err) {
     console.error('Error fetching election status:', err);
     return NextResponse.json({ message: 'Server error' }, { status: 500 });

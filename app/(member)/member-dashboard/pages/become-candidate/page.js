@@ -163,6 +163,11 @@ export default function BecomeCandidatePage() {
         >
           {loading ? 'Submitting...' : 'Submit'}
         </button>
+        
+        {/* Static message below submit button */}
+        <p className="mt-3 text-muted text-center" style={{ fontWeight: 'bold' }}>
+          * * * * * * * * Only one candidate allowed at a time. It means you can become a candidate just for 1 club only in current elections year.
+        </p>
       </form>
     </div>
   );
