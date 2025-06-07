@@ -28,7 +28,7 @@ export async function DELETE(req) {
     // Delete from specific table
     if (role === 'member') {
       await conn({
-        query: 'DELETE FROM member WHERE student_id = ?',
+        query: 'DELETE FROM members WHERE student_id = ?',
         values: [userId],
       });
     } else if (role === 'president') {
