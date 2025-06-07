@@ -24,17 +24,17 @@ const CalendarPage = () => {
 
         if (Array.isArray(data)) {
           const approvedEvents = data
-            .filter(event => event.status === 1) // Only approved events
+            .filter(event => event.status === 1) 
             .map(event => ({
               id: event.id,
               title: `${event.title}`,
-              start: formatDateTime(event.date, event.time), // Combine date and time
-              allDay: false, // Ensures it appears in the correct time slot
+              start: formatDateTime(event.date, event.time), 
+              allDay: false, 
               description: event.description,
               clubName: event.clubName,
-              backgroundColor: "#00FFFF", // Blue for approved events
+              backgroundColor: "#00FFFF", 
               textColor: "#fff",
-              classNames: ['approved-event'], // Custom class for styling
+              classNames: ['approved-event'], 
             }));
 
           setEvents(approvedEvents);
@@ -47,21 +47,18 @@ const CalendarPage = () => {
     fetchApprovedEvents();
   }, []);
 
-  // Helper function to format date and time correctly
   const formatDateTime = (date, time) => {
     if (!date) return null;
 
-    let formattedTime = "00:00:00"; // Default to midnight if no time provided
+    let formattedTime = "00:00:00"; 
     if (time) {
-      // Ensure time is in HH:MM:SS format
       const timeParts = time.split(":");
-      formattedTime = timeParts.length === 3 ? time : `${time}:00`; // Handle missing seconds
+      formattedTime = timeParts.length === 3 ? time : `${time}:00`; 
     }
 
     return `${date.split('T')[0]}T${formattedTime}`;
   };
 
-  // Handle event click (open modal)
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event);
     setShowEventModal(true);
@@ -83,7 +80,6 @@ const CalendarPage = () => {
         </Form.Select>
       </div>
 
-      {/* FullCalendar Component */}
       <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
         <FullCalendar
           ref={calendarRef}
@@ -97,13 +93,12 @@ const CalendarPage = () => {
           nowIndicator={true}
           selectable={true}
           events={events}
-          eventClick={handleEventClick} // Event click handler
-          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', meridiem: 'short' }} // Show event time
+          eventClick={handleEventClick} 
+          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', meridiem: 'short' }} 
           height="auto"
         />
       </div>
 
-      {/* Event Details Modal */}
       <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Event Details</Modal.Title>
@@ -121,7 +116,6 @@ const CalendarPage = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Custom Styles */}
       <style jsx>{`
         :global(.approved-event) {
           background-color: #007bff !important;
