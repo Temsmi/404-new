@@ -1,87 +1,97 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Button, Form, Accordion } from 'react-bootstrap';
 
 const HelpPage = () => {
-  // State for video upload form
   const [videoTitle, setVideoTitle] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
   const [videoFile, setVideoFile] = useState(null);
-  const [videos, setVideos] = useState([
-    {
-      title: 'Introduction to React',
-      description: 'A beginner-friendly tutorial on React.js.',
-      file: { name: 'react_intro.mp4' },
-    },
-    {
-      title: 'Advanced JavaScript Tips',
-      description: 'Learn advanced JavaScript techniques for experts.',
-      file: { name: 'advanced_js_tips.mp4' },
-    },
-    {
-      title: 'CSS for Beginners',
-      description: 'A simple guide to understanding CSS basics.',
-      file: { name: 'css_basics.mp4' },
-    },
-  ]);
+  const [videos, setVideos] = useState([]);
 
-  // State for FAQ section
   const [faqQuestion, setFaqQuestion] = useState('');
   const [faqAnswer, setFaqAnswer] = useState('');
-  const [faqs, setFaqs] = useState([
-    {
-      question: 'How do I upload a tutorial video?',
-      answer: 'Click on the "Upload Video" button, enter the title and description, and choose the video file.',
-    },
-    {
-      question: 'Can I edit a video after uploading?',
-      answer: 'Currently, once a video is uploaded, it cannot be edited. You can delete and upload a new version.',
-    },
-    {
-      question: 'What video formats are supported?',
-      answer: 'We support MP4, AVI, and MOV file formats for video uploads.',
-    },
-  ]);
+  const [faqs, setFaqs] = useState([]);
 
-  // Handle video form submission
-  const handleAddVideo = () => {
+  useEffect(() => {
+    const loadData = async () => {
+      const res = await fetch('/api/help/get-data');
+      const data = await res.json();
+
+      if (res.ok) {
+        setVideos(data.tutorials || []);
+        setFaqs(data.faqs || []);
+      } else {
+        console.error('Error loading help data:', data.error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const handleAddVideo = async () => {
     if (!videoTitle || !videoDescription || !videoFile) {
       alert('Please fill in all fields!');
       return;
     }
 
-    const newVideo = {
-      title: videoTitle,
-      description: videoDescription,
-      file: videoFile,
-    };
+    const formData = new FormData();
+    formData.append('title', videoTitle);
+    formData.append('description', videoDescription);
+    formData.append('file', videoFile);
 
-    setVideos([...videos, newVideo]);
-    setVideoTitle('');
-    setVideoDescription('');
-    setVideoFile(null);
+    const res = await fetch('/api/help/videos', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setVideos([
+        ...videos,
+        {
+          title: videoTitle,
+          description: videoDescription,
+          file_url: data.url, // Ensure backend sends this
+        },
+      ]);
+
+      setVideoTitle('');
+      setVideoDescription('');
+      setVideoFile(null);
+    } else {
+      alert(data.error || 'Video upload failed.');
+    }
   };
 
-  // Handle FAQ form submission
-  const handleAddFaq = () => {
+  const handleAddFaq = async () => {
     if (!faqQuestion || !faqAnswer) {
       alert('Please fill in both the question and the answer!');
       return;
     }
 
-    const newFaq = {
-      question: faqQuestion,
-      answer: faqAnswer,
-    };
+    const res = await fetch('/api/help/questions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ question: faqQuestion, answer: faqAnswer }),
+    });
 
-    setFaqs([...faqs, newFaq]);
-    setFaqQuestion('');
-    setFaqAnswer('');
+    const data = await res.json();
+
+    if (res.ok) {
+      setFaqs([...faqs, { question: faqQuestion, answer: faqAnswer }]);
+      setFaqQuestion('');
+      setFaqAnswer('');
+    } else {
+      alert(data.error || 'FAQ upload failed.');
+    }
   };
 
   return (
-    <Container className="mt-5" style={{ maxWidth: '750px' }}>
+    <Container className="mt-5 mb-5" style={{ maxWidth: '750px', borderBottom: '1px solid #ccc', paddingBottom: '50px' }}>
       <h3 className="text-center mb-4">Help Center</h3>
 
       {/* Video Upload Form */}
@@ -127,10 +137,13 @@ const HelpPage = () => {
       <h4 className="mt-4">Uploaded Videos</h4>
       <ul>
         {videos.map((video, index) => (
-          <li key={index}>
+          <li key={index} className="mb-3">
             <h5>{video.title}</h5>
             <p>{video.description}</p>
-            <p><strong>File:</strong> {video.file.name}</p>
+            <video width="100%" controls>
+              <source src={video.file} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </li>
         ))}
       </ul>

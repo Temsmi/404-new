@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 import { getSession } from 'app/lib/session';
 
-// GET: Fetch the name of the club for the president in session
+
 export async function GET(req) {
     try {
         const session = await getSession(req);

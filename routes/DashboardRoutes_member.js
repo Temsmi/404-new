@@ -80,7 +80,7 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Help Page',
 		icon: 'info',
-		link: '/dashboard/pages/help'
+		link: '/member-dashboard/pages/help_page'
 	},	
 ];
 

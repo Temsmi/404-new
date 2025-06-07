@@ -57,7 +57,7 @@ const ProfileHeader = ({ onEditProfileClick }) => {
               </div>
               {/* Text */}
               <div className="lh-1">
-                <h2 className="mb-0">Member</h2>
+                <h2 className="mb-0">Non-Member</h2>
               </div>
             </div>
             <div>

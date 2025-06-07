@@ -1,72 +1,91 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Container, Accordion } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Form, Accordion } from 'react-bootstrap';
 
 const HelpPage = () => {
-  // State for FAQ section
-  const [faqs] = useState([
-    {
-      question: 'How do I upload a tutorial video?',
-      answer: 'Click on the "Upload Video" button, enter the title and description, and choose the video file.',
-    },
-    {
-      question: 'Can I edit a video after uploading?',
-      answer: 'Currently, once a video is uploaded, it cannot be edited. You can delete and upload a new version.',
-    },
-    {
-      question: 'What video formats are supported?',
-      answer: 'We support MP4, AVI, and MOV file formats for video uploads.',
-    },
-  ]);
+  const [videos, setVideos] = useState([]);
+  const [faqs, setFaqs] = useState([]);
+  const [search, setSearch] = useState('');
 
-  // Sample uploaded videos (you can replace this with dynamic data if needed)
-  const [videos] = useState([
-    {
-      title: 'Introduction to React',
-      description: 'A beginner-friendly tutorial on React.js.',
-      file: { name: 'react_intro.mp4' },
-    },
-    {
-      title: 'Advanced JavaScript Tips',
-      description: 'Learn advanced JavaScript techniques for experts.',
-      file: { name: 'advanced_js_tips.mp4' },
-    },
-    {
-      title: 'CSS for Beginners',
-      description: 'A simple guide to understanding CSS basics.',
-      file: { name: 'css_basics.mp4' },
-    },
-  ]);
+  useEffect(() => {
+    const loadData = async () => {
+      const res = await fetch('/api/help/get-data');
+      const data = await res.json();
+
+      if (res.ok) {
+        setVideos(data.tutorials || []);
+        setFaqs(data.faqs || []);
+      } else {
+        console.error('Error loading help data:', data.error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Filter data by search term (case-insensitive)
+  const filteredVideos = videos.filter((video) =>
+    video.title.toLowerCase().includes(search.toLowerCase()) ||
+    video.description.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredFaqs = faqs.filter((faq) =>
+    faq.question.toLowerCase().includes(search.toLowerCase()) ||
+    faq.answer.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <Container className="mt-5  mb-4 " style={{ marginLeft: '30px', width: '1000px'}}>
+    <Container className="mt-5 mb-5" style={{ maxWidth: '750px', paddingBottom: '50px' }}>
       <h3 className="text-center mb-4">Help Center</h3>
 
-      {/* List of Uploaded Videos */}
-      <h4 className="mt-4">Uploaded Videos</h4>
-      <ul>
-        {videos.map((video, index) => (
-          <li key={index}>
-            <h5>{video.title}</h5>
-            <p>{video.description}</p>
-            <p><strong>File:</strong> {video.file.name}</p>
-          </li>
-        ))}
-      </ul>
+      {/* Search Input */}
+      <Form.Group className="mb-4">
+        <Form.Control
+          type="text"
+          placeholder="Search tutorials or FAQs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </Form.Group>
 
-      <hr />
+      {/* Tutorial Videos Section */}
+      <h4 className="mt-4">Tutorial Videos</h4>
+      {filteredVideos.length === 0 ? (
+        <p className="text-muted">No videos found.</p>
+      ) : (
+        <Accordion alwaysOpen>
+          {filteredVideos.map((video, index) => (
+            <Accordion.Item eventKey={String(index)} key={index}>
+              <Accordion.Header>{video.title}</Accordion.Header>
+              <Accordion.Body>
+                <p>{video.description}</p>
+                <video width="100%" controls>
+                  <source src={video.file} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Accordion.Body>
+            </Accordion.Item>
+          ))}
+        </Accordion>
+      )}
 
-      {/* FAQ List with Accordion */}
-      <h4 className="mt-4">Frequently Asked Questions (FAQ)</h4>
-      <Accordion defaultActiveKey="0">
-        {faqs.map((faq, index) => (
-          <Accordion.Item eventKey={String(index)} key={index}>
-            <Accordion.Header>{faq.question}</Accordion.Header>
-            <Accordion.Body>{faq.answer}</Accordion.Body>
-          </Accordion.Item>
-        ))}
-      </Accordion>
+      <hr className="my-5" />
+
+      {/* FAQ Section */}
+      <h4 className="mt-4">❓Frequently Asked Questions (FAQ)</h4>
+      {filteredFaqs.length === 0 ? (
+        <p className="text-muted">No FAQs found.</p>
+      ) : (
+        <Accordion alwaysOpen>
+          {filteredFaqs.map((faq, index) => (
+            <Accordion.Item eventKey={String(index)} key={index}>
+              <Accordion.Header>{faq.question}</Accordion.Header>
+              <Accordion.Body>{faq.answer}</Accordion.Body>
+            </Accordion.Item>
+          ))}
+        </Accordion>
+      )}
     </Container>
   );
 };

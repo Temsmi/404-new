@@ -13,7 +13,7 @@ export async function GET() {
     // Fetch student data along with clubs (no JSON aggregation)
     let result = await conn({
       query: `
-        SELECT s.id AS student_id, s.name, s.surname, s.role,
+        SELECT s.id AS student_id, s.name, s.surname, s.role, s.profile_picture,
                c.id AS club_id, c.name AS club_name
         FROM student s
         LEFT JOIN members m ON s.id = m.student_id
@@ -38,7 +38,7 @@ export async function GET() {
     }
 
     // Build user object and clubs list
-    const { name, surname, role } = result[0];
+    const { name, surname, role, profile_picture } = result[0];
     const clubs = result
       .filter(row => row.club_id !== null)
       .map(row => ({ id: row.club_id, name: row.club_name }));
@@ -48,6 +48,7 @@ export async function GET() {
       surname,
       role,
       clubs,
+      profile_picture,
     };
 
     return NextResponse.json({ success: true, user });
