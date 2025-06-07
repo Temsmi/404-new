@@ -16,13 +16,11 @@ const CreateAnnouncementPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-
-    const announcement = {
-      club_id: 1, // یا بگیر از session
-      date: new Date().toISOString().slice(0, 10),
-      title,
-      message,
-    };
+const announcement = {
+  date: new Date().toISOString().slice(0, 10),
+  text: message, 
+  title,         
+};
 
     try {
       const res = await fetch('/api/announcement', {

@@ -9,59 +9,73 @@ import DashCards_president from "data/dashboard/DashCards_president";
 import MembersInfo from "sub-components/dashboard/MembersInfo";
 
 const Home = () => {
-    const [clubName, setClubName] = useState('');
+const [clubName, setClubName] = useState('');
+const [isActive, setIsActive] = useState(true); 
 
-    useEffect(() => {
-        const fetchClubName = async () => {
-            try {
-                const res = await fetch('/api/layoutpresident');
-                const data = await res.json();
-                if (res.ok) {
-                    setClubName(data.clubName);
-                } else {
-                    console.error("Error fetching club name:", data.error);
-                }
-            } catch (err) {
-                console.error("Fetch error:", err);
-            }
-        };
+useEffect(() => {
+  const fetchClubName = async () => {
+    try {
+      const res = await fetch('/api/layoutpresident');
+      const data = await res.json();
+      console.log(data);
 
-        fetchClubName();
-    }, []);
+      if (res.ok) {
+        setClubName(data.clubName);
+        setIsActive(data.is_active); 
+      } else {
+        console.error("Error fetching club name:", data.error);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  };
 
-    return (
-        <Fragment>
-            <div className="bg-primary pt-10 pb-21"></div>
-            <Container fluid className="mt-n22 px-6">
-                <Row>
-                    <Col lg={12} md={12} xs={12}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div className="mb-2 mb-lg-0">
-                                <h3 className="mb-0 text-white">
-                                    Welcome, the President of the {clubName ? <span className="fw-bold">{clubName}</span> : '...'} 
-                                </h3>
-                            </div>
-                            <div>
-                                <Link href="/dashboard-president/pages/chat-group" className="btn btn-white">Create Group Chat</Link>
-                            </div>
-                        </div>
-                    </Col>
+  fetchClubName();
+}, []);
 
-                    {DashCards_president.map((item, index) => (
-                        <Col xl={3} lg={6} md={12} xs={12} className="mt-6" key={index}>
-                            <StatRightTopIcon info={item} />
-                        </Col>
-                    ))}
-                </Row>
 
-                <MembersInfo />
+   return (
+  <Fragment>
+    {!isActive ? (
+      <div className="p-4 bg-danger text-white rounded">
+        Your club is deactivated. Access denied.
+      </div>
+    ) : (
+      <>
+        <div className="bg-primary pt-10 pb-21"></div>
+        <Container fluid className="mt-n22 px-6">
+          <Row>
+            <Col lg={12} md={12} xs={12}>
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="mb-2 mb-lg-0">
+                  <h3 className="mb-0 text-white">
+                    Welcome, the President of the {clubName ? <span className="fw-bold">{clubName}</span> : '...'}
+                  </h3>
+                </div>
+                <div>
+                  <Link href="/dashboard-president/pages/chat-group" className="btn btn-white">Create Group Chat</Link>
+                </div>
+              </div>
+            </Col>
 
-                <Row className="my-6">
-                    <Col xl={4} lg={12} md={12} xs={12} className="mb-6 mb-xl-0"></Col>
-                </Row>
-            </Container>
-        </Fragment>
-    );
+            {DashCards_president.map((item, index) => (
+              <Col xl={3} lg={6} md={12} xs={12} className="mt-6" key={index}>
+                <StatRightTopIcon info={item} />
+              </Col>
+            ))}
+          </Row>
+
+          <MembersInfo />
+
+          <Row className="my-6">
+            <Col xl={4} lg={12} md={12} xs={12} className="mb-6 mb-xl-0"></Col>
+          </Row>
+        </Container>
+      </>
+    )}
+  </Fragment>
+);
+
 };
 
 export default Home;
