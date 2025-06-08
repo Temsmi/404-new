@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Col, Row, Container } from 'react-bootstrap';
-import AboutMem from 'sub-components/profile/AboutMem';
+import AboutNonmem from 'sub-components/profile/AboutNonmem';
 import  EmailSettingmem from 'sub-components/settings/EmailSettingmem';
 import  Preferencesmem from 'sub-components/settings/Preferencesmem';
-import ProfileHeadermem from 'sub-components/profile/ProfileHeadermem';
+import ProfileHeadernonmem from 'sub-components/profile/ProfileHeadernonmem';
 // import widget as custom components
 import { PageHeading } from 'widgets'
 
@@ -40,12 +40,12 @@ const CombinedProfileSettings = () => {
         <PageHeading heading="Overview" />
 
         {/* Profile Header */}
-        <ProfileHeadermem onEditProfileClick={handleEditProfileClick} />
+        <ProfileHeadernonmem onEditProfileClick={handleEditProfileClick} />
 
         <div className="py-6">
           <Row>
             {/* About Me */}
-            <AboutMem/>
+            <AboutNonmem/>
 
             {/* Projects Contributions */}
             {/* <ProjectsContributions /> */}
@@ -70,7 +70,7 @@ const CombinedProfileSettings = () => {
           <PageHeading heading="General" />
 
           {/* Email Settings */}
-          <EmailSettingmem />
+          <EmailSettingmem/>
 
           {/* Settings for Preferences */}
           <Preferencesmem /> 

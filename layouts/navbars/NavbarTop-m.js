@@ -8,7 +8,7 @@ import {
 } from 'react-bootstrap';
 
 // import sub components
-import QuickMenu_p from 'layouts/QuickMenu-p';
+import QuickMenu_p from 'layouts/QuickMenu-mem';
 import SearchBar from 'layouts/SearchBar';
 
 const NavbarTop = (props) => {

@@ -19,7 +19,7 @@ export async function GET(req) {
         console.log("User ID from session:", userId);
   
         const query =
-        'SELECT name, surname, email, phone_num, dept, role FROM student WHERE id = ? AND role = "member"';
+        'SELECT name, surname, email, phone_num, dept, role, profile_picture FROM student WHERE id = ? AND role IN ("member", "non-member")';
   const [userInfo] = await conn({ query, values: [userId] });
 
 if (!userInfo) {
@@ -57,7 +57,7 @@ export async function PUT(req) {
       }
   
       if (password) {
-        // ⚠️ نکته: بهتره اینجا پسورد رو هش کنی با bcrypt
+     
         await conn({
           query: `UPDATE student SET password = ? WHERE id = ?`,
           values: [password, userId],

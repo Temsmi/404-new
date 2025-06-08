@@ -1,32 +1,12 @@
-"use client";
+'use client';
 import { useState, useEffect } from 'react';
 import { Col, Row, Form, Card, Button, Spinner, Alert } from 'react-bootstrap';
 
 const Preferences = () => {
-  const [bio, setBio] = useState('');
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  // Fetch current user info on load
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch('/api/setting');
-        const data = await res.json();
-        if (res.ok) {
-          setBio(data.bio || '');
-        } else {
-          console.error(data.error);
-        }
-      } catch (err) {
-        console.error("Failed to load profile", err);
-      }
-    };
-
-    fetchProfile();
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +16,6 @@ const Preferences = () => {
 
     try {
       const formData = new FormData();
-      formData.append("bio", bio);
       if (selectedImageFile) {
         formData.append("profile_picture", selectedImageFile);
       }
@@ -65,7 +44,7 @@ const Preferences = () => {
       <Col xl={3} lg={4} md={12} xs={12}>
         <div className="mb-4 mb-lg-0">
           <h4 className="mb-1">Preferences</h4>
-          <p className="mb-0 fs-5 text-muted">Configure your bio and profile picture</p>
+          <p className="mb-0 fs-5 text-muted">Configure your profile picture</p>
         </div>
       </Col>
       <Col xl={9} lg={8} md={12} xs={12}>
@@ -77,21 +56,6 @@ const Preferences = () => {
             <Form onSubmit={handleSubmit}>
               {successMessage && <Alert variant="success">{successMessage}</Alert>}
               {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-
-              {/* Bio */}
-              <Form.Group as={Row} className="mb-3" controlId="bio">
-                <Form.Label column md={4}>Bio</Form.Label>
-                <Col md={8}>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    placeholder="Write something about yourself..."
-                    required
-                  />
-                </Col>
-              </Form.Group>
 
               {/* Profile Picture */}
               <Form.Group as={Row} className="mb-3" controlId="profilePicture">
