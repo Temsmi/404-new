@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Form, Image, Modal } from 'react-bootstrap';
-import { Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Image, Modal, Spinner } from 'react-bootstrap';
 
 // Helper function to format date
 const formatDate = (dateString) => {
@@ -15,15 +14,12 @@ const formatDate = (dateString) => {
 };
 
 const formatTime = (timeString) => {
-  if (!timeString) return "N/A"; // Handle missing values
-
+  if (!timeString) return "N/A";
   const [hours, minutes] = timeString.split(":").map(Number);
   const suffix = hours >= 12 ? "PM" : "AM";
-  const formattedHours = hours % 12 || 12; // Convert 0 -> 12, 13 -> 1, etc.
-
+  const formattedHours = hours % 12 || 12;
   return `${formattedHours}:${String(minutes).padStart(2, "0")} ${suffix}`;
 };
-
 
 const ActivityRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -31,7 +27,10 @@ const ActivityRequests = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [loading, setLoading] = useState(true);
-  // Fetch data from API on component mount
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -41,17 +40,14 @@ const ActivityRequests = () => {
       } catch (error) {
         console.error('Error fetching activity requests:', error);
       } finally {
-        setLoading(false); // <-- always set loading to false after fetching
+        setLoading(false);
       }
     };
-  
     fetchRequests();
   }, []);
-  
-  // Approve request function
+
   const handleApprove = async (id) => {
     try {
-      console.log("Approving request with ID:", id);
       const res = await fetch(`/api/activityrequests`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -68,99 +64,102 @@ const ActivityRequests = () => {
     }
   };
 
-  // Open deny modal
   const handleOpenDenyModal = (request) => {
     setSelectedRequest(request);
     setShowModal(true);
   };
 
-  // Deny request function
   const handleDeny = async () => {
     if (selectedRequest && denyReasons[selectedRequest.id]) {
-        try {
-            console.log("Denying request with ID:", selectedRequest.id);
-            
-            const res = await fetch(`/api/activityrequests`, { 
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: selectedRequest.id,  // Make sure the ID is sent correctly
-                    status: -1,
-                    feedback: denyReasons[selectedRequest.id],
-                }),
-            });
+      try {
+        const res = await fetch(`/api/activityrequests`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: selectedRequest.id,
+            status: -1,
+            feedback: denyReasons[selectedRequest.id],
+          }),
+        });
 
-            const data = await res.json();
+        const data = await res.json();
 
-            if (!res.ok) throw new Error(data.error || "Failed to deny request");
+        if (!res.ok) throw new Error(data.error || "Failed to deny request");
 
-            setRequests((prevRequests) =>
-                prevRequests.map((req) =>
-                    req.id === selectedRequest.id
-                        ? { ...req, status: -1, reason: denyReasons[selectedRequest.id] }
-                        : req
-                )
-            );
+        setRequests((prevRequests) =>
+          prevRequests.map((req) =>
+            req.id === selectedRequest.id
+              ? { ...req, status: -1, reason: denyReasons[selectedRequest.id] }
+              : req
+          )
+        );
 
-            setShowModal(false);
-        } catch (error) {
-            console.error("Error denying request:", error);
-            alert("There was an error processing your request. Please check the console.");
-        }
+        setShowModal(false);
+      } catch (error) {
+        console.error("Error denying request:", error);
+        alert("There was an error processing your request. Please check the console.");
+      }
     } else {
-        alert("Please provide a reason for denial.");
-        try {
-            console.log("Denying request with ID:", selectedRequest.id);
-            
-            const res = await fetch(`/api/activityrequests`, { 
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: selectedRequest.id,  // Make sure the ID is sent correctly
-                    status: -1,
-                    feedback: denyReasons[selectedRequest.id],
-                }),
-            });
-
-            const data = await res.json();
-            console.log("Server Response:", data); // Log server response for debugging
-
-            if (!res.ok) throw new Error(data.error || "Failed to deny request");
-
-            setRequests((prevRequests) =>
-                prevRequests.map((req) =>
-                    req.id === selectedRequest.id
-                        ? { ...req, status: -1, reason: denyReasons[selectedRequest.id] }
-                        : req
-                )
-            );
-
-            setShowModal(false);
-        } catch (error) {
-            console.error("Error denying request:", error);
-            alert("There was an error processing your request. Please check the console.");
-        }
-    } 
-};
+      alert("Please provide a reason for denial.");
+    }
+  };
 
   const handleReasonChange = (id, value) => {
     setDenyReasons({ ...denyReasons, [id]: value });
   };
+
+  const filteredRequests = requests.filter((req) => {
+    const matchesSearch =
+      req.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'pending' && req.status === 0) ||
+      (statusFilter === 'approved' && req.status === 1) ||
+      (statusFilter === 'denied' && req.status === -1);
+
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <Container className="py-5">
       <Row className="justify-content-center">
         <Col md={8}>
           <h2 className="text-center mb-4">Activity Requests</h2>
+
+          {/* Search and Filter Controls */}
+          <Form className="mb-4">
+            <Row>
+              <Col md={8}>
+                <Form.Control
+                  type="text"
+                  placeholder="Search by title or description"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </Col>
+              <Col md={4}>
+                <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="denied">Denied</option>
+                </Form.Select>
+              </Col>
+            </Row>
+          </Form>
+
+          {/* Loading or Requests */}
           {loading ? (
-  <div className="text-center">
-    <Spinner animation="border" variant="info" role="status" />
-    <p>Loading...</p>
-  </div>
-) : requests.length === 0 ? (
-  <p className="text-center">No requests available.</p>
+            <div className="text-center">
+              <Spinner animation="border" variant="info" role="status" />
+              <p>Loading...</p>
+            </div>
+          ) : filteredRequests.length === 0 ? (
+            <p className="text-center">No matching requests.</p>
           ) : (
-            requests.map((req) => (
+            filteredRequests.map((req) => (
               <Card key={req.id} className="mb-3 shadow-sm">
                 <Card.Body>
                   <Row>
@@ -175,14 +174,12 @@ const ActivityRequests = () => {
                       <p><strong>Time:</strong> {formatTime(req.time)}</p>
                       <p><strong>Description:</strong> {req.description}</p>
                       <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p>
-                      <p><strong>Zoom Link:</strong> {req.zoomLink ? <a href={req.zoomLink} target="_blank" rel="noopener noreferrer">Join Meeting</a> : "No Link"}</p>
                       <p><strong>Post Feedback:</strong> {req.hasFeedback ? "Included" : "Not Included"}</p>
                       <p className={`fw-bold ${req.status === 1 ? 'text-success' : req.status === 0 ? 'text-warning' : 'text-danger'}`}>
                         Status: {req.status === 1 ? "Approved" : req.status === 0 ? "Pending" : "Denied"}
                       </p>
 
-
-                      {req.status === 0 && ( // Show buttons only for "pending" requests
+                      {req.status === 0 && (
                         <div className="d-flex gap-2">
                           <Button variant="success" onClick={() => handleApprove(req.id)}>Approve</Button>
                           <Button variant="danger" onClick={() => handleOpenDenyModal(req)}>Deny</Button>
@@ -197,7 +194,7 @@ const ActivityRequests = () => {
         </Col>
       </Row>
 
-      {/* Deny Reason Modal */}
+      {/* Deny Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Deny Activity Request</Modal.Title>
