@@ -11,12 +11,15 @@ export const DashboardMenu = [
         title: 'MY CLUBS',
         grouptitle: true
     },
-    {
-        id: uuid(),
-        title: 'Memberships',
-        icon: 'lock',
-        link: '/dashboard/elections'
-    },		
+     {
+		id: uuid(),
+		title: 'Memberships',
+		icon: 'list',
+		children: [
+
+			{ id: uuid(), link: '/nonMember/pages/clubs', name: ' Clubs'},
+		]
+	},	
     {
         id: uuid(),
         title: 'OTHERS',

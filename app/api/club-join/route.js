@@ -65,13 +65,20 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Maximum 3 club memberships allowed' }, { status: 400 });
     }
 
-    // ثبت عضویت جدید
-    await conn({
-      query: 'INSERT INTO members (student_id, club_id, date_joined) VALUES (?, ?, CURDATE())',
-      values: [session.userId, clubId],
-    });
+await conn({
+  query: 'INSERT INTO members (student_id, club_id, date_joined) VALUES (?, ?, CURDATE())',
+  values: [session.userId, clubId],
+});
 
-    return NextResponse.json({ message: 'Joined club successfully' });
+const updateRes = await conn({
+  query: 'UPDATE student SET role = "member" WHERE id = ? AND role = "non-member"',
+  values: [session.userId],
+});
+
+const forceLogout = updateRes.affectedRows > 0;
+
+return NextResponse.json({ message: 'Joined club successfully', forceLogout });
+
   } catch (error) {
     console.error('Join error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -82,7 +89,7 @@ export async function DELETE(req) {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const body = await req.text(); // چون Edge runtime ممکنه با req.json مشکل داشته باشه
+    const body = await req.text();
     const { clubId } = JSON.parse(body);
 
     if (!clubId) return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
@@ -92,7 +99,25 @@ export async function DELETE(req) {
       values: [session.userId, clubId],
     });
 
-    return NextResponse.json({ message: 'Dropped club successfully' });
+    const checkRemainingClubs = await conn({
+      query: 'SELECT COUNT(*) AS count FROM members WHERE student_id = ?',
+      values: [session.userId],
+    });
+
+  let forceLogout = false;
+
+if (checkRemainingClubs[0]?.count === 0) {
+  const updateRes = await conn({
+    query: 'UPDATE student SET role = "non-member" WHERE id = ? AND role = "member"',
+    values: [session.userId],
+  });
+
+  forceLogout = updateRes.affectedRows > 0;
+}
+
+return NextResponse.json({ message: 'Dropped club successfully', forceLogout });
+
+
   } catch (error) {
     console.error('Drop error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

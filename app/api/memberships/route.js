@@ -60,25 +60,28 @@ export async function DELETE(req) {
       return NextResponse.json({ error: "Missing clubId" }, { status: 400 });
     }
 
-    console.log("Attempting DELETE for student_id =", userId, "club_id =", clubId);
-
     const deleteQuery = `
       DELETE FROM members 
       WHERE student_id = ? AND club_id = ?
     `;
-
     const result = await conn({ query: deleteQuery, values: [userId, clubId] });
-
-    console.log("DELETE result:", result);
 
     if (result.affectedRows === 0) {
       return NextResponse.json({ error: "No rows deleted - check student_id and club_id" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true });
+    const countQuery = `SELECT COUNT(*) AS count FROM members WHERE student_id = ?`;
+    const countResult = await conn({ query: countQuery, values: [userId] });
+    const remainingCount = countResult[0].count;
+
+    const shouldLogout = remainingCount === 0;
+
+    return NextResponse.json({ success: true, logout: shouldLogout });
+
   } catch (err) {
     console.error("DELETE /api/memberships error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
 

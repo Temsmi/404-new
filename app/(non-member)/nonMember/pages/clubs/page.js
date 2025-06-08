@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Spinner, Form } from 'react-bootstrap';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation'; // اگر از app router استفاده می‌کنی
+
 const truncateText = (text, maxLength) => {
   if (!text) return '';
   return text.length <= maxLength ? text : text.substring(0, text.lastIndexOf(' ', maxLength)) + '...';
@@ -17,9 +18,9 @@ const ManageClubs = () => {
   const [joinedClubs, setJoinedClubs] = useState(new Set());
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState('name');
+  const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 const [showForceLogoutModal, setShowForceLogoutModal] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchClubs = async () => {
@@ -41,34 +42,15 @@ const [showForceLogoutModal, setShowForceLogoutModal] = useState(false);
   }, []);
 
   const handleJoin = async (id) => {
-    if (joinedClubs.has(id)) return;
-    if (joinedClubs.size >= 3) {
-      alert('You can only join up to 3 clubs.');
-      return;
-    }
+  if (joinedClubs.has(id)) return;
+  if (joinedClubs.size >= 3) {
+    alert('You can only join up to 3 clubs.');
+    return;
+  }
 
-    try {
-      const res = await fetch('/api/club-join', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clubId: id })
-      });
-
-      if (res.ok) {
-        setJoinedClubs(prev => new Set([...prev, id]));
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to join club.');
-      }
-    } catch (error) {
-      console.error('Error joining club:', error);
-    }
-  };
-
-const handleDrop = async (id) => {
   try {
     const res = await fetch('/api/club-join', {
-      method: 'DELETE',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ clubId: id })
     });
@@ -77,14 +59,11 @@ const handleDrop = async (id) => {
 
     if (res.ok) {
       setJoinedClubs(prev => {
-        const updated = new Set(prev);
-        updated.delete(id);
+        const updated = new Set([...prev, id]);
         return updated;
       });
-
-     
-      if (data.forceLogout) {
-  setShowForceLogoutModal(true); 
+if (data.forceLogout) {
+  setShowForceLogoutModal(true); // نمایش Modal
   setIsLoading(true);
   setTimeout(async () => {
     try {
@@ -104,14 +83,44 @@ const handleDrop = async (id) => {
       setIsLoading(false);
     }
   }, 3000);
+
+
+
+
+      } else {
+        // عضویت معمولی
+        alert(data.message);
       }
     } else {
-      alert(data.error || 'Failed to drop club.');
+      alert(data.error || 'Failed to join club.');
     }
   } catch (error) {
-    console.error('Error dropping club:', error);
+    console.error('Error joining club:', error);
   }
 };
+
+  const handleDrop = async (id) => {
+    try {
+      const res = await fetch('/api/club-join', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clubId: id })
+      });
+
+      if (res.ok) {
+        setJoinedClubs(prev => {
+          const updated = new Set(prev);
+          updated.delete(id);
+          return updated;
+        });
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to drop club.');
+      }
+    } catch (error) {
+      console.error('Error dropping club:', error);
+    }
+  };
 
   const filteredAndSortedClubs = [...clubs]
     .filter(club => club.name.toLowerCase().includes(search.toLowerCase()))
@@ -241,8 +250,8 @@ const handleDrop = async (id) => {
   </Modal.Header>
   <Modal.Body>
     <p>
-     You left all clubs. You will be logged out now.<br />
-     
+      You have successfully joined the club.<br />
+      Please log out and log in again to continue as a member.
     </p>
   </Modal.Body>
 </Modal>

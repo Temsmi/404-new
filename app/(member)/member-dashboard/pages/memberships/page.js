@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Table, Button, Spinner, Form } from 'react-bootstrap';
+import { Container, Table, Button, Spinner, Form, Modal } from 'react-bootstrap';
+import { useRouter } from 'next/navigation'; 
 
 const Memberships = () => {
   
@@ -10,12 +11,14 @@ const Memberships = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState('name');
-
+   const [isLoading, setIsLoading] = useState(false);
+const [showForceLogoutModal, setShowForceLogoutModal] = useState(false);
+  const router = useRouter();
 const fetchClubs = async () => {
   try {
     const res = await fetch('/api/memberships');
     const data = await res.json();
-    console.log('Fetched clubs:', data); // ← این خط رو اضافه کن
+    console.log('Fetched clubs:', data); 
     setClubs(data);
     setFiltered(data);
   } catch (err) {
@@ -65,7 +68,28 @@ const handleDrop = async (clubId) => {
       
  setClubs(prev => prev.filter(club => club.club_id !== clubId));
 setFiltered(prev => prev.filter(club => club.club_id !== clubId));
-
+   if (result.logout) {
+  setShowForceLogoutModal(true); 
+  setIsLoading(true);
+  setTimeout(async () => {
+    try {
+      const res = await fetch('/api/logout', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.success) {
+        console.log('Session deleted, redirecting...');
+        router.push('/authentication/sign-in');
+      } else {
+        console.error('Failed to log out');
+      }
+    } catch (error) {
+      console.error('Error logging out:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, 3000);
+      }
     } else {
       alert(result.error || 'Failed to leave club.');
     }
@@ -138,6 +162,18 @@ setFiltered(prev => prev.filter(club => club.club_id !== clubId));
           </div>
         </>
       )}
+            <Modal show={showForceLogoutModal} centered onHide={() => setShowForceLogoutModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Notice</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <p>
+     You left all clubs. You will be logged out now.<br />
+     
+    </p>
+  </Modal.Body>
+</Modal>
+
     </Container>
   );
 };
