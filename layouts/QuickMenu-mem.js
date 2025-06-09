@@ -8,14 +8,17 @@ import 'simplebar/dist/simplebar.min.css';
 
 import Notification from 'data/Notification';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useNotificationStore } from 'widgets/store';
 
 const QuickMenu_p = () => {
   const [hasMounted, setHasMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+      const [language, setLanguage] = useState('English');
+    const [isLoading, setIsLoading] = useState(false);
+    const {unreadCount, setUnreadCount, resetUnread} = useNotificationStore();
   const [user, setUser] = useState(null);
   const [profileLink, setProfileLink] = useState('');
-  const router = useRouter();
-
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -40,10 +43,28 @@ const QuickMenu_p = () => {
     fetchUser();
   }, []);
 
+      useEffect(() => {
+        const fetchUnreadCount = async () => {
+          try {
+            const res = await fetch('/api/notification/mark-read');
+            const data = await res.json();
+            setUnreadCount(data.unreadCount);
+          } catch (err) {
+            console.error('Failed to fetch unread count', err);
+          }
+        };
+
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 30000);
+        return () => clearInterval(interval);
+      }, [setUnreadCount]);
+
+          const router = useRouter(); 
+
   useEffect(() => {
     setHasMounted(true);
   }, []);
-
+  
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
@@ -65,6 +86,17 @@ const QuickMenu_p = () => {
     return null; 
   }
 
+   const handleToggle = async (isOpen) => {
+      if (isOpen) {
+        try {
+          await fetch('/api/notification/mark-read', { method: 'POST' });
+          resetUnread(); 
+        } catch (err) {
+          console.error('Failed to mark notifications as read', err);
+        }
+      }
+    };
+
   const Notifications = () => (
     <SimpleBar style={{ maxHeight: '300px' }}>
       <Notification />
@@ -83,52 +115,106 @@ const QuickMenu_p = () => {
         bsPrefix="navbar-nav"
         className="navbar-right-wrap ms-auto d-flex nav-top-wrap"
       >
-        <div className="bottom px-3 d-flex justify-content-between align-items-end">
-          <ToggleButtonGroup type="radio" name="options" defaultValue={1}>
-            <ToggleButton id="tbg-radio-1" value={1} variant="outline-primary">
-              ENG
-            </ToggleButton>
-            <ToggleButton id="tbg-radio-2" value={2} variant="outline-primary">
-              TUR
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </div>
+<Dropdown as="li" className="me-2">
+        <Dropdown.Toggle
+          id="language-dropdown"
+          className="bg-transparent border-0 p-0 d-flex align-items-center text-dark"
+          style={{ boxShadow: "none" }}
+        >
+          {language === "English" ? (
+            <>
+              <img
+                src="/fonts/feather-icons/icons/en.svg"
+                alt="eng icon"
+                className="me-2"
+                style={{ width: "20px", height: "20px" }}
+             />
+              <span className="fw-normal">English</span>
+            </>
+          ) : (
+            <>
+              <img
+                src="/fonts/feather-icons/icons/tr.svg"
+                alt="trk icon"
+                className="me-2"
+                style={{ width: "20px", height: "20px" }}
+              />
+              <span className="fw-normal">Turkish</span>
+            </>
+          )}
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <Dropdown.Item eventKey="English">
+            <img
+              src="/fonts/feather-icons/icons/en.svg"
+              alt="eng icon"
+              className="me-2"
+              style={{ width: "20px", height: "20px" }}
+            />
+            English
+          </Dropdown.Item>
+          <Dropdown.Item eventKey="Turkish">
+            <img
+              src="/fonts/feather-icons/icons/tr.svg"
+              alt="trk icon"
+              className="me-2"
+              style={{ width: "20px", height: "20px" }}
+            />
+            Turkish
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+      &nbsp;
 
-        <Dropdown as="li" className="stopevent">
-          <Dropdown.Toggle
-            as="a"
-            bsPrefix=" "
-            id="dropdownNotification"
-            className="btn btn-light btn-icon rounded-circle indicator indicator-primary text-muted"
-          >
-            <i className="fe fe-bell"></i>
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu
-            className="dashboard-dropdown notifications-dropdown dropdown-menu-lg dropdown-menu-end py-0"
-            aria-labelledby="dropdownNotification"
-            align="end"
-            show
-          >
-            <Dropdown.Item className="mt-3" bsPrefix=" " as="div">
-              <div className="border-bottom px-3 pt-0 pb-3 d-flex justify-content-between align-items-end">
-                <span className="h4 mb-0">Notifications</span>
-                <Link href="/" className="text-muted">
-                  <span className="align-middle">
-                    <i className="fe fe-check-circle me-1"></i>
-                    <i className="fe fe-settings me-3"></i>
-                  </span>
-                </Link>
-              </div>
-              <Notifications />
-              <div className="border-top px-3 pt-3 pb-3">
-                <Link href="/dashboard/notification-history" className="text-link fw-semi-bold">
-                  See all Notifications
-                </Link>
-              </div>
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+              <Dropdown as="li" className="stopevent me-2" onToggle={handleToggle}>
+                  <Dropdown.Toggle
+                    as="a"
+                    bsPrefix=" "
+                    id="dropdownNotification"
+                    className="btn btn-light btn-icon rounded-circle position-relative text-muted"
+                  >
+                    <i className="fe fe-bell"></i>
+                    {unreadCount > 0 && (
+                      <span
+                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                        style={{
+                          backgroundColor: 'gold',
+                          color: 'black',
+                          fontSize: '0.6rem',
+                          minWidth: '16px',
+                          padding: '2px 5px',
+                        }}
+                      >
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
+                  </Dropdown.Toggle>
+        
+                <Dropdown.Menu
+                  className="dashboard-dropdown notifications-dropdown dropdown-menu-lg dropdown-menu-end py-0"
+                  aria-labelledby="dropdownNotification"
+                  align="end"
+                  renderOnMount={true}
+                >
+                  <Dropdown.Item className="mt-3" bsPrefix=" " as="div"> 
+                    <div className="border-bottom px-3 pt-0 pb-3 d-flex justify-content-between align-items-end">
+                      <span className="h4 mb-0">Notifications</span>
+                      <Link href="/" className="text-muted">
+                        <span className="align-middle">
+                          {/* <i className="fe fe-check-circle me-1"></i> */}
+                          <i className="fe fe-settings me-3"></i>
+                        </span>
+                      </Link>
+                    </div>
+                    <Notifications />
+                    <div className="border-top px-3 pt-3 pb-3">
+                      <Link href="/dashboard/notification-history" className="text-link fw-semi-bold">
+                        See all Notifications
+                      </Link>
+                    </div>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
 
         <Dropdown as="li" className="ms-2">
           <Dropdown.Toggle as="a" bsPrefix=" " className="rounded-circle" id="dropdownUser">

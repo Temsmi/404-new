@@ -153,7 +153,7 @@ useEffect(() => {
           {!activeChannel ? (
             <img src="/images/svg/try.svg" alt="Club Background" className="club-bg" />
           ) : (
-            <ChatComponent activeChannel={activeChannel} selectedClubId={selectedClubId}  handleChannelClick={setActiveChannel}/>
+            <ChatComponent activeChannel={activeChannel} selectedClubId={selectedClubId}  handleChannelClick={setActiveChannel} availableChannels={channels}/>
           )}
         </div>
       </div>

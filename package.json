@@ -29,10 +29,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
+    "@mui/x-date-pickers": "^8.4.0",
     "@tekdi/multilingual-profanity-filter": "^1.0.1",
     "@vercel/analytics": "^1.0.1",
     "axios": "^1.8.4",
@@ -40,6 +43,7 @@
     "cloudinary": "^2.6.0",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "emoji-picker-react": "^4.12.2",
     "eslint": "8.46.0",

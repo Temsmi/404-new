@@ -62,27 +62,29 @@ const QuickMenu = () => {
         return null; // Return nothing during SSR or before mount
       }
 
-  const Notifications = () => {
-  return (
-    <SimpleBar style={{ maxHeight: '300px' }}>
-      <ListGroup variant="flush">
-        {Array.isArray(NotificationList) &&
-          NotificationList.map((item, index) => (
-            <ListGroup.Item className={index === 0 ? 'bg-light' : ''} key={index}>
-              <Row>
-                <Col>
-                  <Link href="#" className="text-muted">
-                    <h5 className="mb-1">{item.sender}</h5>
-                    <p className="mb-0">{item.message}</p>
-                  </Link>
-                </Col>
-              </Row>
-            </ListGroup.Item>
-          ))}
-      </ListGroup>
-    </SimpleBar>
-  );
-};
+    const Notifications = () => {
+        return (
+            <SimpleBar style={{ maxHeight: '300px' }}>
+                <ListGroup variant="flush">
+                    {/* {NotificationList.map(function (item, index) {
+                        return (
+                            <ListGroup.Item className={index === 0 ? 'bg-light' : ''} key={index}>
+                                <Row>
+                                    <Col>
+                                        <Link href="#" className="text-muted">
+                                            <h5 className=" mb-1">{item.sender}</h5>
+                                            <p className="mb-0"> {item.message}</p>
+                                        </Link>
+                                    </Col>
+                                </Row>
+                            </ListGroup.Item>
+                        );
+                    })} */}
+                </ListGroup>
+            </SimpleBar>
+        );
+    }
+
     const QuickMenuDesktop = () => {
         return (
         <ListGroup as="ul" bsPrefix='navbar-nav' className="navbar-right-wrap ms-auto d-flex nav-top-wrap">
