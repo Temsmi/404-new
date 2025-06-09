@@ -23,15 +23,15 @@ export async function POST(req) {
 
     const status = action === 'approve' ? 'approved' : 'rejected';
 
-    // Update the status
+    // Update the status in the club_requests table
     await conn({
       query: 'UPDATE club_requests SET status = ? WHERE id = ?',
       values: [status, id],
     });
 
     if (action === 'approve') {
-      // Get the request data
-      const [rows] = await conn({
+      // Get request data
+      const rows = await conn({
         query: 'SELECT * FROM club_requests WHERE id = ?',
         values: [id],
       });
@@ -42,18 +42,36 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Request not found' }, { status: 404 });
       }
 
-      // Insert into the clubs table
-     await conn({
+      // Insert into club table
+      const result = await conn({
+        query: `
+          INSERT INTO club (name, logo, description, student_id)
+          VALUES (?, ?, ?, ?)
+        `,
+        values: [request.name, request.logo, request.description, request.student_id],
+      });
+
+      const clubId = result.insertId;
+
+      // Update student role to president
+      await conn({
+        query: 'UPDATE student SET role = "president" WHERE id = ?',
+        values: [request.student_id],
+      });
+
+      // Insert into president table
+     // Insert into president table without bio
+await conn({
   query: `
-    INSERT INTO club (name, logo, description, student_id)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO president (student_id, club_id, date_selected)
+    VALUES (?, ?, NOW())
   `,
-  values: [request.name, request.logo, request.description, request.student_id],
+  values: [request.student_id, clubId],
 });
 
     }
 
-    return NextResponse.json({ message: `Club request ${status}` });
+    return NextResponse.json({ message: `Club request ${status}` }, { status: 200 });
   } catch (error) {
     console.error('Error processing club request:', error);
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });

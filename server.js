@@ -4,7 +4,7 @@ const http = require("http");
 
 const app = express();
 const server = http.createServer(app);
-const PORT = 3002;
+const PORT = 3001;
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));

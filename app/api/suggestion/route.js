@@ -7,7 +7,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const presidentId = searchParams.get('president_id');
 
-    // Fetch all requests for the president's clubs
+    // Fetching all requests for the president's clubs
     const query = `
       SELECT 
         r.id, r.type, r.text, r.anonymous, r.status,
