@@ -1,7 +1,6 @@
 import { conn } from '../../connections/conn';
 import { NextResponse } from 'next/server';
 
-// GET all club requests
 export async function GET() {
   try {
     const rows = await conn({ query: 'SELECT * FROM club_requests WHERE status = "pending"' });
@@ -12,7 +11,6 @@ export async function GET() {
   }
 }
 
-// POST to approve or reject a club request
 export async function POST(req) {
   try {
     const { id, action } = await req.json();
@@ -30,7 +28,7 @@ export async function POST(req) {
     });
 
     if (action === 'approve') {
-      // Get request data
+      
       const rows = await conn({
         query: 'SELECT * FROM club_requests WHERE id = ?',
         values: [id],
@@ -42,7 +40,7 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Request not found' }, { status: 404 });
       }
 
-      // Insert into club table
+      
       const result = await conn({
         query: `
           INSERT INTO club (name, logo, description, student_id)
@@ -53,14 +51,13 @@ export async function POST(req) {
 
       const clubId = result.insertId;
 
-      // Update student role to president
+      
       await conn({
         query: 'UPDATE student SET role = "president" WHERE id = ?',
         values: [request.student_id],
       });
 
-      // Insert into president table
-     // Insert into president table without bio
+      
 await conn({
   query: `
     INSERT INTO president (student_id, club_id, date_selected)

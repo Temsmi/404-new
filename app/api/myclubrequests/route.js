@@ -5,7 +5,7 @@ import { getSession } from 'app/lib/session';
 
 export async function GET(req) {
   try {
-    const session = await getSession(); // ✅ fetch session
+    const session = await getSession(); 
     const userId = session?.userId;
 
     if (!userId) {
