@@ -33,12 +33,15 @@
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
+    "@tekdi/multilingual-profanity-filter": "^1.0.1",
     "@vercel/analytics": "^1.0.1",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "cloudinary": "^2.6.0",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
+    "emoji-picker-react": "^4.12.2",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
     "express": "^5.1.0",
@@ -68,7 +71,8 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "uuid": "^9.0.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
