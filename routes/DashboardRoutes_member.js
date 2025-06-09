@@ -48,17 +48,19 @@ export const DashboardMenu = [
 		id: uuid(),
 		title: 'Chats',
 		icon: 'layers',
-		children: [
-			{ id: uuid(), link: '/dashboard/pages/manageclubs', name: 'Group Chats' },
-			{ id: uuid(), link: '/dashboard/pages/requests', name: 'President Chats'},
-		]
+		link: '/member-dashboard/pages/chats'
 	},	
 	{
 		id: uuid(),
-		title: 'Elections',
-		icon: 'lock',
-		link: '/member-dashboard/pages/VotePage'
-	},	
+		title: (
+			<span>
+			<img src="/fonts/feather-icons/icons/election.svg" className="w-5 h-5" />
+			&nbsp;Elections
+			</span>
+		),
+		link: 'member-dashboard/pages/VotePage'
+	},
+
 	{
 		id: uuid(),
 		title: 'OTHERS',

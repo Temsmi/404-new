@@ -3,21 +3,9 @@ import { conn } from '../../connections/conn';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 import fs from 'fs';
-import { getSession } from 'app/lib/session';
 
 export async function POST(req) {
   try {
-    // 👇 Call cookies() in the same server context
-    const session = await getSession();
-
-    console.log("SESSION:", session); // debug
-
-    const studentId = session?.userId; // adapt to your structure
-
-    if (!studentId) {
-      return NextResponse.json({ error: 'Unauthorized: student not logged in' }, { status: 401 });
-    }
-
     const formData = await req.formData();
     const clubName = formData.get('clubName');
     const description = formData.get('description');
@@ -34,23 +22,39 @@ export async function POST(req) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
-      const fileName = file.name.replace(/^\d+-/, '').replace(/\s/g, '_');
-      filePath = `${fileName}`;
+            const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+            filePath = `${fileName}`;
 
       await writeFile(path.join(uploadDir, fileName), buffer);
     }
 
-    const query = `
-      INSERT INTO club_requests (name, logo, description, student_id, status)
-      VALUES (?, ?, ?, ?, 'pending')
-    `;
-
-    await conn({
-      query,
-      values: [clubName, filePath, description, studentId],
+    const insertClub = await conn({
+      query: `
+        INSERT INTO club (name, logo, description)
+        VALUES (?, ?, ?)
+      `,
+      values: [clubName, filePath, description]
     });
 
-    return NextResponse.json({ message: 'Club created successfully!' }, { status: 200 });
+    const newClubId = insertClub.insertId;
+
+    const defaultChannels = [
+      { name: "rules", category: "welcome" },
+      { name: "faq", category: "welcome" },
+      { name: "announcements", category: "general" },
+      { name: "general-chat", category: "general" },
+      { name: "club-media", category: "general" }
+    ];
+
+    const channelValues = defaultChannels.map(({ name, category }) => [name, category, newClubId]);
+
+    await conn({
+      query: `INSERT INTO channels (name, category, club_id) VALUES ?`,
+      values: [channelValues]
+    });
+
+    return NextResponse.json({ message: 'Club and default channels created successfully!' }, { status: 200 });
+
   } catch (error) {
     console.error("Database error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Spinner, Form } from 'react-bootstrap';
 import Image from 'next/image';
-
+import { useRouter } from 'next/navigation'; 
 const truncateText = (text, maxLength) => {
   if (!text) return '';
   return text.length <= maxLength ? text : text.substring(0, text.lastIndexOf(' ', maxLength)) + '...';
@@ -17,6 +17,9 @@ const ManageClubs = () => {
   const [joinedClubs, setJoinedClubs] = useState(new Set());
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState('name');
+    const [isLoading, setIsLoading] = useState(false);
+const [showForceLogoutModal, setShowForceLogoutModal] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchClubs = async () => {
@@ -62,28 +65,53 @@ const ManageClubs = () => {
     }
   };
 
-  const handleDrop = async (id) => {
-    try {
-      const res = await fetch('/api/club-join', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clubId: id })
+const handleDrop = async (id) => {
+  try {
+    const res = await fetch('/api/club-join', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clubId: id })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setJoinedClubs(prev => {
+        const updated = new Set(prev);
+        updated.delete(id);
+        return updated;
       });
 
-      if (res.ok) {
-        setJoinedClubs(prev => {
-          const updated = new Set(prev);
-          updated.delete(id);
-          return updated;
-        });
+     
+      if (data.forceLogout) {
+  setShowForceLogoutModal(true); 
+  setIsLoading(true);
+  setTimeout(async () => {
+    try {
+      const res = await fetch('/api/logout', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.success) {
+        console.log('Session deleted, redirecting...');
+        router.push('/authentication/sign-in');
       } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to drop club.');
+        console.error('Failed to log out');
       }
     } catch (error) {
-      console.error('Error dropping club:', error);
+      console.error('Error logging out:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, 3000);
+      }
+    } else {
+      alert(data.error || 'Failed to drop club.');
+    }
+  } catch (error) {
+    console.error('Error dropping club:', error);
+  }
+};
 
   const filteredAndSortedClubs = [...clubs]
     .filter(club => club.name.toLowerCase().includes(search.toLowerCase()))
@@ -207,6 +235,18 @@ const ManageClubs = () => {
           </Modal.Body>
         </Modal>
       )}
+      <Modal show={showForceLogoutModal} centered onHide={() => setShowForceLogoutModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Notice</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <p>
+     You left all clubs. You will be logged out now.<br />
+     
+    </p>
+  </Modal.Body>
+</Modal>
+
     </Container>
   );
 };

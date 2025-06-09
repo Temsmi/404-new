@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ListGroup, Row, Col, Spinner } from 'react-bootstrap';
 import Link from 'next/link';
-import socket from 'app/lib/socket'; // make sure this is your client instance
+import socket from 'app/lib/socket';
 
 const Notification = () => {
 	const [notification, setNotifications] = useState([]);
@@ -23,34 +23,49 @@ const Notification = () => {
 		}
 	};
 
-	useEffect(() => {
-		fetchNotifications();
+		useEffect(() => {
+  		fetchNotifications();
 
-		// Join socket room
-		const setupSocket = async () => {
-			const res = await fetch('/api/getClubId');
-			const { club_id } = await res.json();
-			if (!club_id) return;
+  const setupSocket = async () => {
+    try {
+      const res = await fetch('/api/getClubId');
+      const data = await res.json();
+      let clubIds = data.club_id || data.clubIds; // handle both cases
 
-			socket.connect();
-			socket.emit('join_club', club_id);
+      if (!clubIds) return;
+      clubIds = Array.isArray(clubIds) ? clubIds : [clubIds];
 
-			const handleAnnouncement = () => {
-				// Just refetch when a new announcement is received
-				fetchNotifications();
-			};
+      socket.connect();
 
-			socket.on('announcement_received', handleAnnouncement);
+      clubIds.forEach((id) => {
+        socket.emit('join_club', id);
+      });
 
-			// Cleanup on unmount
-			return () => {
-				socket.off('announcement_received', handleAnnouncement);
-				socket.disconnect();
-			};
-		};
+      const handleAnnouncement = () => {
+        fetchNotifications(); // announcement refresh
+      };
 
-		setupSocket();
-	}, []);
+      const handleMessage = () => {
+        fetchNotifications(); // chat message refresh
+      };
+
+      socket.on('announcement_received', handleAnnouncement);
+      socket.on('receiveMessage', handleMessage); // ✅ add this
+
+      return () => {
+        socket.off('announcement_received', handleAnnouncement);
+        socket.off('receiveMessage', handleMessage); // ✅ clean up
+        socket.disconnect();
+      };
+    } catch (err) {
+      console.error("Failed to setup socket for notifications:", err);
+    }
+  };
+
+  setupSocket();
+}, []);
+
+
 
 	if (loading) {
 		return (

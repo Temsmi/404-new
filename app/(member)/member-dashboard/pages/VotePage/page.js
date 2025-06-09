@@ -20,7 +20,6 @@ export default function VotePage() {
     if (!status) return;
 
     if (status.stop && status.publish) {
-      // Fetch results only if election stopped AND published
       fetch('/api/votes/results')
         .then(res => res.json())
         .then(data => {
@@ -32,7 +31,6 @@ export default function VotePage() {
           setCandidatesByClub(mapped);
         });
     } else if (status.start && !status.stop) {
-      // Normal voting mode
       fetch('/api/votes/clubs')
         .then(res => res.json())
         .then(data => {
@@ -77,7 +75,6 @@ export default function VotePage() {
   }
 
   if (status.stop && !status.publish) {
-    // Election stopped but results not published yet
     return (
       <div className="text-center mt-5">
         <h2 className="text-danger">⛔ Elections have been stopped.</h2>
@@ -86,14 +83,15 @@ export default function VotePage() {
   }
 
   if (status.stop && status.publish) {
-    // Show election results only if stopped AND published
     return (
       <div className="container py-5">
         <h1 className="mb-4 fw-bold text-center">🗳️ Election Results</h1>
 
-       {Array.isArray(clubs) && clubs.map(club => {
-  const candidates = candidatesByClub[club.id] || [];
-  const topCandidateId = candidates[0]?.id;
+        {Array.isArray(clubs) && clubs.map(club => {
+          const candidates = candidatesByClub[club.id] || [];
+          const maxVotes = Math.max(...candidates.map(c => c.votes));
+          const topCandidateIds = candidates.filter(c => c.votes === maxVotes).map(c => c.id);
+
           return (
             <div
               key={club.id}
@@ -101,62 +99,63 @@ export default function VotePage() {
               style={{ maxWidth: '950px' }}
             >
               <div className="card-body">
-              <div className="d-flex align-items-center mb-3">
-
-<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-  <img
-    src={club.logo}
-    alt={`${club.name} logo`}
-    style={{
-      width: '50px',
-      height: '50px',
-      objectFit: 'contain',
-      borderRadius: '4px',
-      backgroundColor: '#f9f9f9',
-    }}
-    onError={(e) => (e.target.src = '/images/default-logo.png')}
-  />
-  <h3 className="fw-bold m-0">{club.name}</h3>
-</div>
-
-</div>
+                <div className="d-flex align-items-center mb-3">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <img
+                      src={club.logo}
+                      alt={`${club.name} logo`}
+                      style={{
+                        width: '50px',
+                        height: '50px',
+                        objectFit: 'contain',
+                        borderRadius: '4px',
+                        backgroundColor: '#f9f9f9',
+                      }}
+                      onError={(e) => (e.target.src = '/images/default-logo.png')}
+                    />
+                    <h3 className="fw-bold m-0">{club.name}</h3>
+                  </div>
+                </div>
 
                 <h4 className="text-muted mb-4">Candidates</h4>
 
-              {candidates.map(c => (
-  <div
-    key={c.id}
-    className="card mb-3 p-3 shadow-sm "
-    style={{
-      backgroundColor: '#f8f9fa',
-      border: c.id === topCandidateId ? '4px solid rgba(255, 187, 0, 0.71)' : '1px solid #dee2e6',
-      boxShadow: c.id === topCandidateId ? '0 0 15px 5px rgba(255, 215, 0, 0.7)' : 'none',
-      fontWeight: c.id === topCandidateId ? '700' : '400',
-      borderRadius: '0.25rem',
-    }}
-  >
-    <div className="row g-3 align-items-center">
-      <div className="col-md-2 text-center">
-        <img
-          src={c.photo}
-          alt="Candidate"
-          className="img-fluid rounded"
-          style={{ maxHeight: '100px', objectFit: 'cover' }}
-        />
-      </div>
-      <div className="col-md-7">
-        <h4 className="fw-semibold">
-          {c.student_name} {c.id === topCandidateId && '👑'}
-        </h4>
-        <p className="mb-1 text-muted">{c.bio}</p>
-      </div>
-      <div className="col-md-3 text-end">
-        <span className="badge bg-success fs-5">{c.votes} votes</span>
-      </div>
-    </div>
-  </div>
-))}
-
+                {candidates.map(c => (
+                  <div
+                    key={c.id}
+                    className="card mb-3 p-3 shadow-sm"
+                    style={{
+                      backgroundColor: '#f8f9fa',
+                      border: topCandidateIds.includes(c.id)
+                        ? '4px solid rgba(255, 187, 0, 0.71)'
+                        : '1px solid #dee2e6',
+                      boxShadow: topCandidateIds.includes(c.id)
+                        ? '0 0 15px 5px rgba(255, 215, 0, 0.7)'
+                        : 'none',
+                      fontWeight: topCandidateIds.includes(c.id) ? '700' : '400',
+                      borderRadius: '0.25rem',
+                    }}
+                  >
+                    <div className="row g-3 align-items-center">
+                      <div className="col-md-2 text-center">
+                        <img
+                          src={c.photo}
+                          alt="Candidate"
+                          className="img-fluid rounded"
+                          style={{ maxHeight: '100px', objectFit: 'cover' }}
+                        />
+                      </div>
+                      <div className="col-md-7">
+                        <h4 className="fw-semibold">
+                          {c.student_name} {topCandidateIds.includes(c.id) && '👑'}
+                        </h4>
+                        <p className="mb-1 text-muted">{c.bio}</p>
+                      </div>
+                      <div className="col-md-3 text-end">
+                        <span className="badge bg-success fs-5">{c.votes} votes</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           );
@@ -165,7 +164,6 @@ export default function VotePage() {
     );
   }
 
-  // Default: show voting UI (when election started and not stopped)
   return (
     <div className="container py-5">
       <h1 className="mb-4 fw-bold text-center">Club President Elections</h1>
@@ -186,21 +184,21 @@ export default function VotePage() {
           style={{ maxWidth: '950px' }}
         >
           <div className="card-body">
-<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-  <img
-    src={club.logo}
-    alt={`${club.name} logo`}
-    style={{
-      width: '50px',
-      height: '50px',
-      objectFit: 'contain',
-      borderRadius: '4px',
-      backgroundColor: '#f9f9f9',
-    }}
-    onError={(e) => (e.target.src = '/images/default-logo.png')}
-  />
-  <h3 className="fw-bold m-0">{club.name}</h3>
-</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <img
+                src={club.logo}
+                alt={`${club.name} logo`}
+                style={{
+                  width: '50px',
+                  height: '50px',
+                  objectFit: 'contain',
+                  borderRadius: '4px',
+                  backgroundColor: '#f9f9f9',
+                }}
+                onError={(e) => (e.target.src = '/images/default-logo.png')}
+              />
+              <h3 className="fw-bold m-0">{club.name}</h3>
+            </div>
 
             <hr className="mb-4" />
             <h4 className="text-muted mb-4">Candidates</h4>
