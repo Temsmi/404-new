@@ -1,5 +1,5 @@
 'use client'
-// import node module libraries
+
 import { Fragment, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation'
@@ -63,25 +63,34 @@ const NavbarVertical = (props) => {
 		);
 	};
 
-	const generateLink = (item) => {
-		return (
-			<Link
-				href={item.link}
-				className={`nav-link ${location === item.link ? 'active' : ''}`}
-				onClick={(e) =>
-					isMobile ? props.onClick(!props.showMenu) : props.showMenu
-				}
-			>
-				{item.icon && <i className={`nav-icon fe fe-${item.icon}`}></i>}
-				{props.showMenu && <span className="ms-2">{item.name}</span>}
-				{props.showMenu && item.badge && (
-					<Badge className="ms-1" bg={item.badgecolor || 'primary'}>
-						{item.badge}
-					</Badge>
-				)}
-			</Link>
-		);
-	};
+const generateLink = (item) => {
+  const enabledLinks = ['Private Chats', 'Group Chat', 'Help Page'];
+  const isEnabled = enabledLinks.includes(item.name) || enabledLinks.includes(item.title);
+
+  return (
+    <Link
+      href={item.link}
+      className={`nav-link ${location === item.link ? 'active' : ''} ${!isEnabled ? 'disabled-link' : ''}`}
+      onClick={(e) => {
+        if (!isEnabled) {
+          e.preventDefault();
+        } else if (isMobile) {
+          props.onClick(!props.showMenu);
+        }
+      }}
+    >
+      {item.icon && <i className={`nav-icon fe fe-${item.icon}`}></i>}
+      {props.showMenu && <span className="ms-2">{item.name || item.title}</span>}
+      {props.showMenu && item.badge && (
+        <Badge className="ms-1" bg={item.badgecolor || 'primary'}>
+          {item.badge}
+        </Badge>
+      )}
+    </Link>
+  );
+};
+
+
 
 	return (
 		<Fragment>

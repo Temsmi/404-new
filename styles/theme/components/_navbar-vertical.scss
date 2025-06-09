@@ -40,6 +40,13 @@
       letter-spacing: 0.08rem;
       font-weight: 700;
   }
+  .disabled-link {
+  pointer-events: none; 
+  opacity: 0.4; 
+  cursor: not-allowed;
+  color: $gray-600 !important; 
+}
+
   .navbar-nav {
     .nav-item {
       .nav-link {
