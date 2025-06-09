@@ -9,41 +9,54 @@ const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 const CreateAnnouncementPage = () => {
   const [message, setMessage] = useState('');
   const [title, setTitle] = useState('');
+      const [clubIds, setClubIds] = useState([]); 
   const [submitting, setSubmitting] = useState(false);
 
   const todayDate = new Date().toLocaleDateString('en-US');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-const announcement = {
-  date: new Date().toISOString().slice(0, 10),
-  text: message, 
-  title,         
-};
+  e.preventDefault();
+  const content = editorRef.current.innerHTML;
 
-    try {
-      const res = await fetch('/api/announcement', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(announcement),
+  try {
+  const rew = await fetch("/api/getClubId");
+  const data = await rew.json();
+  const clubIds = Array.isArray(data.club_id) ? data.club_id : [data.club_id];
+    
+    const payload = {
+     club_id: clubIds[0],
+      title,
+      text: content,
+      timestamp: new Date().toISOString(),
+      type: 'announcement'
+    };
+   
+    // Store in DB
+    const res = await fetch('/api/notification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      toast.success('Announcement sent!');
+
+      // Real-time socket broadcast to club members
+      socket.emit('new_announcement', {
+        clubIds,
+        ...payload,
       });
-
-      const result = await res.json();
-      if (res.ok) {
-        alert('Announcement submitted successfully!');
-        setMessage('');
-        setTitle('');
-      } else {
-        alert('Error: ' + result.error);
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Submission error.');
-    } finally {
-      setSubmitting(false);
+      editorRef.current.innerHTML = '';
+      setTitle('');
+    } else {
+      toast.error(result.error || 'Failed to send announcement');
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error('Unexpected error while sending announcement');
+  }
+};
 
   return (
     <Container className="py-5 d-flex justify-content-center">

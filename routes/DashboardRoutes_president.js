@@ -58,18 +58,12 @@ export const DashboardMenu = [
 		title: 'COMMUNICATION',
 		grouptitle: true
 	},	
-
 	{
 		id: uuid(),
 		title: 'Chats',
 		icon: 'layers',
-		children: [
-			{ id: uuid(), link: '/dashboard-president/pages/chats', name: 'Private Chats' },
-			{ id: uuid(), link: '/dashboard-president/pages/chat-group-public', name: 'Group Chat'},
-			
-			
-		]
-	},	
+		link: '/dashboard-president/pages/chats'
+	},
 	{
 		id: uuid(),
 		title: 'Suggestions & Complaints',

@@ -11,7 +11,7 @@ export async function encrypt(payload) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('1h')  // Token expires after an hour
+    .setExpirationTime('3h')  // Token expires after three hours
     .sign(encodedKey);
 }
 
