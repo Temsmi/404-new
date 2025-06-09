@@ -142,8 +142,9 @@ const HelpPage = () => {
     }
   };
 
-  const answeredFaqs = faqs.filter(faq => faq.answer);
-  const unansweredFaqs = faqs.filter(faq => !faq.answer);
+const answeredFaqs = faqs.filter(faq => faq && typeof faq.answer === 'string' && faq.answer.trim() !== '');
+const unansweredFaqs = faqs.filter(faq => faq && (faq.answer === undefined || faq.answer.trim() === ''));
+
 
   const filteredVideos = videos.filter(video =>
     video.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -301,12 +302,14 @@ const HelpPage = () => {
       {/* Published FAQs */}
       <h4>Published FAQs</h4>
       <Accordion>
-        {filteredAnsweredFaqs.map((faq, index) => (
-          <Accordion.Item eventKey={String(index)} key={faq.id}>
-            <Accordion.Header>{faq.question}</Accordion.Header>
-            <Accordion.Body>{faq.answer}</Accordion.Body>
-          </Accordion.Item>
-        ))}
+       {filteredAnsweredFaqs.map((faq, index) => (
+  faq && (
+    <Accordion.Item eventKey={String(index)} key={faq.id}>
+      <Accordion.Header>{faq.question || 'No question'}</Accordion.Header>
+      <Accordion.Body>{faq.answer || 'No answer provided.'}</Accordion.Body>
+    </Accordion.Item>
+  )
+))}
       </Accordion>
     </Container>
   );
