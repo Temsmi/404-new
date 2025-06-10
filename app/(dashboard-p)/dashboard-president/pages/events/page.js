@@ -38,8 +38,8 @@ const EventLogs = () => {
             zoomOption: event.link ? 'yes' : 'no',
             link: event.link || '',
             approvalRaw: event.approvalRaw,
-           // status: event.status, // keep status (-1 for Denied)
-            feedbackReason: event.feedbackReason || '', // assuming it's in the API response
+          
+            feedbackReason: event.feedbackReason || '', 
         });
         setShowModal(true);
     };

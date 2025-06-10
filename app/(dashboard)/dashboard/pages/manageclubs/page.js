@@ -14,21 +14,30 @@ const ManageClubs = () => {
     description: '',
     logo: ''
   });
+  const [originalDescriptions, setOriginalDescriptions] = useState({});
 
-  useEffect(() => {
-    const fetchClubs = async () => {
-      try {
-        const res = await fetch('/api/club');
-        const data = await res.json();
-        setClubs(data.clubs || []);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching clubs:', error);
-        setLoading(false);
-      }
-    };
-    fetchClubs();
-  }, []);
+
+useEffect(() => {
+  const fetchClubs = async () => {
+    try {
+      const res = await fetch('/api/club');
+      const data = await res.json();
+      setClubs(data.clubs || []);
+      // ذخیره توضیحات اصلی هر کلاب
+      const descriptions = {};
+      (data.clubs || []).forEach(c => {
+        descriptions[c.id] = c.description;
+      });
+      setOriginalDescriptions(descriptions);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching clubs:', error);
+      setLoading(false);
+    }
+  };
+  fetchClubs();
+}, []);
+
 
   const handleEdit = (club) => {
     setSelectedClub(club);
@@ -74,36 +83,49 @@ const ManageClubs = () => {
   };
 
   const handleToggleActive = async (club) => {
-    const newStatus = !club.is_active;
-    try {
-      const res = await fetch('/api/club', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: club.id,
-          is_active: newStatus,
-          description: newStatus ? club.description : 'This club has been Deactivated'
-        }),
-      });
+  const newStatus = !club.is_active;
+  try {
+    const newDescription = newStatus 
+      ? originalDescriptions[club.id] || club.description // بازیابی توضیح اصلی 
+      : 'This club has been Deactivated';                // تغییر توضیح هنگام غیرفعال
 
-      if (res.ok) {
-        alert(`Club ${newStatus ? 'Activated' : 'Deactivated'}!`);
-        setClubs(clubs.map(c =>
-          c.id === club.id ? {
-            ...c,
-            is_active: newStatus,
-            description: newStatus ? club.description : 'This club has been Deactivated'
-          } : c
-        ));
-      } else {
-        const errorMessage = await res.text();
-        console.error('Failed to toggle club:', errorMessage);
-        alert('Failed to toggle club: ' + errorMessage);
-      }
-    } catch (error) {
-      console.error('Error toggling club:', error);
+    // اگر داریم غیرفعال می‌کنیم، ذخیره توضیح اصلی
+    if (!newStatus) {
+      setOriginalDescriptions(prev => ({
+        ...prev,
+        [club.id]: club.description,
+      }));
     }
-  };
+
+    const res = await fetch('/api/club', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: club.id,
+        is_active: newStatus,
+        description: newDescription,
+      }),
+    });
+
+    if (res.ok) {
+      alert(`Club ${newStatus ? 'Activated' : 'Deactivated'}!`);
+      setClubs(clubs.map(c =>
+        c.id === club.id ? {
+          ...c,
+          is_active: newStatus,
+          description: newDescription,
+        } : c
+      ));
+    } else {
+      const errorMessage = await res.text();
+      console.error('Failed to toggle club:', errorMessage);
+      alert('Failed to toggle club: ' + errorMessage);
+    }
+  } catch (error) {
+    console.error('Error toggling club:', error);
+  }
+};
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
