@@ -80,25 +80,29 @@ const Notification = () => {
 	if (error) return <p>Error: {error}</p>;
 	if (notification.length === 0) return <p>No notifications found.</p>;
 
-	return (
-		<ListGroup variant="flush">
-			{notification.slice(0, 5).map((item, index) => (
-				<ListGroup.Item className={index === 0 ? 'bg-light' : ''} key={item.id}>
-					<Row>
-						<Col>
-							<Link href="/dashboard/notification-history" className="text-muted">
-								<h5 className="mb-1">{item.title}</h5>
-								<p className="mb-0">{item.message.split('...')[0]}.</p>
-								<p className="text-xs text-gray-400 mt-2">
-									{new Date(item.created_at).toLocaleString()}
-								</p>
-							</Link>
-						</Col>
-					</Row>
-				</ListGroup.Item>
-			))}
-		</ListGroup>
-	);
+return (
+  <ListGroup variant="flush">
+    {Array.isArray(notification) && notification.length > 0 ? (
+      notification.slice(0, 5).map((item, index) => (
+        <ListGroup.Item className={index === 0 ? 'bg-light' : ''} key={item.id}>
+          <Row>
+            <Col>
+              <Link href="/dashboard/notification-history" className="text-muted">
+                <h5 className="mb-1">{item.title}</h5>
+                <p className="mb-0">{item.message.split('...')[0]}.</p>
+                <p className="text-xs text-gray-400 mt-2">
+                  {new Date(item.created_at).toLocaleString()}
+                </p>
+              </Link>
+            </Col>
+          </Row>
+        </ListGroup.Item>
+      ))
+    ) : (
+      <div className="p-3 text-muted">No notifications</div>
+    )}
+  </ListGroup>
+);
 };
 
 export default Notification;

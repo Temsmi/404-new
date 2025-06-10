@@ -60,7 +60,18 @@ if (res.ok) {
             <Col md={6} key={req.id} className="mb-4">
               <Card className="p-3 shadow">
                 <Card.Body>
-                  <Image src={req.logo} width={80} height={80} className="mb-3" />
+        <div className="d-flex justify-content-center mb-3">
+    <Image
+      src={`/images/ClubsLogo/${req.logo}`}
+      alt="Club Logo"
+      className="img-fluid rounded"
+      style={{ maxWidth: '100px' }}
+      onError={(e) => (e.target.src = "/images/default-logo.png")}
+    />
+  </div>
+
+
+
                   <h5>{req.name}</h5>
                   <p>{req.description}</p>
                   <div className="d-flex justify-content-around mt-3">
