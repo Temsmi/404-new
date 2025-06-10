@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Container, Form, Modal, Button } from 'react-bootstrap';
+import { Container, Form, Modal } from 'react-bootstrap';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -24,17 +24,17 @@ const CalendarPage = () => {
 
         if (Array.isArray(data)) {
           const approvedEvents = data
-            .filter(event => event.status === 1) 
+            .filter(event => event.status === 1)
             .map(event => ({
               id: event.id,
-              title: `${event.title}`,
-              start: formatDateTime(event.date, event.time), 
-              allDay: false, 
+              title: event.title,
+              start: formatDateTime(event.date, event.time),
+              allDay: false,
               description: event.description,
               clubName: event.clubName,
-              backgroundColor: "#00FFFF", 
+              backgroundColor: "#00FFFF",
               textColor: "#fff",
-              classNames: ['approved-event'], 
+              classNames: ['approved-event'],
             }));
 
           setEvents(approvedEvents);
@@ -47,16 +47,27 @@ const CalendarPage = () => {
     fetchApprovedEvents();
   }, []);
 
+  // Format date and time to ISO string for FullCalendar
   const formatDateTime = (date, time) => {
     if (!date) return null;
 
-    let formattedTime = "00:00:00"; 
+    let formattedTime = "00:00:00";
     if (time) {
       const timeParts = time.split(":");
-      formattedTime = timeParts.length === 3 ? time : `${time}:00`; 
+      formattedTime = timeParts.length === 3 ? time : `${time}:00`;
     }
 
     return `${date.split('T')[0]}T${formattedTime}`;
+  };
+
+  // When user selects a year, update calendar view to January 1 of that year
+  const handleYearChange = (e) => {
+    const newYear = Number(e.target.value);
+    setSelectedYear(newYear);
+    const calendarApi = calendarRef.current?.getApi();
+    if (calendarApi) {
+      calendarApi.gotoDate(`${newYear}-01-01`);
+    }
   };
 
   const handleEventClick = (clickInfo) => {
@@ -71,7 +82,7 @@ const CalendarPage = () => {
       <div className="d-flex justify-content-left align-items-left mb-3">
         <Form.Select
           value={selectedYear}
-          onChange={(e) => setSelectedYear(Number(e.target.value))}
+          onChange={handleYearChange}
           style={{ width: '100px', display: 'inline-block' }}
         >
           {Array.from({ length: 11 }, (_, i) => currentYear + i).map(year => (
@@ -80,7 +91,7 @@ const CalendarPage = () => {
         </Form.Select>
       </div>
 
-      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
+      <div style={{ backgroundColor: 'white', padding: 20, borderRadius: 8 }}>
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
@@ -93,8 +104,8 @@ const CalendarPage = () => {
           nowIndicator={true}
           selectable={true}
           events={events}
-          eventClick={handleEventClick} 
-          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', meridiem: 'short' }} 
+          eventClick={handleEventClick}
+          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', meridiem: 'short' }}
           height="auto"
         />
       </div>

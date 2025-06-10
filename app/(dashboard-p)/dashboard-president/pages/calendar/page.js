@@ -18,19 +18,18 @@ const CalendarPage = () => {
   useEffect(() => {
     const fetchApprovedEvents = async () => {
       try {
-        // Step 1: Fetch session and get userId (from the session)
-        const resSession = await fetch('/api/session'); // Ensure this endpoint is implemented properly
+        const resSession = await fetch('/api/session');
         const sessionData = await resSession.json();
-        const userId = sessionData.userId; // Extract userId from session
+        const userId = sessionData.userId;
 
         if (!userId) {
           console.error("No userId found in session.");
           return;
         }
-        // Step 2: Fetch the club_id for the logged-in president
-        const clubRes = await fetch(`/api/Pres-Calendar?userId=${userId}`); // API route for fetching the club by userId
+
+        const clubRes = await fetch(`/api/Pres-Calendar?userId=${userId}`);
         const clubData = await clubRes.json();
-        
+
         if (!clubData.clubId) {
           console.error("Club not found for this user");
           return;
@@ -38,25 +37,23 @@ const CalendarPage = () => {
 
         const presidentClubId = clubData.clubId;
 
-        // Step 3: Fetch events for the logged-in president's club
         const resEvents = await fetch('/api/activityrequests');
         const data = await resEvents.json();
 
         if (Array.isArray(data)) {
-          // Filter events based on the logged-in president's club
           const approvedEvents = data
-            .filter(event => event.status === 1) // Only approved events
-            .filter(event => event.club_id === presidentClubId) // Only events for the president's club
+            .filter(event => event.status === 1)
+            .filter(event => event.club_id === presidentClubId)
             .map(event => ({
               id: event.id,
               title: `${event.title}`,
-              start: formatDateTime(event.date, event.time), // Combine date and time
-              allDay: false, // Ensures it appears in the correct time slot
+              start: formatDateTime(event.date, event.time),
+              allDay: false,
               description: event.description,
               clubName: event.clubName,
-              backgroundColor: "#00FFFF", // Blue for approved events
+              backgroundColor: "#00FFFF",
               textColor: "#fff",
-              classNames: ['approved-event'], // Custom class for styling
+              classNames: ['approved-event'],
             }));
           setEvents(approvedEvents);
         }
@@ -68,21 +65,16 @@ const CalendarPage = () => {
     fetchApprovedEvents();
   }, []);
 
-  // Helper function to format date and time correctly
   const formatDateTime = (date, time) => {
     if (!date) return null;
-
-    let formattedTime = "00:00:00"; // Default to midnight if no time provided
+    let formattedTime = "00:00:00";
     if (time) {
-      // Ensure time is in HH:MM:SS format
       const timeParts = time.split(":");
-      formattedTime = timeParts.length === 3 ? time : `${time}:00`; // Handle missing seconds
+      formattedTime = timeParts.length === 3 ? time : `${time}:00`;
     }
-
     return `${date.split('T')[0]}T${formattedTime}`;
   };
 
-  // Handle event click (open modal)
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event);
     setShowEventModal(true);
@@ -95,7 +87,14 @@ const CalendarPage = () => {
       <div className="d-flex justify-content-left align-items-left mb-3">
         <Form.Select
           value={selectedYear}
-          onChange={(e) => setSelectedYear(Number(e.target.value))}
+          onChange={(e) => {
+            const newYear = Number(e.target.value);
+            setSelectedYear(newYear);
+            const calendarApi = calendarRef.current?.getApi();
+            if (calendarApi) {
+              calendarApi.gotoDate(`${newYear}-01-01`);
+            }
+          }}
           style={{ width: '100px', display: 'inline-block' }}
         >
           {Array.from({ length: 11 }, (_, i) => currentYear + i).map(year => (
@@ -104,7 +103,6 @@ const CalendarPage = () => {
         </Form.Select>
       </div>
 
-      {/* FullCalendar Component */}
       <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
         <FullCalendar
           ref={calendarRef}
@@ -118,13 +116,12 @@ const CalendarPage = () => {
           nowIndicator={true}
           selectable={true}
           events={events}
-          eventClick={handleEventClick} // Event click handler
-          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', meridiem: 'short' }} // Show event time
+          eventClick={handleEventClick}
+          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', meridiem: 'short' }}
           height="auto"
         />
       </div>
 
-      {/* Event Details Modal */}
       <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Event Details</Modal.Title>
@@ -142,7 +139,6 @@ const CalendarPage = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Custom Styles */}
       <style jsx>{`
         :global(.approved-event) {
           background-color: #007bff !important;
