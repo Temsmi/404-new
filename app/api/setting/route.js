@@ -19,27 +19,41 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
     }
 
-    const query = `
-      SELECT 
-        s.name, s.surname, s.email, s.phone_num, s.dept, s.role, s.profile_picture,
-        p.bio
-      FROM student s
-      LEFT JOIN president p ON s.id = p.student_id
-      WHERE s.id = ? AND s.role = "president"
-    `;
+    // مرحله اول: گرفتن اطلاعات پایه دانشجو
+    const [studentData] = await conn({
+      query: `
+        SELECT id, name, surname, email, phone_num, dept, role, profile_picture
+        FROM student
+        WHERE id = ?
+      `,
+      values: [userId],
+    });
 
-    const [presidentClub] = await conn({ query, values: [userId] });
-
-    if (!presidentClub) {
-      return NextResponse.json({ error: "No president club found" }, { status: 404 });
+    if (!studentData) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(presidentClub);
+    // مرحله دوم: اگر رئیس باشه، bio رو هم بیار
+    let bio = null;
+    if (studentData.role === "president") {
+      const [presidentData] = await conn({
+        query: `SELECT bio FROM president WHERE student_id = ?`,
+        values: [userId],
+      });
+
+      bio = presidentData?.bio || null;
+    }
+
+    return NextResponse.json({
+      ...studentData,
+      bio, 
+    });
   } catch (error) {
-    console.error('Database error:', error);
+    console.error("Database error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
 
 
 export async function PUT(req) {
@@ -57,6 +71,7 @@ export async function PUT(req) {
     const password = formData.get('password');
     const bio = formData.get('bio');
     const imageFile = formData.get('profile_picture');
+const phoneNum = formData.get('phone_num');
 
     let profilePictureUrl = null;
 
@@ -103,6 +118,12 @@ export async function PUT(req) {
         values: [profilePictureUrl, userId],
       });
     }
+if (phoneNum !== null) {
+  await conn({
+    query: `UPDATE student SET phone_num = ? WHERE id = ?`,
+    values: [phoneNum, userId],
+  });
+}
 
     // Update bio if provided
     if (bio !== null) {

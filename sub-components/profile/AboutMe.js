@@ -30,7 +30,7 @@ const AboutMe = () => {
     <Col xl={6} lg={12} md={12} xs={12} className="mb-6">
       <Card>
         <Card.Body>
-          <Card.Title as="h4">About {president.name} {president.surname}</Card.Title>
+          <Card.Title as="h4">About</Card.Title>
           <span className="text-uppercase fw-medium text-dark fs-5 ls-2">Bio</span>
          <p className="mt-2 mb-6">{president.bio || "No bio provided yet."}</p>
           <Row>

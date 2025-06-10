@@ -8,25 +8,27 @@ const Preferences = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+const [phoneNumber, setPhoneNumber] = useState('');
 
-  // Fetch current user info on load
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch('/api/setting');
-        const data = await res.json();
-        if (res.ok) {
-          setBio(data.bio || '');
-        } else {
-          console.error(data.error);
-        }
-      } catch (err) {
-        console.error("Failed to load profile", err);
+useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch('/api/setting');
+      const data = await res.json();
+      if (res.ok) {
+        setBio(data.bio || '');
+        setPhoneNumber(data.phone_num || '');
+      } else {
+        console.error(data.error);
       }
-    };
+    } catch (err) {
+      console.error("Failed to load profile", err);
+    }
+  };
 
-    fetchProfile();
-  }, []);
+  fetchProfile();
+}, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,9 +36,12 @@ const Preferences = () => {
     setSuccessMessage('');
     setErrorMessage('');
 
+
     try {
       const formData = new FormData();
       formData.append("bio", bio);
+      formData.append("phone_num", phoneNumber);
+
       if (selectedImageFile) {
         formData.append("profile_picture", selectedImageFile);
       }
@@ -93,7 +98,19 @@ const Preferences = () => {
                 </Col>
               </Form.Group>
 
-              {/* Profile Picture */}
+<Form.Group as={Row} className="mb-3" controlId="phoneNumber">
+  <Form.Label column md={4}>Phone Number</Form.Label>
+  <Col md={8}>
+    <Form.Control
+      type="text"
+      value={phoneNumber}
+      onChange={(e) => setPhoneNumber(e.target.value)}
+      placeholder="Enter your phone number"
+    />
+  </Col>
+</Form.Group>
+
+              
               <Form.Group as={Row} className="mb-3" controlId="profilePicture">
                 <Form.Label column md={4}>Profile Picture</Form.Label>
                 <Col md={8}>
@@ -105,7 +122,7 @@ const Preferences = () => {
                 </Col>
               </Form.Group>
 
-              {/* Submit Button */}
+              
               <Form.Group as={Row} className="mb-3">
                 <Col md={{ offset: 4, span: 8 }}>
                   <Button type="submit" variant="primary" disabled={isLoading}>
