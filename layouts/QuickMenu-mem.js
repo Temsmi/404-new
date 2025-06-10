@@ -8,7 +8,8 @@ import 'simplebar/dist/simplebar.min.css';
 
 import Notification from 'data/Notification';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+
+
 import { useNotificationStore } from 'widgets/store';
 
 const QuickMenu_p = () => {

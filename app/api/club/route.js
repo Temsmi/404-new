@@ -3,6 +3,7 @@ import { conn } from '../../connections/conn';
 
 export async function GET() {
   try {
+    // Query clubs from club table
     const clubQuery = `
       SELECT 
         club.id, 
@@ -11,7 +12,8 @@ export async function GET() {
         club.logo, 
         club.is_active,
         COUNT(members.id) AS member_count,
-        student.name AS president_name 
+        student.name AS president_name,
+        student.surname AS president_surname
       FROM club
       LEFT JOIN members ON club.id = members.club_id
       LEFT JOIN president ON club.id = president.club_id
@@ -19,6 +21,7 @@ export async function GET() {
       GROUP BY club.id, club.name, club.description, club.logo, club.is_active, student.name
     `;
 
+    // Query approved club requests not yet in club table
     const clubRequestsQuery = `
       SELECT
         id + 1000000 AS id,  -- large offset to avoid ID collision
@@ -33,15 +36,12 @@ export async function GET() {
       AND id NOT IN (SELECT id FROM club)
     `;
 
-    const fullQuery = `
-      (${clubQuery})
-      UNION ALL
-      (${clubRequestsQuery})
-    `;
+    const response = {
+      total_clubs: clubs.length,
+      clubs: clubs
+    };
 
-    const clubs = await conn({ query: fullQuery });
-
-    return NextResponse.json(clubs);
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Database error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

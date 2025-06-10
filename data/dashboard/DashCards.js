@@ -1,3 +1,4 @@
+import { ListButtonCode } from 'data/code/ListgroupsCode';
 import {
     People,
     GraphUp
@@ -5,17 +6,23 @@ import {
 
 export const DashCards = [
     {
-       id:1,
-       title : "Total Clubs",
-       value : 53,
-       icon: <People size={18}/>,
-       
+        id: 1,
+        title: "Total Clubs",
+        value: '', // You can set dynamic value later
+        icon: <List size={18} />,
     },
-     {
-        id:2,
-        title : "Site Engagement",
-        value : '7.6%',
-        icon: <GraphUp size={18}/>,
-             }
+    {
+        id: 2,
+        title: "Total Members",
+        value: '', // You can set dynamic value later
+        icon: <People size={18} />,
+    },
+    {
+        id: 3,
+        title: "Site Engagement",
+        value: '7.6%',
+        icon: <GraphUp size={18} />,
+    }
 ];
+
 export default DashCards;
