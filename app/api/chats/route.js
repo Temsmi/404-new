@@ -26,6 +26,7 @@ export async function GET(req) {
           c.user_id,
           c.message AS text,
           c.audio,
+          c.image,
           c.type,
           c.time AS timestamp,
           s.name AS username,

@@ -270,31 +270,59 @@ const handleKeyPress = (e) => {
 };
 
 const startRecording = async () => {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const recorder = new MediaRecorder(stream);
-  mediaRecorderRef.current = recorder;
-  setAudioChunks([]);
-  setRecording(true);
-  setRecordingTime(0);
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-  recorder.start();
+    console.log("stream tracks:", stream.getTracks());
+    console.log("audio track enabled:", stream.getAudioTracks()[0]?.enabled);
 
-  timerRef.current = setInterval(() => {
-    setRecordingTime(prev => prev + 1);
-  }, 1000);
+    const recorder = new MediaRecorder(stream, {
+      mimeType: 'audio/webm;codecs=opus'
+    });
 
-  recorder.ondataavailable = (e) => {
-    setAudioChunks((prev) => [...prev, e.data]);
-  };
-
-  recorder.onstop = async () => {
-    clearInterval(timerRef.current);
-    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-    const cloudinaryUrl = await uploadToCloudinary(audioBlob);
-    setAudioURL(cloudinaryUrl);
-    setRecording(false);
+    mediaRecorderRef.current = recorder;
+    setAudioChunks([]);
+    setRecording(true);
     setRecordingTime(0);
-  };
+
+    recorder.ondataavailable = (e) => {
+      console.log("ondataavailable event:", e);
+      if (e.data && e.data.size > 0) {
+        setAudioChunks((prev) => [...prev, e.data]);
+      }
+    };
+
+    recorder.start();
+
+    timerRef.current = setInterval(() => {
+      setRecordingTime((prev) => prev + 1);
+    }, 1000);
+
+    recorder.onstop = async () => {
+      clearInterval(timerRef.current);
+      console.log("audioChunks length:", audioChunks.length);
+      console.log("audioChunks:", audioChunks);
+
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      console.log("audioBlob size:", audioBlob.size);
+
+      if (audioBlob.size === 0) {
+        console.error("Audio blob is empty → skipping upload.");
+        toast.error("Recording failed — please try again.");
+        setRecording(false);
+        setRecordingTime(0);
+        return;
+      }
+
+      const cloudinaryUrl = await uploadToCloudinary(audioBlob);
+      setAudioURL(cloudinaryUrl);
+      setRecording(false);
+      setRecordingTime(0);
+    };
+  } catch (err) {
+    console.error("Error starting recording:", err);
+    toast.error("Could not start recording — please check microphone permissions.");
+  }
 };
 
 const stopRecording = () => {
@@ -307,19 +335,32 @@ const stopRecording = () => {
   return;
 }
 
-  const uploadToCloudinary = async (audioBlob) => {
+ const uploadToCloudinary = async (audioBlob) => {
   const formData = new FormData();
-  formData.append('file', audioBlob);
-      formData.append('upload_preset', 'audio_unsigned');
-        formData.append('folder', 'audio_uploads');
 
-  const res = await fetch('https://api.cloudinary.com/v1_1/dl7wibkyz/video/upload', {
+  // Wrap blob as File with filename → this prevents many errors:
+  const audioFile = new File([audioBlob], "recording.webm", { type: "audio/webm" });
+  formData.append('file', audioFile);
+  formData.append('upload_preset', 'audio_unsigned');
+  formData.append('folder', 'audio_uploads');
+
+  const res = await fetch('https://api.cloudinary.com/v1_1/dl7wibkyz/raw/upload', {
     method: 'POST',
     body: formData,
   });
-  const data = await res.json();
+
+  const text = await res.text();
+  console.log("Cloudinary response:", text);
+
+  if (!res.ok) {
+    console.error("Cloudinary upload failed:", res.status, text);
+    throw new Error("Cloudinary upload failed");
+  }
+
+  const data = JSON.parse(text);
   return data.secure_url;
 };
+
   const formatTime = (seconds) => {
     const min = String(Math.floor(seconds / 60)).padStart(2, '0');
     const sec = String(seconds % 60).padStart(2, '0');
@@ -439,31 +480,47 @@ const formattedLastMessageTime = lastMessage
           {!msg.self && (
             <div className="message-meta">
               <img
-                src={msg.avatar || '/images/avatar/default.jpg'}
-                alt={`${msg.username || 'User'} avatar`}
-                className="avatar"
-              />
+              src={msg.avatar || '/images/avatar/default.jpg'}
+              alt={`${msg.username || 'User'} avatar`}
+              className="avatar"
+            />
               <div className="meta-info">
                 <span className="username">{msg.username || 'User'}</span>
               </div>
             </div>
           )}
 
-          <div className="texts">
-            {msg.message_type === 'audio' ? (
-              <audio controls src={msg.audio}></audio>
-            ) : (
-              <p>{msg.text}</p>
-            )}
-
-            <span className="timestamp-inside">
-              {new Date(msg.timestamp).toLocaleString(undefined, {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </span>
-          </div>
-        </div>
+{msg.message_type === 'media' && msg.image ? (
+  <div
+    className="uploaded-image-container"
+    style={{
+      marginTop: '10px',
+      marginBottom: '10px',
+      textAlign: msg.self ? 'right' : 'left', // align image properly
+    }}
+  >
+  <img
+  src={msg.image}
+  alt="Uploaded media"
+  className="uploaded-image"
+/>
+    <div style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>
+      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    </div>
+  </div>
+) : (
+  <div className="texts">
+    {msg.message_type === 'audio' ? (
+      <audio controls src={msg.audio}></audio>
+    ) : (
+      <p>{msg.text}</p>
+    )}
+    <span className="timestamp-inside">
+      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    </span>
+  </div>
+)}
+</div>
       ))}
     </div>
   ))}
@@ -495,60 +552,64 @@ const formattedLastMessageTime = lastMessage
                 </div>
               ) : (
                 <>
-                <div className="input-wrapper">
-                  <div className="icons">
-                    {activeChannel?.name?.toLowerCase() === 'club-media' && (
-                      <>
-                        <img
-                          src="/fonts/feather-icons/icons/add.svg"
-                          alt="Attachment"
-                          onClick={handleClick}
-                          style={{ cursor: "pointer" }}
-                        />
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleFileChange}
-                          style={{ display: "none" }}
-                          accept="image/*,video/*"
-                        />
-                      </>
-                    )}
-                  </div>
-                  <input
-                    type="text"
-                    placeholder=" Join the conversation..."
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                  />
-                   {!recording && (
-                  <img
-                    src="/fonts/feather-icons/icons/mic.svg"
-                    alt="Mic"
-                    onClick={startRecording}
-                    style={{ cursor: 'pointer' }}
-                  />
-                )}
-              </div>
-              {recording && (
-                <div style={{
-                  padding: '10px',
-                  border: '1px solid red',
-                  borderRadius: '8px',
-                  marginTop: '8px',
-                  background: '#ffeaea',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}>
-                  <span style={{ color: 'red', fontWeight: 'bold' }}>● Recording</span>
-                  <span>{formatTime(recordingTime)}</span>
-                  <button onClick={stopRecording} style={{ padding: '4px 8px' }}>
-                    Stop Recording
-                  </button>
-                </div>
-              )}
+<div className="input-wrapper">
+  <div className="icons">
+    {activeChannel?.name?.toLowerCase() === 'club-media' && (
+      <>
+        <img
+          src="/fonts/feather-icons/icons/add.svg"
+          alt="Attachment"
+          onClick={handleClick}
+          style={{ cursor: "pointer" }}
+        />
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+          accept="image/*,video/*"
+        />
+      </>
+    )}
+  </div>
+  <input
+    type="text"
+    placeholder=" Join the conversation..."
+    value={text}
+    onChange={(e) => setText(e.target.value)}
+    onKeyDown={handleKeyPress}
+  />
+  {!recording && (
+    <img
+      src="/fonts/feather-icons/icons/mic.svg"
+      alt="Mic"
+      onClick={startRecording}
+      style={{ cursor: 'pointer' }}
+    />
+  )}
+</div>
+
+{/* Move recording box OUTSIDE of .input-wrapper */}
+{recording && (
+  <div style={{
+    padding: '10px',
+    border: '1px solid red',
+    borderRadius: '8px',
+    marginTop: '8px',
+    background: '#ffeaea',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    flexWrap: 'wrap', // helps on small screens
+  }}>
+    <span style={{ color: 'red', fontWeight: 'bold' }}>● Recording</span>
+    <span>{formatTime(recordingTime)}</span>
+    <button onClick={stopRecording} style={{ padding: '4px 8px' }}>
+      Stop Recording
+    </button>
+  </div>
+)}
+
 
               {audioURL && (
                 <div style={{ marginTop: '10px' }}>
