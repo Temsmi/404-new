@@ -14,40 +14,38 @@ const Home = () => {
     const [clubs, setClubs] = useState([]);
     const [dashCards, setDashCards] = useState([]);
 
-   useEffect(() => {
-    Promise.all([
-        fetch("/api/club").then((res) => res.json()),
-        fetch("/api/metrics-admin").then((res) => res.json())
-    ])
-    .then(([clubData, membersData]) => {
-        const totalClubs = clubData.total_clubs || 0;
-        const totalMembers = membersData.total_members || 0;
+    useEffect(() => {
+        fetch("/api/metrics-admin")
+            .then((res) => res.json())
+            .then((data) => {
+                const totalMembers = data.total_members || 0;
+                const totalClubs = data.clubs?.length || 0; // count clubs from data
 
-        setClubs(clubData.clubs || []);
+                setClubs(data.clubs || []);
 
-        setDashCards([
-            {
-                id: 1,
-                title: "Total Clubs",
-                value: totalClubs,
-                icon: <ListCheck size={20} />,
-            },
-            {
-                id: 2,
-                title: "Total Members",
-                value: totalMembers,
-                icon: <People size={18} />,
-            },
-            {
-                id: 3,
-                title: "Site Engagement",
-                value: "7.6%",
-                icon: <GraphUp size={18} />,
-            }
-        ]);
-    })
-    .catch((error) => console.error("Fetch error:", error));
-}, []);
+                setDashCards([
+                    {
+                        id: 1,
+                        title: "Total Clubs",
+                        value: totalClubs,
+                        icon: <ListCheck size={20} />,
+                    },
+                    {
+                        id: 2,
+                        title: "Total Members",
+                        value: totalMembers,
+                        icon: <People size={18} />,
+                    },
+                    {
+                        id: 3,
+                        title: "Site Engagement",
+                        value: "7.6%",
+                        icon: <GraphUp size={18} />,
+                    }
+                ]);
+            })
+            .catch((error) => console.error("Fetch error:", error));
+    }, []);
 
     return (
         <Fragment>
@@ -71,9 +69,11 @@ const Home = () => {
                         </Col>
                     ))}
                 </Row>
-   <Row2Charts></Row2Charts>
-   <Row3Chart></Row3Chart>
-   <Row4Charts></Row4Charts>
+
+                <Row2Charts />
+                <Row3Chart />
+                <Row4Charts />
+
                 <ClubsTable clubs={clubs} />
             </Container>
         </Fragment>
