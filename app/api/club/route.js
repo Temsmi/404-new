@@ -1,10 +1,8 @@
-// pages/api/club.js
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 
 export async function GET() {
   try {
-    // Query clubs from club table
     const clubQuery = `
       SELECT 
         club.id, 
@@ -21,7 +19,6 @@ export async function GET() {
       GROUP BY club.id, club.name, club.description, club.logo, club.is_active, student.name
     `;
 
-    // Query approved club requests not yet in club table
     const clubRequestsQuery = `
       SELECT
         id + 1000000 AS id,  -- large offset to avoid ID collision

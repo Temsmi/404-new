@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment } from 'react';
 import { Image, Dropdown, ListGroup, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
