@@ -2,14 +2,13 @@
 
 import { Fragment, useEffect, useState } from "react";
 import Link from 'next/link';
-import { Container, Col, Row } from 'react-bootstrap';
+import { Container, Col, Row, Card } from 'react-bootstrap';
 
 import { StatRightTopIcon } from "widgets";
 import DashCards_president from "data/dashboard/DashCards_president";
 import PieChartPresident from 'components/PieChartPresident';
 import MembersInfo from "sub-components/dashboard/MembersInfo";
 import RecentAnnouncementsTable from 'components/RecentAnnouncementsTable';
-import { useTranslation } from 'react-i18next';
 
 const Home = () => {
   const [clubName, setClubName] = useState('');
@@ -18,7 +17,6 @@ const Home = () => {
   const [requestsByTypeAnon, setRequestsByTypeAnon] = useState([]);
   const [recentAnnouncements, setRecentAnnouncements] = useState([]);
   const [members, setMembers] = useState([]);
-  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchClubName = async () => {
@@ -64,7 +62,7 @@ const Home = () => {
     <Fragment>
       {!isActive ? (
         <div className="p-4 bg-danger text-white rounded">
-          {t('deactivated')}
+          Your club is deactivated.
         </div>
       ) : (
         <>
@@ -75,12 +73,12 @@ const Home = () => {
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="mb-2 mb-lg-0">
                     <h3 className="mb-0 text-white">
-                      {t('welcomePresident', { clubName: clubName || '...' })}
+                      Welcome, President of {clubName || '...'}
                     </h3>
                   </div>
                   <div>
-                    <Link href="/dashboard-president/pages/chat-group" className="btn btn-white">
-                      {t('createGroupChat')}
+                    <Link href="/dashboard-president/pages/chats" className="btn btn-white">
+                      Joining Club Chats
                     </Link>
                   </div>
                 </div>
@@ -89,7 +87,7 @@ const Home = () => {
               {DashCards_president.map((item, index) => {
                 if (item.title === "Total Members") {
                   item.value = totalMembers;
-                  item.title = t('totalMembers');
+                  item.title = "Total Members";
                 }
 
                 return (
@@ -102,28 +100,31 @@ const Home = () => {
 
             <Row className="my-6">
               <Col xl={6} lg={6} md={12} xs={12} className="mb-6 mb-xl-0">
-                <h5 className="mb-3">{t('requestsByType')}</h5>
-                <PieChartPresident data={requestsByTypeAnon} chartType="byType" />
+                <Card>
+                  <Card.Header className="bg-white py-4">
+                    <h5 className="mb-0">Requests by Type</h5>
+                  </Card.Header>
+                  <Card.Body style={{ height: '300px' }}>
+                    <PieChartPresident data={requestsByTypeAnon} chartType="byType" />
+                  </Card.Body>
+                </Card>
               </Col>
 
               <Col xl={6} lg={6} md={12} xs={12} className="mb-6 mb-xl-0">
-                <h5 className="mb-3">{t('anonymousVsNon')}</h5>
-                <PieChartPresident data={requestsByTypeAnon} chartType="byAnon" />
+                <Card>
+                  <Card.Header className="bg-white py-4">
+                    <h5 className="mb-0">Anonymous vs Non-anonymous</h5>
+                  </Card.Header>
+                  <Card.Body style={{ height: '300px' }}>
+                    <PieChartPresident data={requestsByTypeAnon} chartType="byAnon" />
+                  </Card.Body>
+                </Card>
               </Col>
             </Row>
 
-            <Row className="my-6">
-              <Col xl={12} lg={12} md={12} xs={12}>
-                <h4 className="mb-3">{t('recentAnnouncements')}</h4>
-                <RecentAnnouncementsTable data={recentAnnouncements} />
-              </Col>
-            </Row>
+            
 
             <MembersInfo members={members} />
-
-            <Row className="my-6">
-              <Col xl={4} lg={12} md={12} xs={12} className="mb-6 mb-xl-0"></Col>
-            </Row>
           </Container>
         </>
       )}

@@ -15,6 +15,9 @@ const Row4Charts = () => {
       .catch(err => console.error('Error loading events per club:', err));
   }, []);
 
+  // Dynamic height: 40px per row, minimum 400px (same as Row3Chart)
+  const tableHeight = Math.max(eventsPerClubData.length * 40, 400);
+
   return (
     <Row className="mt-6">
       <Col md={12}>
@@ -22,31 +25,30 @@ const Row4Charts = () => {
           <Card.Header className="bg-white py-4 text-center">
             <h4 className="mb-0">Events per Club</h4>
           </Card.Header>
-       <Card.Body className="dashboard-card-body">
-  <Table striped bordered hover responsive>
-    <thead>
-      <tr>
-        <th>Club Name</th>
-        <th>Number of Events</th>
-      </tr>
-    </thead>
-    <tbody>
-      {eventsPerClubData.length > 0 ? (
-        eventsPerClubData.map((club, index) => (
-          <tr key={index}>
-            <td>{club.club_name}</td>
-            <td>{club.event_count}</td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan="2" className="text-center">No data available</td>
-        </tr>
-      )}
-    </tbody>
-  </Table>
-</Card.Body>
-
+          <Card.Body style={{ height: `${tableHeight}px`, overflowY: 'auto' }}>
+            <Table striped bordered hover responsive className="mb-0">
+              <thead>
+                <tr>
+                  <th>Club Name</th>
+                  <th>Number of Events</th>
+                </tr>
+              </thead>
+              <tbody>
+                {eventsPerClubData.length > 0 ? (
+                  eventsPerClubData.map((club, index) => (
+                    <tr key={index}>
+                      <td>{club.club_name}</td>
+                      <td>{club.event_count}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2" className="text-center">No data available</td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </Card.Body>
         </Card>
       </Col>
     </Row>

@@ -71,6 +71,7 @@ const { t } = useTranslation();
                         </Col>
                     ))}
                 </Row>
+                <ClubsTable clubs={clubs} />
       <Row2Charts></Row2Charts>
                <Row className="mt-6">
   <Col md={6}>
@@ -81,7 +82,7 @@ const { t } = useTranslation();
   </Col>
 </Row>
 
-                <ClubsTable clubs={clubs} />
+                
             </Container>
         </Fragment>
     );
