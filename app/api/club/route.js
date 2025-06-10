@@ -4,7 +4,7 @@ import { conn } from '../../connections/conn';
 
 export async function GET() {
   try {
-    // Query clubs from club table
+    // Query all clubs with joined data
     const clubQuery = `
       SELECT 
         club.id, 
@@ -13,38 +13,23 @@ export async function GET() {
         club.logo, 
         club.is_active,
         COUNT(members.id) AS member_count,
-        student.name AS president_name 
+        student.name AS president_name,
+        student.surname AS president_surname
       FROM club
       LEFT JOIN members ON club.id = members.club_id
       LEFT JOIN president ON club.id = president.club_id
       LEFT JOIN student ON president.student_id = student.id
-      GROUP BY club.id, club.name, club.description, club.logo, club.is_active, student.name
+      GROUP BY club.id, club.name, club.description, club.logo, club.is_active, student.name, student.surname
     `;
 
-    // Query approved club requests not yet in club table
-    const clubRequestsQuery = `
-      SELECT
-        id + 1000000 AS id,  -- large offset to avoid ID collision
-        name,
-        description,
-        logo,
-        NULL AS is_active,
-        0 AS member_count,
-        NULL AS president_name
-      FROM club_requests
-      WHERE status = 'approved' 
-      AND id NOT IN (SELECT id FROM club)
-    `;
+    const clubs = await conn({ query: clubQuery });
 
-    const fullQuery = `
-      (${clubQuery})
-      UNION ALL
-      (${clubRequestsQuery})
-    `;
+    const response = {
+      total_clubs: clubs.length,
+      clubs: clubs
+    };
 
-    const clubs = await conn({ query: fullQuery });
-
-    return NextResponse.json(clubs);
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Database error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

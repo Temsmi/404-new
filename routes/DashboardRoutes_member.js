@@ -58,7 +58,7 @@ export const DashboardMenu = [
 			&nbsp;Elections
 			</span>
 		),
-		link: 'member-dashboard/pages/VotePage'
+		link: '/member-dashboard/pages/VotePage'
 	},
 
 	{

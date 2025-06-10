@@ -31,6 +31,12 @@ const ChatComponent =  ({ activeChannel, selectedClubId, handleChannelClick, ava
   const [clubIds, setClubIds] = useState([]); // empty array as initial state
   const [allClubs, setAllClubs] = useState([]);
   const [role, setRole] = useState(null);
+  const [recording, setRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [audioChunks, setAudioChunks] = useState([]);
+  const [audioURL, setAudioURL] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const timerRef = useRef(null);
 
 function cleanProfanity(input) {
   let text = filterBadWords(input, 'en');
@@ -211,23 +217,30 @@ useEffect(() => {
 }, [messages, activeChannel?.id]);
 
 const sendMessage = async () => {
-  let cleaned = cleanProfanity(text.trim());
-  if (!cleaned) return;
+  const trimmedText = text.trim();
+  let cleaned = cleanProfanity(trimmedText);
 
-  if (cleaned !== text.trim()) {
-  toast.warning("Please avoid inappropriate language.");
-} // replaces bad words with ****
+  const isTextMessage = !!trimmedText;
+  const isAudioMessage = !!audioURL;
 
-if (!allClubs || allClubs.length === 0) {
-  console.warn("Club list not yet loaded");
-  return;
-}
+  if (!isTextMessage && !isAudioMessage) return;
 
-const clubObject = allClubs.find(c => String(c.id) === String(selectedClubId));
-const clubName = clubObject?.name || "Unknown Club";
+  if (cleaned !== trimmedText) {
+    toast.warning("Please avoid inappropriate language.");
+  }
+
+  if (!allClubs || allClubs.length === 0) {
+    console.warn("Club list not yet loaded");
+    return;
+  }
+
+  const clubObject = allClubs.find(c => String(c.id) === String(selectedClubId));
+  const clubName = clubObject?.name || "Unknown Club";
 
   const messageData = {
-    text: cleaned,
+    text: isTextMessage ? cleaned : null,
+    audio: isAudioMessage ? audioURL : null,
+    message_type: isAudioMessage ? 'audio' : 'text',
     channel: activeChannel.name,
     channel_id: activeChannel.id,
     user_id: userId,
@@ -236,12 +249,13 @@ const clubName = clubObject?.name || "Unknown Club";
     club_name: clubName
   };
 
-  console.log(messageData);
-  setText("");
+  setText("");      // clear input
+  setAudioURL(null); // clear audio
 
   try {
     const res = await fetch('/api/chats', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(messageData),
     });
 
@@ -250,18 +264,19 @@ const clubName = clubObject?.name || "Unknown Club";
       throw new Error(result.error || "Failed to send message");
     }
 
-    const message_id = result.id; // ✅ this is your insertId
+    const message_id = result.id;
 
-    // Now emit the message via socket including the ID
     socket.emit("new_message", {
       ...messageData,
       message_id,
     });
-      console.log("⬆️ Emitted new_message:", messageData);
+
+    console.log("⬆️ Emitted new_message:", messageData);
   } catch (err) {
     console.error("Failed to save message:", err);
   }
 };
+
 
 const restrictedChannels = ['rules', 'faq', 'announcements'];
 const isRestricted = role === 'member' && restrictedChannels.includes(activeChannel?.name?.toLowerCase());
@@ -289,6 +304,51 @@ const formattedLastMessageTime = lastMessage
     })
   : '';
 let hasShownLastSeen = false;
+
+const startRecording = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const recorder = new MediaRecorder(stream);
+  setMediaRecorder(recorder);
+  setAudioChunks([]);
+  recorder.start();
+  setRecording(true);
+
+  recorder.ondataavailable = (e) => {
+    setAudioChunks((prev) => [...prev, e.data]);
+  };
+
+  recorder.onstop = async () => {
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+    const cloudinaryUrl = await uploadToCloudinary(audioBlob);
+    setAudioURL(cloudinaryUrl); // Now ready to send to backend
+    setRecording(false);
+  };
+};
+
+const stopRecording = () => {
+  if (mediaRecorder) {
+    mediaRecorder.stop();
+  }
+};
+
+  const uploadToCloudinary = async (audioBlob) => {
+  const formData = new FormData();
+  formData.append('file', audioBlob);
+      formData.append('upload_preset', 'audio_unsigned'); // replace
+        formData.append('folder', 'audio_uploads');
+
+  const res = await fetch('https://api.cloudinary.com/v1_1/dl7wibkyz/video/upload', {
+    method: 'POST',
+    body: formData,
+  });
+  const data = await res.json();
+  return data.secure_url;
+};
+  const formatTime = (seconds) => {
+    const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const sec = String(seconds % 60).padStart(2, '0');
+    return `${min}:${sec}`;
+  };
 
   return (
     <div className="chat">
@@ -330,7 +390,11 @@ let hasShownLastSeen = false;
           )}
             {!msg.self && <img src="/images/avatar/avatar-1.jpg" alt="Avatar" />}
             <div className="texts">
-              <p>{msg.text}</p>
+              {msg.message_type === 'audio' ? (
+                <audio controls src={msg.message_content}></audio>
+              ) : (
+                <p>{msg.message_content}</p>
+              )}
               <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           </div>
@@ -375,7 +439,41 @@ let hasShownLastSeen = false;
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={handleKeyPress}
                   />
-                  <img src="/fonts/feather-icons/icons/mic.svg" alt="Mic" /></div>
+                  {!recording && (
+          <img
+            src="/fonts/feather-icons/icons/mic.svg"
+            alt="Mic"
+            onClick={startRecording}
+            style={{ cursor: 'pointer' }}
+          />
+        )}
+      </div>
+
+      {recording && (
+        <div style={{
+          padding: '10px',
+          border: '1px solid red',
+          borderRadius: '8px',
+          marginTop: '8px',
+          background: '#ffeaea',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <span style={{ color: 'red', fontWeight: 'bold' }}>● Recording</span>
+          <span>{formatTime(recordingTime)}</span>
+          <button onClick={stopRecording} style={{ padding: '4px 8px' }}>
+            Stop Recording
+          </button>
+        </div>
+      )}
+
+      {audioURL && (
+        <div style={{ marginTop: '10px' }}>
+          <p>Uploaded Audio:</p>
+          <audio controls src={audioURL}></audio>
+        </div> )}
+
                   <div className="side-icons">
                   <div className="emoji">
                     <img

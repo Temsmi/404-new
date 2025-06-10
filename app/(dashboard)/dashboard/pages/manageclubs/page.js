@@ -16,19 +16,19 @@ const ManageClubs = () => {
   });
 
   useEffect(() => {
-    const fetchClubs = async () => {
-      try {
-        const res = await fetch('/api/club');
-        const data = await res.json();
-        setClubs(data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching clubs:', error);
-        setLoading(false);
-      }
-    };
-    fetchClubs();
-  }, []);
+  const fetchClubs = async () => {
+    try {
+      const res = await fetch('/api/club');
+      const data = await res.json();
+      setClubs(data.clubs || []);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching clubs:', error);
+      setLoading(false);
+    }
+  };
+  fetchClubs();
+}, []);
 
   const handleEdit = (club) => {
     setSelectedClub(club);

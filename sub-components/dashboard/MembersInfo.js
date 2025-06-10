@@ -1,71 +1,72 @@
-// import node module libraries
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
-import {Col, Row, Card, Table, Image } from 'react-bootstrap';
+import { Col, Row, Card, Table, Form, Button } from 'react-bootstrap';
 
-// import required data files
-import ActiveProjectsData from "data/dashboard/ActiveProjectsData";
+const MembersInfo = ({ members }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showAll, setShowAll] = useState(false);
 
-const MembersInfo = () => {
+    // Filter members based on search term (safe with String())
+    const filteredMembers = members.filter(member =>
+        member.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(member.student_number).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.department.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Limit number of members shown if showAll is false
+    const displayedMembers = showAll ? filteredMembers : filteredMembers.slice(0, 6);
+
     return (
         <Row className="mt-6">
             <Col md={12} xs={12}>
                 <Card>
-                    <Card.Header className="bg-white  py-4">
+                    <Card.Header className="bg-white py-4 d-flex justify-content-between align-items-center">
                         <h4 className="mb-0">All Members</h4>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search members..."
+                            style={{ width: '250px' }}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </Card.Header>
                     <Table responsive className="text-nowrap mb-0">
                         <thead className="table-light">
                             <tr>
-                                <th>Student name</th>
+                                <th>Student Name</th>
                                 <th>Student Number</th>
                                 <th>Department</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {ActiveProjectsData.map((item, index) => {
-                                return (
-                                    <tr key={index}>
-                                        <td className="align-middle">
-                                            <div className="d-flex align-items-center">
-                                                <div>
-                                                    <div className={`icon-shape icon-md border p-4 rounded-1 ${item.brandLogoBg}`}>
-                                                        <Image src={item.brandLogo} alt="" />
-                                                    </div>
-                                                </div>
-                                                <div className="ms-3 lh-1">
-                                                    <h5 className=" mb-1">
-                                                        <Link href="#" className="text-inherit">{item.projectName}</Link></h5>
-                                                </div>
-                                            </div>
-                                        </td>
-                                         <td className="align-middle">{item.hours}</td>
-                                        {/*<td className="align-middle"><span className={`badge bg-${item.priorityBadgeBg}`}>{item.priority}</span></td> */}
-                                        <td className="align-middle">
-                                            <div className="avatar-group">
-                                                {item.members.map((avatar, avatarIndex) => {
-                                                    return (
-                                                        <span className="avatar avatar-sm" key={avatarIndex}>
-                                                            <Image alt="avatar" src={avatar.image} className="rounded-circle" />
-                                                        </span>
-                                                    )
-                                                })}
-                                                <span className="avatar avatar-sm avatar-primary">
-                                                    <span className="avatar-initials rounded-circle fs-6">+5</span>
-                                                </span>
-                                            </div>
-                                        </td>
+                            {displayedMembers.length === 0 ? (
+                                <tr>
+                                    <td colSpan="3" className="text-center">No members found.</td>
+                                </tr>
+                            ) : (
+                                displayedMembers.map((member) => (
+                                    <tr key={member.student_id}>
+                                        <td className="align-middle">{member.student_name}</td>
+                                        <td className="align-middle">{member.student_number}</td>
+                                        <td className="align-middle">{member.department}</td>
                                     </tr>
-                                )
-                            })}
+                                ))
+                            )}
                         </tbody>
                     </Table>
                     <Card.Footer className="bg-white text-center">
-                        <Link href="/pages/profile" className="link-primary">View All Members</Link>
+                        {filteredMembers.length > 6 && (
+                            <Button variant="link" onClick={() => setShowAll(!showAll)}>
+                                {showAll ? 'Show Less' : 'View All Members'}
+                            </Button>
+                        )}
                     </Card.Footer>
                 </Card>
             </Col>
         </Row>
-    )
-}
+    );
+};
 
-export default MembersInfo
+export default MembersInfo;
