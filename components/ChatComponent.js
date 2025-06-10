@@ -34,11 +34,12 @@ const ChatComponent =  ({ activeChannel, selectedClubId, handleChannelClick, ava
  const [showClubInfo, setShowClubInfo] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [audioChunks, setAudioChunks] = useState([]);
+  //const [audioChunks, setAudioChunks] = useState([]);
   const [audioURL, setAudioURL] = useState(null);
   const mediaRecorderRef = useRef(null);
   const timerRef = useRef(null);
 
+  const audioChunksRef = useRef([]);
 function cleanProfanity(input) {
   let text = filterBadWords(input, 'en');
 
@@ -189,12 +190,12 @@ useEffect(() => {
   return () => observer.disconnect();
 }, [messages, activeChannel?.id]);
 
-const sendMessage = async () => {
+const sendMessage = async (audioOverride = null) => {
   const trimmedText = text.trim();
   let cleaned = cleanProfanity(trimmedText);
 
   const isTextMessage = !!trimmedText;
-  const isAudioMessage = !!audioURL;
+  const isAudioMessage = !!audioOverride || !!audioURL;
 
   if (!isTextMessage && !isAudioMessage) return;
 
@@ -212,8 +213,8 @@ const clubObject = allClubs.find(c => String(c.id) === String(selectedClubId));
 const clubName = clubObject?.name || "Unknown Club";
 
   const messageData = {
-    text: isTextMessage ? cleaned : null,
-    audio: isAudioMessage ? audioURL : null,
+    text: isTextMessage ? cleaned : 'audio message',
+    audio: isAudioMessage ? (audioOverride || audioURL) : null,
     image: null,
     message_type: isAudioMessage ? 'audio' : 'text',
     channel: activeChannel.name,
@@ -276,34 +277,35 @@ const startRecording = async () => {
     console.log("stream tracks:", stream.getTracks());
     console.log("audio track enabled:", stream.getAudioTracks()[0]?.enabled);
 
-    const recorder = new MediaRecorder(stream, {
-      mimeType: 'audio/webm;codecs=opus'
-    });
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+      ? 'audio/ogg;codecs=opus'
+      : '';
+
+    console.log("Using mimeType:", mimeType);
+
+    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
     mediaRecorderRef.current = recorder;
-    setAudioChunks([]);
+    audioChunksRef.current = [];  // Clear ref
     setRecording(true);
     setRecordingTime(0);
 
     recorder.ondataavailable = (e) => {
       console.log("ondataavailable event:", e);
       if (e.data && e.data.size > 0) {
-        setAudioChunks((prev) => [...prev, e.data]);
+        audioChunksRef.current.push(e.data);  // Use ref → instant write
       }
     };
 
-    recorder.start();
-
-    timerRef.current = setInterval(() => {
-      setRecordingTime((prev) => prev + 1);
-    }, 1000);
-
     recorder.onstop = async () => {
       clearInterval(timerRef.current);
-      console.log("audioChunks length:", audioChunks.length);
-      console.log("audioChunks:", audioChunks);
 
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      console.log("audioChunks length:", audioChunksRef.current.length);
+      console.log("audioChunks:", audioChunksRef.current);
+
+      const audioBlob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/webm' });
       console.log("audioBlob size:", audioBlob.size);
 
       if (audioBlob.size === 0) {
@@ -314,11 +316,25 @@ const startRecording = async () => {
         return;
       }
 
-      const cloudinaryUrl = await uploadToCloudinary(audioBlob);
+      // Optionally, wrap audioBlob in File for Cloudinary (helps for some CORS issues)
+      const audioFile = new File([audioBlob], "recording.webm", { type: audioBlob.type });
+      const cloudinaryUrl = await uploadToCloudinary(audioFile);
+
       setAudioURL(cloudinaryUrl);
       setRecording(false);
       setRecordingTime(0);
+
+      // Clear ref for next recording
+      audioChunksRef.current = [];
+
+      sendMessage(cloudinaryUrl);
     };
+
+    recorder.start();
+
+    timerRef.current = setInterval(() => {
+      setRecordingTime((prev) => prev + 1);
+    }, 1000);
   } catch (err) {
     console.error("Error starting recording:", err);
     toast.error("Could not start recording — please check microphone permissions.");
