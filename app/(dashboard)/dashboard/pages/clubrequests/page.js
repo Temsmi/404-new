@@ -1,13 +1,14 @@
 'use client';
 
-
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Image } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ClubRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -17,33 +18,34 @@ const ClubRequests = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching club requests:', error);
+        toast.error('Failed to fetch club requests');
         setLoading(false);
       }
     };
 
     fetchRequests();
   }, []);
-  
 
   const handleAction = async (id, action) => {
     try {
-    
-   
+     const res = await fetch('/api/clubrequest', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ id, action }),
+});
+const data = await res.json();
+console.log('Server response:', res.status, data);
 
-      const res = await fetch('/api/clubrequest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, action }), 
-      });
+if (res.ok) {
+  toast.success(`Club request ${action}d successfully`);
+  setRequests(requests.filter(request => request.id !== id));
+} else {
+  toast.error(data?.error || `Failed to ${action} the request`);
+}
 
-      if (res.ok) {
-        alert(`Club Request ${action}d!`);
-        setRequests(requests.filter(request => request.id !== id));
-      } else {
-        console.error('Failed to process request');
-      }
     } catch (error) {
       console.error(`Error ${action}ing request:`, error);
+      toast.error(`Error while trying to ${action} request`);
     }
   };
 

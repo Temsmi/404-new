@@ -223,7 +223,7 @@ console.log("User Clubs Normalized:", userClubs.map(c => normalizeName(c.name)))
           </Col>
         </Row>
       </Container>
-                <RequestButton /> {/*  This adds the floating button without affecting layout */}
+                <RequestButton /> {/*  This adds the floating button */}
       <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
   <Modal.Header closeButton>
     <Modal.Title>

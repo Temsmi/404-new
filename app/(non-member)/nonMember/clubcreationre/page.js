@@ -1,12 +1,15 @@
-'use client'
+'use client';
+
 import { useState, useRef } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import PreviousRequestsButton from './../components/PreviousRequestsButton';
 
 const ClubCreationForm = () => {
   const [clubName, setClubName] = useState('');
   const [description, setDescription] = useState('');
   const [logo, setLogo] = useState(null);
-  const fileInputRef = useRef(null); 
+  const fileInputRef = useRef(null);
+
   const handleImageUpload = (event) => {
     setLogo(event.target.files[0]);
   };
@@ -22,7 +25,7 @@ const ClubCreationForm = () => {
     }
 
     try {
-      const res = await fetch('/api/clubcreation', {
+      const res = await fetch('/api/clubcreationre', {
         method: 'POST',
         body: formData,
       });
@@ -30,31 +33,30 @@ const ClubCreationForm = () => {
       const result = await res.json();
 
       if (res.ok) {
-        alert('Club created successfully!');
-        
-        // Reset form fields
+        alert('The Request has been Submitted successfully!');
         setClubName('');
         setDescription('');
         setLogo(null);
-
-        // Reset file input
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''; 
-        }
+        if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
         alert('Error: ' + result.error);
       }
     } catch (error) {
-      alert('Failed to create club. Please try again.');
+      alert('Failed to send request to create club. Please try again.');
     }
   };
 
   return (
-    <div className="d-flex align-items-center justify-content-center vh-100">
+    <div className="d-flex align-items-center justify-content-center py-5" style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <Container>
         <Row className="justify-content-center">
           <Col md={8} lg={6}>
-            <div className="p-4 rounded shadow-lg">
+            <div className="p-4 rounded shadow bg-white">
+              {/* ✅ Button Top Right */}
+              <div className="d-flex justify-content-end mb-3">
+                <PreviousRequestsButton className="btn btn-outline-primary btn-sm" />
+              </div>
+
               <h2 className="text-center mb-4">Create a Club</h2>
 
               <Form onSubmit={handleSubmit}>
@@ -75,7 +77,7 @@ const ClubCreationForm = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
-                    ref={fileInputRef} 
+                    ref={fileInputRef}
                     required
                   />
                 </Form.Group>
