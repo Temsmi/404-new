@@ -3,14 +3,14 @@ import { conn } from '../../connections/conn';
 
 export async function GET() {
   try {
-    // Total members
+    
     const membersResult = await conn({
       query: `SELECT COUNT(*) AS total_members FROM members`
     });
 
     const total_members = Number(membersResult[0]?.total_members) || 0;
 
-    // Active vs Inactive clubs
+    
     const activeInactiveResult = await conn({
       query: `
         SELECT 
@@ -25,7 +25,7 @@ export async function GET() {
       inactive: Number(activeInactiveResult[0]?.inactive) || 0
     };
 
-    // Request types
+
     const requestTypesResult = await conn({
       query: `
         SELECT type, COUNT(*) AS count
@@ -39,7 +39,7 @@ export async function GET() {
       request_types[row.type] = Number(row.count);
     });
 
-    // Members per club
+
     const membersPerClubResult = await conn({
       query: `
         SELECT club.name AS club_name, COUNT(members.id) AS member_count
@@ -55,7 +55,7 @@ export async function GET() {
       member_count: Number(row.member_count)
     }));
 
-    // Events per club
+    
     const eventsPerClubResult = await conn({
       query: `
         SELECT 
@@ -73,7 +73,7 @@ export async function GET() {
       event_count: Number(row.event_count)
     }));
 
-    // Full Clubs data for ClubsTable
+    
     const clubsResult = await conn({
       query: `
         SELECT 
@@ -105,14 +105,14 @@ export async function GET() {
       member_count: row.member_count
     }));
 
-    // Return all metrics
+    
     return NextResponse.json({
       total_members,
       active_vs_inactive,
       request_types,
       members_per_club,
       events_per_club,
-      clubs // 🚀 ADD clubs array
+      clubs 
     });
 
   } catch (error) {

@@ -16,7 +16,7 @@ const Row3Chart = () => {
       .catch(err => console.error('Error loading members per club:', err));
   }, []);
 
-  // 👉 Dynamic height: 40px per club, minimum 400px
+  
   const chartHeight = Math.max(membersPerClubData.length * 40, 400);
 
   return (
@@ -43,8 +43,8 @@ const Row3Chart = () => {
               <YAxis
   dataKey="club_name"
   type="category"
-  width={70} // smaller, prevents large left space
-  tick={{ fontSize: 12 }} // optional, smaller font looks better
+  width={70} 
+  tick={{ fontSize: 12 }} 
 />
                 <Tooltip />
                 <Bar dataKey="member_count" fill="#00C49F" />

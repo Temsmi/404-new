@@ -23,7 +23,7 @@ useEffect(() => {
       const res = await fetch('/api/club');
       const data = await res.json();
       setClubs(data.clubs || []);
-      // ذخیره توضیحات اصلی هر کلاب
+      
       const descriptions = {};
       (data.clubs || []).forEach(c => {
         descriptions[c.id] = c.description;
@@ -86,10 +86,9 @@ useEffect(() => {
   const newStatus = !club.is_active;
   try {
     const newDescription = newStatus 
-      ? originalDescriptions[club.id] || club.description // بازیابی توضیح اصلی 
-      : 'This club has been Deactivated';                // تغییر توضیح هنگام غیرفعال
-
-    // اگر داریم غیرفعال می‌کنیم، ذخیره توضیح اصلی
+      ? originalDescriptions[club.id] || club.description 
+      : 'This club has been Deactivated';                
+    
     if (!newStatus) {
       setOriginalDescriptions(prev => ({
         ...prev,

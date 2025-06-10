@@ -15,7 +15,7 @@ const Row4Charts = () => {
       .catch(err => console.error('Error loading events per club:', err));
   }, []);
 
-  // Dynamic height: 40px per row, minimum 400px (same as Row3Chart)
+  
   const tableHeight = Math.max(eventsPerClubData.length * 40, 400);
 
   return (

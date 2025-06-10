@@ -202,7 +202,7 @@ const QuickMenu_p = () => {
                       <span className="h4 mb-0">Notifications</span>
                       <Link href="/" className="text-muted">
                         <span className="align-middle">
-                          {/* <i className="fe fe-check-circle me-1"></i> */}
+                          
                           <i className="fe fe-settings me-3"></i>
                         </span>
                       </Link>
