@@ -239,9 +239,7 @@ export default function VotePage() {
                       >
                         {votedClubs.has(club.id) ? 'Already Voted' : 'Vote'}
                       </button>
-                      <button className="btn btn-outline-secondary btn-sm mt-2 d-block w-100">
-                        Ask Question
-                      </button>
+                     
                     </div>
                   </div>
                 </div>

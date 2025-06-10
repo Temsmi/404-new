@@ -16,11 +16,6 @@ export const DashCards_president = [
       
     },
    
-     {
-        id:4,
-        title : "Participation Rate",
-        value : '5.2%',
-        icon: <RocketTakeoff size={18}/>,
-             }
+   
 ];
 export default DashCards_president;
