@@ -16,6 +16,9 @@ const Row3Chart = () => {
       .catch(err => console.error('Error loading members per club:', err));
   }, []);
 
+  // 👉 Dynamic height: 40px per club, minimum 400px
+  const chartHeight = Math.max(membersPerClubData.length * 40, 400);
+
   return (
     <Row className="mt-6">
       <Col md={12}>
@@ -23,20 +26,26 @@ const Row3Chart = () => {
           <Card.Header className="bg-white py-4 text-center">
             <h4 className="mb-0">Members per Club</h4>
           </Card.Header>
-          <Card.Body style={{ height: '400px' }}>
+          <Card.Body style={{ height: `${chartHeight}px` }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
+                layout="vertical"
                 data={membersPerClubData}
                 margin={{
                   top: 20,
                   right: 30,
-                  left: 20,
-                  bottom: 40
+                  left: 150,
+                  bottom: 20
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="club_name" angle={-45} textAnchor="end" interval={0} />
-                <YAxis />
+                <XAxis type="number" />
+              <YAxis
+  dataKey="club_name"
+  type="category"
+  width={70} // smaller, prevents large left space
+  tick={{ fontSize: 12 }} // optional, smaller font looks better
+/>
                 <Tooltip />
                 <Bar dataKey="member_count" fill="#00C49F" />
               </BarChart>

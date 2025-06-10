@@ -1,7 +1,6 @@
 'use client';
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Row, Col, Card } from 'react-bootstrap';
+import { Row, Col, Card, Table } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 
 const Row4Charts = () => {
@@ -23,31 +22,31 @@ const Row4Charts = () => {
           <Card.Header className="bg-white py-4 text-center">
             <h4 className="mb-0">Events per Club</h4>
           </Card.Header>
-          <Card.Body style={{ height: '400px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={eventsPerClubData}
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 80
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="club_name"
-                  interval={0}
-                  angle={-60}
-                  textAnchor="end"
-                  height={80}
-                />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="event_count" fill="#FF8042" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card.Body>
+       <Card.Body className="dashboard-card-body">
+  <Table striped bordered hover responsive>
+    <thead>
+      <tr>
+        <th>Club Name</th>
+        <th>Number of Events</th>
+      </tr>
+    </thead>
+    <tbody>
+      {eventsPerClubData.length > 0 ? (
+        eventsPerClubData.map((club, index) => (
+          <tr key={index}>
+            <td>{club.club_name}</td>
+            <td>{club.event_count}</td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="2" className="text-center">No data available</td>
+        </tr>
+      )}
+    </tbody>
+  </Table>
+</Card.Body>
+
         </Card>
       </Col>
     </Row>

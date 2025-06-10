@@ -69,10 +69,15 @@ const Home = () => {
                         </Col>
                     ))}
                 </Row>
-
-                <Row2Charts />
-                <Row3Chart />
-                <Row4Charts />
+      <Row2Charts></Row2Charts>
+               <Row className="mt-6">
+  <Col md={6}>
+    <Row3Chart />
+  </Col>
+  <Col md={6}>
+    <Row4Charts />
+  </Col>
+</Row>
 
                 <ClubsTable clubs={clubs} />
             </Container>
