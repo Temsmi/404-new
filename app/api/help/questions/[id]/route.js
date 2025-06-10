@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { conn } from 'app/connections/conn';
 
 export async function PUT(req, { params }) {
-  const faqId = parseInt(params.id, 10); // Ensure this is a number
+  const faqId = parseInt(params.id, 10); 
 
   if (isNaN(faqId)) {
     console.log("Invalid FAQ ID:", params.id);

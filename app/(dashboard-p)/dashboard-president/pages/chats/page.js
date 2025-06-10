@@ -1,5 +1,6 @@
 'use client';
 
+import 'styles/Chat.scss';
 import { useEffect, useState } from "react";
 import ChatComponent from "components/ChatComponent";
 import { Spinner } from "react-bootstrap";
@@ -12,7 +13,9 @@ export default function Sidebar() {
   const [activeChannel, setActiveChannel] = useState(null);
   const [channels, setChannels] = useState([]);
   const [selectedClubId, setSelectedClubId] = useState(null);
+  const [chatVisible, setChatVisible] = useState(true);
 
+  if (!chatVisible) return null;
   useEffect(() => {
     fetch("/api/getClubId")
       .then((res) => res.json())
@@ -56,10 +59,6 @@ useEffect(() => {
 
   const handleChannelClick = (channel) => {
     setActiveChannel(channel);
-  };
-
-  const closeChat = () => {
-    setActiveChannel(null);
   };
 
   return (
@@ -153,8 +152,8 @@ useEffect(() => {
           {!activeChannel ? (
             <img src="/images/svg/try.svg" alt="Club Background" className="club-bg" />
           ) : (
-            <ChatComponent activeChannel={activeChannel} selectedClubId={selectedClubId}  handleChannelClick={setActiveChannel}/>
-          )}
+        <ChatComponent activeChannel={activeChannel} selectedClubId={selectedClubId}  handleChannelClick={setActiveChannel} onClose={setChatVisible}/>
+           )}
         </div>
       </div>
 
@@ -163,137 +162,6 @@ useEffect(() => {
           <img src={`/images/ClubsLogo/${showLogoPopup}`} alt="Full Logo" />
         </div>
       )}
-
-      <style jsx>{`
-        .layout-container {
-          display: flex;
-          height: 100vh;
-          overflow: hidden;
-        }
-
-        .sidebar {
-          background-color: #212b36;
-          width: 280px;
-          padding: 0.75rem;
-          outline: 2px solid white;
-          outline-offset: -2px;
-          color: #fff;
-          font-family: 'Segoe UI', sans-serif;
-          overflow-y: auto;
-        }
-
-        .main-content {
-          flex: 1;
-          position: relative;
-          background-color:rgb(235, 240, 245);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        .club-bg {
-          max-width: 70%;
-          opacity: 0.2;
-        }
-
-        .chat-box {
-          background: white;
-          width: 80%;
-          max-width: 600px;
-          height: 70%;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-          padding: 1.5rem;
-          border-radius: 10px;
-          position: relative;
-        }
-
-        .close-btn {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          background: #eee;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
-          padding: 0.3rem 0.6rem;
-          border-radius: 4px;
-        }
-
-        .server-header {
-          height: 130px;
-          border-radius: 8px;
-          display: flex;
-          align-items: flex-end;
-          padding: 0.5rem;
-          margin-bottom: 1rem;
-          cursor: pointer;
-        }
-
-        .server-name {
-          font-weight: bold;
-          font-size: 1.1rem;
-        }
-
-        .section {
-          margin-bottom: 1rem;
-        }
-
-        .section-label {
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          color: #b5bac1;
-          margin: 0.5rem 0;
-        }
-
-        .channel {
-          padding: 0.4rem 0.6rem;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 0.9rem;
-          color: #ddd;
-        }
-
-        .channel:hover {
-          background-color: #2c2d30;
-        }
-
-        .logo-modal {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          background: rgba(0, 0, 0, 0.8);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 2000;
-        }
-
-        .logo-modal img {
-          max-width: 90%;
-          max-height: 90%;
-          border-radius: 8px;
-        }
-          .club-dropdown-container {
-          margin-bottom: 1rem;
-        }
-
-        .club-dropdown {
-          width: 100%;
-          padding: 0.5rem;
-          border-radius: 6px;
-          border: none;
-          font-size: 0.95rem;
-          background-color: #2c2d30;
-          color: #fff;
-        }
-
-        .club-dropdown option {
-          background-color: #2c2d30;
-          color: #fff;
-        }
-      `}</style>
     </>
   );
 }

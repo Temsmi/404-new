@@ -1,7 +1,8 @@
 'use client';
 
+import 'styles/Chat.scss';
 import { useEffect, useRef, useState } from 'react';
-import DropdownMenu from './ChatDropdown';
+import ChatHeader from './ChatDropdown';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,17 +21,17 @@ export function groupMessagesByDate(messages) {
   }, {});
 }
 
-const ChatComponent =  ({ activeChannel, selectedClubId, handleChannelClick, availableChannels}) => {
+const ChatComponent =  ({ activeChannel, selectedClubId, handleChannelClick, availableChannels, onClose}) => {
   const setActiveChannelId = useChatStore((state) => state.setActiveChannelId);
-  const lastViewedId = useChatStore(state => state.lastViewed[activeChannel?.id]);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [userId, setUserId] = useState(null); // for self-message check
+  const [userId, setUserId] = useState(null);
   const endRef = useRef(null);
-  const [clubIds, setClubIds] = useState([]); // empty array as initial state
+  const [clubIds, setClubIds] = useState([]); 
   const [allClubs, setAllClubs] = useState([]);
   const [role, setRole] = useState(null);
+ const [showClubInfo, setShowClubInfo] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioChunks, setAudioChunks] = useState([]);
@@ -50,7 +51,7 @@ function cleanProfanity(input) {
 }
 
 function escapeRegex(s) {
-  return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+  return s.replace(/\*/g, '\\*');;
 }
 
     useEffect(() => {
@@ -62,10 +63,8 @@ useEffect(() => {
     .then((res) => res.json())
     .then((data) => {
       if (Array.isArray(data.club_id)) {
-        // Already an array
         setClubIds(data.club_id);
       } else if (data.club_id) {
-        // Single value converted to array
         setClubIds([data.club_id]);
       } else {
         console.error("Failed to get clubId", data);
@@ -104,8 +103,7 @@ useEffect(() => {
 useEffect(() => {
   if (!activeChannel?.name || !userId || clubIds.length === 0) return;
 
-  const clubIdParam = clubIds.join(",");
-  fetch(`/api/chats?channel=${activeChannel.name}&club_id=${clubIdParam}`)
+  fetch(`/api/chats?channel=${activeChannel.name}&club_id=${selectedClubId}`)
     .then(res => res.json())
     .then(data => {
       if (!Array.isArray(data)) {
@@ -121,7 +119,6 @@ useEffect(() => {
     })
     .catch(err => console.error("Error loading messages:", err));
 }, [activeChannel, userId, clubIds]);
-
 
 
 const activeChannelRef = useRef(activeChannel);
@@ -140,12 +137,7 @@ useEffect(() => {
     const currentChannelId = Number(activeChannelRef.current?.id);
     const currentUserId = userIdRef.current;
 
-    console.log("📨 Received message:", message);
-    console.log("📡 Active channel ID:", currentChannelId);
-    console.log("🔵 Message channel ID:", messageChannelId);
-
     const isDifferentChannel = messageChannelId !== currentChannelId;
-    console.log("📢 Should show toast?", isDifferentChannel);
 
     if (isDifferentChannel) {
       toast.info(`💬 ${message.text || 'New message'} from another channel`, {
@@ -164,32 +156,13 @@ useEffect(() => {
 }, []);
 
   const groupedMessages = groupMessagesByDate(messages);
-useEffect(() => {
-  const channelId = activeChannel?.id;
-  const tabId = Math.random().toString(36).substr(2, 5); // temporary tab ID for debugging
-
-  if (!channelId) return;
-
-  console.log(`[🧪 TAB ${tabId}] Joining channel: ${channelId}`);
-  socket.emit("join_channel", channelId);
-
-  return () => {
-    console.log(`[🧪 TAB ${tabId}] Leaving channel: ${channelId}`);
-    socket.emit("leave_channel", channelId);
-  };
-}, [activeChannel?.id]);
-
 
 useEffect(() => {
   if (messages.length === 0 || !activeChannel?.id) return;
 
-  const lastViewed = useChatStore.getState().lastViewed[activeChannel.id];
-
-  if (lastViewed) {
-    const el = document.getElementById(`message-${lastViewed}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  const el = endRef.current;
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
 }, [messages, activeChannel?.id]);
 
@@ -234,12 +207,14 @@ const sendMessage = async () => {
     return;
   }
 
-  const clubObject = allClubs.find(c => String(c.id) === String(selectedClubId));
-  const clubName = clubObject?.name || "Unknown Club";
+
+const clubObject = allClubs.find(c => String(c.id) === String(selectedClubId));
+const clubName = clubObject?.name || "Unknown Club";
 
   const messageData = {
     text: isTextMessage ? cleaned : null,
     audio: isAudioMessage ? audioURL : null,
+    image: null,
     message_type: isAudioMessage ? 'audio' : 'text',
     channel: activeChannel.name,
     channel_id: activeChannel.id,
@@ -249,15 +224,18 @@ const sendMessage = async () => {
     club_name: clubName
   };
 
-  setText("");      // clear input
-  setAudioURL(null); // clear audio
+  console.log(messageData);
+  setText("");
+   setAudioURL(null);
 
   try {
-    const res = await fetch('/api/chats', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messageData),
-    });
+  const res = await fetch('/api/chats', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(messageData),
+  });
 
     const result = await res.json();
     if (!res.ok) {
@@ -270,13 +248,11 @@ const sendMessage = async () => {
       ...messageData,
       message_id,
     });
-
-    console.log("⬆️ Emitted new_message:", messageData);
+      console.log("⬆️ Emitted new_message:", messageData);
   } catch (err) {
     console.error("Failed to save message:", err);
   }
 };
-
 
 const restrictedChannels = ['rules', 'faq', 'announcements'];
 const isRestricted = role === 'member' && restrictedChannels.includes(activeChannel?.name?.toLowerCase());
@@ -293,48 +269,48 @@ const handleKeyPress = (e) => {
   }
 };
 
-// const handleChannelClick = (channel) => {
-//     setActiveChannel(channel);
-//   };
-const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
-const formattedLastMessageTime = lastMessage
-  ? new Date(lastMessage.timestamp).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  : '';
-let hasShownLastSeen = false;
-
 const startRecording = async () => {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const recorder = new MediaRecorder(stream);
-  setMediaRecorder(recorder);
+  mediaRecorderRef.current = recorder;
   setAudioChunks([]);
-  recorder.start();
   setRecording(true);
+  setRecordingTime(0);
+
+  recorder.start();
+
+  timerRef.current = setInterval(() => {
+    setRecordingTime(prev => prev + 1);
+  }, 1000);
 
   recorder.ondataavailable = (e) => {
     setAudioChunks((prev) => [...prev, e.data]);
   };
 
   recorder.onstop = async () => {
+    clearInterval(timerRef.current);
     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
     const cloudinaryUrl = await uploadToCloudinary(audioBlob);
-    setAudioURL(cloudinaryUrl); // Now ready to send to backend
+    setAudioURL(cloudinaryUrl);
     setRecording(false);
+    setRecordingTime(0);
   };
 };
 
 const stopRecording = () => {
-  if (mediaRecorder) {
-    mediaRecorder.stop();
+  if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+    mediaRecorderRef.current.stop();
   }
 };
+  if (!MediaRecorder.isTypeSupported('audio/webm')) {
+  toast.error("Your browser does not support WebM audio recording.");
+  return;
+}
 
   const uploadToCloudinary = async (audioBlob) => {
   const formData = new FormData();
   formData.append('file', audioBlob);
-      formData.append('upload_preset', 'audio_unsigned'); // replace
+      formData.append('upload_preset', 'audio_unsigned');
         formData.append('folder', 'audio_uploads');
 
   const res = await fetch('https://api.cloudinary.com/v1_1/dl7wibkyz/video/upload', {
@@ -348,7 +324,79 @@ const stopRecording = () => {
     const min = String(Math.floor(seconds / 60)).padStart(2, '0');
     const sec = String(seconds % 60).padStart(2, '0');
     return `${min}:${sec}`;
+  }
+
+const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+const formattedLastMessageTime = lastMessage
+  ? new Date(lastMessage.timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  : '';
+  const handleClick = () => {
+    fileInputRef.current.click();
   };
+
+    const fileInputRef = useRef(null);
+
+  const handleFileChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      // Reconfirm needed values
+      const clubObject = allClubs.find(c => String(c.id) === String(selectedClubId));
+      const clubName = clubObject?.name || "Unknown Club";
+
+      const messageData = {
+        text: null,
+        image: data.url,
+        audio: null,
+        message_type: "media",
+        channel: activeChannel.name,
+        channel_id: activeChannel.id,
+        user_id: userId,
+        club_id: selectedClubId,
+        club_name: clubName,
+        timestamp: new Date().toISOString(),
+      };
+
+      const chatRes = await fetch("/api/chats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(messageData),
+      });
+
+      const result = await chatRes.json();
+      if (!chatRes.ok) {
+        throw new Error(result.error || "Failed to send message");
+      }
+
+      socket.emit("new_message", {
+        ...messageData,
+        message_id: result.id, // assuming backend returns the saved message id
+      });
+
+      console.log("✅ File sent as chat message:", data.url);
+    } else {
+      console.error("Upload response missing URL:", data);
+    }
+  } catch (err) {
+    console.error("❌ Upload or send failed:", err);
+  }
+};
+
 
   return (
     <div className="chat">
@@ -361,48 +409,67 @@ const stopRecording = () => {
             </span>
           </div>
         </div>
-        <div className="icons flex items-center gap-2">
-          <img src="/fonts/feather-icons/icons/info.svg" alt="Info" />
-          <DropdownMenu />
-        </div>
+        <div className="icons flex items-center gap-3">
+  <img
+    src="/fonts/feather-icons/icons/info.svg"
+    alt="Info"
+    onClick={() => setShowClubInfo(true)}
+    className="cursor-pointer"
+  />
+</div>
       </div>
+        {showClubInfo && (
+  <ChatHeader selectedClubId= {selectedClubId} onClose={() => setShowClubInfo(false)} />
+)}
 
-      <div className="center">
-        {Object.entries(groupedMessages).map(([date, messages]) => (
-      <div key={date}>
+     <div className="center">
+  {Object.entries(groupedMessages).map(([date, messages]) => (
+    <div key={date}>
       <div className="date-label text-center text-gray-700 my-4">
         {format(new Date(date), 'MMMM d, yyyy')}
       </div>
-        {messages.map((msg, idx) => (
-          <div
+
+      {messages.map((msg, idx) => (
+        <div
           key={idx}
           id={`message-${msg.id}`}
           data-id={msg.id}
           className={`message ${msg.self ? 'own' : ''}`}
         >
-          {/* <div key={idx} className={`message ${msg.self ? 'own' : ''}`}> */}
-          {msg.id === lastViewedId && !hasShownLastSeen && (hasShownLastSeen = true) && (
-            <div className="last-seen-marker text-center text-sm text-gray-300 my-2">
-              <hr />
-              <span>Last seen here</span>
-              <hr />
+          {!msg.self && (
+            <div className="message-meta">
+              <img
+                src={msg.avatar || '/images/avatar/default.jpg'}
+                alt={`${msg.username || 'User'} avatar`}
+                className="avatar"
+              />
+              <div className="meta-info">
+                <span className="username">{msg.username || 'User'}</span>
+              </div>
             </div>
           )}
-            {!msg.self && <img src="/images/avatar/avatar-1.jpg" alt="Avatar" />}
-            <div className="texts">
-              {msg.message_type === 'audio' ? (
-                <audio controls src={msg.message_content}></audio>
-              ) : (
-                <p>{msg.message_content}</p>
-              )}
-              <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
+
+          <div className="texts">
+            {msg.message_type === 'audio' ? (
+              <audio controls src={msg.audio}></audio>
+            ) : (
+              <p>{msg.text}</p>
+            )}
+
+            <span className="timestamp-inside">
+              {new Date(msg.timestamp).toLocaleString(undefined, {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </span>
           </div>
-         ))}
+        </div>
+      ))}
     </div>
   ))}
-        <div ref={endRef}></div>
-      </div>
+  <div ref={endRef}></div>
+</div>
+
 
             <div className="bottom">
               {isRestricted ? (
@@ -430,7 +497,23 @@ const stopRecording = () => {
                 <>
                 <div className="input-wrapper">
                   <div className="icons">
-                    <img src="/fonts/feather-icons/icons/add.svg" alt="Attachment" />
+                    {activeChannel?.name?.toLowerCase() === 'club-media' && (
+                      <>
+                        <img
+                          src="/fonts/feather-icons/icons/add.svg"
+                          alt="Attachment"
+                          onClick={handleClick}
+                          style={{ cursor: "pointer" }}
+                        />
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          style={{ display: "none" }}
+                          accept="image/*,video/*"
+                        />
+                      </>
+                    )}
                   </div>
                   <input
                     type="text"
@@ -439,40 +522,39 @@ const stopRecording = () => {
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={handleKeyPress}
                   />
-                  {!recording && (
-          <img
-            src="/fonts/feather-icons/icons/mic.svg"
-            alt="Mic"
-            onClick={startRecording}
-            style={{ cursor: 'pointer' }}
-          />
-        )}
-      </div>
+                   {!recording && (
+                  <img
+                    src="/fonts/feather-icons/icons/mic.svg"
+                    alt="Mic"
+                    onClick={startRecording}
+                    style={{ cursor: 'pointer' }}
+                  />
+                )}
+              </div>
+              {recording && (
+                <div style={{
+                  padding: '10px',
+                  border: '1px solid red',
+                  borderRadius: '8px',
+                  marginTop: '8px',
+                  background: '#ffeaea',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}>
+                  <span style={{ color: 'red', fontWeight: 'bold' }}>● Recording</span>
+                  <span>{formatTime(recordingTime)}</span>
+                  <button onClick={stopRecording} style={{ padding: '4px 8px' }}>
+                    Stop Recording
+                  </button>
+                </div>
+              )}
 
-      {recording && (
-        <div style={{
-          padding: '10px',
-          border: '1px solid red',
-          borderRadius: '8px',
-          marginTop: '8px',
-          background: '#ffeaea',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px'
-        }}>
-          <span style={{ color: 'red', fontWeight: 'bold' }}>● Recording</span>
-          <span>{formatTime(recordingTime)}</span>
-          <button onClick={stopRecording} style={{ padding: '4px 8px' }}>
-            Stop Recording
-          </button>
-        </div>
-      )}
-
-      {audioURL && (
-        <div style={{ marginTop: '10px' }}>
-          <p>Uploaded Audio:</p>
-          <audio controls src={audioURL}></audio>
-        </div> )}
+              {audioURL && (
+                <div style={{ marginTop: '10px' }}>
+                  <p>Uploaded Audio:</p>
+                  <audio controls src={audioURL}></audio>
+                </div> )}
 
                   <div className="side-icons">
                   <div className="emoji">
@@ -487,303 +569,12 @@ const stopRecording = () => {
                       </div>
                     )}
                   </div>
-                                          <button className="send-icon" onClick={sendMessage}>
-                          <img src="/fonts/feather-icons/icons/send-1.svg" alt="Send" />
+                       <button className="send-icon" onClick={sendMessage}>
+                        <img src="/fonts/feather-icons/icons/send-1.svg" alt="Send" />
                         </button>
-                  {/* <button className="sendButton" onClick={sendMessage}>Send</button> */}
                 </div></>
               )}
             </div>
-            
-
-
-
-      <style jsx>{`
-        .chat {
-          flex: 2;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          color: white;
-        }
-.chat .top {
-  background:rgba(92, 111, 149, 0.48);
-  color: black;
-  padding: 2px 9px; /* ↓ Reduced vertical padding */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #e2e2e2;
-  font-size: 11px; /* ↓ Slightly smaller text */
-  height: 80px; /* optional: force a consistent height */
-}
-
-
-.chat .top .channel-name {
-  font-weight: 600;
-  font-size: 8px;
-}
-
-.chat .top .last-message {
-  color: #6b7280; /* Tailwind's gray-500 */
-  font-size: 8px;
-  margin-left: 8px;
-  flex: 1;
-}
-
-        // .chat .top {
-        //   background-color: rgba(186, 203, 213, 0.21);
-        //   padding: 2px;
-        //   display: flex;
-        //   align-items: center;
-        //   justify-content: space-between;
-        //   border-bottom: 1px solid #dddddd35;
-        // }
-        // .chat .top .user {
-        //   display: flex;
-        //   align-items: center;
-        //   gap: 20px;
-        // }
-        // .chat .top .user img {
-        //   width: 50px;
-        //   height: 50px;
-        //   border-radius: 50%;
-        //   object-fit: cover;
-        // }
-        .chat .top .user .texts {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          line-height: 1.1;
-        }
-        .chat .top .user .texts span {
-          font-size: 15px;
-          font-weight: bold;
-          margin-top: 18px;
-        }
-        // .chat .top .user .texts p {
-        //   font-size: 14px;
-        //   font-weight: 300;
-        // }
-        .chat .top .icons {
-          display: flex;
-          gap: 20px;
-        }
-        .chat .top .icons img {
-          width: 20px;
-          height: 20px;
-        }
- .chat .center {
-  padding: 20px;
-  flex: 1;
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.chat .center .message {
-  display: flex;
-  gap: 10px;
-  max-width: 100%;
-  margin-bottom: 10px; 
-}
-
-.chat .center .message.own {
-  justify-content: flex-end;
-}
-
-.chat .center .message img {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.chat .center .message .texts {
-  display: inline-block;
-  max-width: 75%;
-  padding: 12px 12px;
-  border-radius: 16px;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  line-height: 1.3;
-  background-color: rgba(17, 25, 40, 0.3);
-  color: white;
-  font-size: 14px;
-}
-
-.chat .center .message.own .texts {
-  background-color: #5183fe;
-}
-
-.chat .center .message .texts span {
-  font-size: 12px;
-  margin-top: 4px;
-  color: #e1e1e1;
-  align-self: flex-end;
-}
-
-.chat .bottom {
-  padding: 12px 16px;
-  border-top: 1px solid #e2e2e2;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chat .input-wrapper {
-  display: flex;
-  align-items: center;
-  background-color:rgba(92, 111, 149, 0.48);
-  padding: 6px 10px;
-  border-radius: 20px;
-  gap: 4px;S
-  flex: none;                 /* ← prevent it from stretching too wide */
-  width: 100%;                /* allow room for icons */
-  max-width: 90%;  
-  max-height: 40px;
-}
-
-.chat .input-wrapper input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 14px;
-  color:rgb(255, 255, 255);
-  padding: 4px 0;
-}
-.chat .input-wrapper input::placeholder {
-  color: white;
-  opacity: 1; /* Make sure it's not faded */
-}
-
-.chat .input-wrapper img {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.chat .side-icons {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-}
-
-.chat .side-icons img {
-  width: 25px;
-  height: 25px;
-  position: relative;
-  cursor: pointer;
-}
-
-.chat .send-icon {
-  background: none;
-  border: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-   cursor: pointer;
-}
-
-
-        // .chat .bottom {
-        //   padding: 20px;
-        //   display: flex;
-        //   align-items: center;
-        //   justify-content: space-between;
-        //   border-top: 1px solid #dddddd35;
-        //   gap: 20px;
-        //   margin-top: auto;
-        // }
-        // .chat .bottom .icons {
-        //   display: flex;
-        //   gap: 20px;
-        // }
-        // .chat .bottom img {
-        //   width: 24px;
-        //   height: 24px;
-        //   cursor: pointer;
-        // }
-        // .chat .bottom input {
-        //   flex: 1;
-        //   background-color: rgb(152, 172, 183);
-        //   border: none;
-        //   outline: none;
-        //   color: white;
-        //   padding: 10px;
-        //   border-radius: 10px;
-        //   font-size: 16px;
-        // }
-        // .chat .bottom .emoji {
-        //   width: 30px;
-        //   height: 30px;
-        //   position: relative;
-        // }
-        .chat .bottom .emoji .picker {
-          position: absolute;
-          bottom: 30px;
-          right: 0;
-        }
-        // .chat .bottom .sendButton {
-        //   background-color: #5183fe;
-        //   color: white;
-        //   padding: 10px 20px;
-        //   border: none;
-        //   border-radius: 5px;
-        //   cursor: pointer;
-        // }
-          .restricted-banner {
-  background-color: #1e1f22;
-  color: #e0e0e0;
-  padding: 12px 20px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  font-size: 14px;
-}
-
-.restricted-banner strong {
-  color: #a3a3ff;
-}
-
-.redirect-button {
-  background-color: #5865f2;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin-left: 12px;
-}
-
-.redirect-button img {
-  width: 16px;
-  height: 16px;
-  filter: invert(1);
-}
-  .last-seen-marker {
-  position: relative;
-  text-align: center;
-  font-size: 13px;
-  color: #b0b0b0;
-}
-
-.last-seen-marker hr {
-  border: none;
-  border-top: 1px solid #444;
-  margin: 6px 0;
-}
-
-      `}</style>
     </div>
   );
 };
