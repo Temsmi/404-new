@@ -6,7 +6,27 @@ const Preferences = () => {
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/setting');
+        const data = await res.json();
+        console.log("Fetched profile:", data);
+        if (res.ok) {
+          setPhoneNumber(data.phone_num || '');
+        } else {
+          console.error(data.error);
+        }
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +39,7 @@ const Preferences = () => {
       if (selectedImageFile) {
         formData.append("profile_picture", selectedImageFile);
       }
+      formData.append("phone_num", phoneNumber); // شماره تلفن همیشه فرستاده بشه
 
       const response = await fetch('/api/setting', {
         method: 'PUT',
@@ -44,7 +65,7 @@ const Preferences = () => {
       <Col xl={3} lg={4} md={12} xs={12}>
         <div className="mb-4 mb-lg-0">
           <h4 className="mb-1">Preferences</h4>
-          <p className="mb-0 fs-5 text-muted">Configure your profile picture</p>
+          <p className="mb-0 fs-5 text-muted">Configure your profile picture and phone number</p>
         </div>
       </Col>
       <Col xl={9} lg={8} md={12} xs={12}>
@@ -56,6 +77,19 @@ const Preferences = () => {
             <Form onSubmit={handleSubmit}>
               {successMessage && <Alert variant="success">{successMessage}</Alert>}
               {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+
+              {/* Phone Number */}
+              <Form.Group as={Row} className="mb-3" controlId="phoneNumber">
+                <Form.Label column md={4}>Phone Number</Form.Label>
+                <Col md={8}>
+                  <Form.Control
+                    type="text"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="Enter your phone number"
+                  />
+                </Col>
+              </Form.Group>
 
               {/* Profile Picture */}
               <Form.Group as={Row} className="mb-3" controlId="profilePicture">

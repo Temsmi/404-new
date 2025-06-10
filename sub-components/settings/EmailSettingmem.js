@@ -90,8 +90,8 @@ const EmailSetting = () => {
     <Row className="mb-8">
       <Col xl={3} lg={4} md={12} xs={12}>
         <div className="mb-4 mb-lg-0">
-          <h4 className="mb-1">Email Setting</h4>
-          <p className="mb-0 fs-5 text-muted">Add an email setting to your profile</p>
+          <h4 className="mb-1">Setting</h4>
+          
         </div>
       </Col>
       <Col xl={9} lg={8} md={12} xs={12}>
@@ -103,31 +103,11 @@ const EmailSetting = () => {
               </Alert>
             )}
 
-            <div className="mb-6">
-              <h4 className="mb-1">Email</h4>
-            </div>
+           
 
             {hasMounted && userData && (
               <>
-                <Form onSubmit={handleEmailChange}>
-                  <Row className="mb-3">
-                    <Form.Label className="col-sm-4" htmlFor="newEmailAddress">New email</Form.Label>
-                    <Col md={8} xs={12}>
-                      <Form.Control
-                        type="email"
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
-                        id="newEmailAddress"
-                        required
-                      />
-                    </Col>
-                    <Col md={{ offset: 4, span: 8 }} xs={12} className="mt-3">
-                      <Button variant="primary" type="submit">
-                        Save Changes
-                      </Button>
-                    </Col>
-                  </Row>
-                </Form>
+                
 
                 <div className="mb-6 mt-6">
                   <h4 className="mb-1">Change your password</h4>

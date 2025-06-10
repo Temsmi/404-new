@@ -32,7 +32,7 @@ useEffect(() => {
     <Col xl={6} lg={12} md={12} xs={12} className="mb-6">
       <Card>
         <Card.Body>
-          <Card.Title as="h4">About {member.name} {member.surname}</Card.Title>
+          <Card.Title as="h4">About </Card.Title>
        
           <Row>
             <Col xs={12} className="mb-5">

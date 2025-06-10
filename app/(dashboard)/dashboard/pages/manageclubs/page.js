@@ -14,13 +14,21 @@ const ManageClubs = () => {
     description: '',
     logo: ''
   });
+  const [originalDescriptions, setOriginalDescriptions] = useState({});
 
-  useEffect(() => {
+
+useEffect(() => {
   const fetchClubs = async () => {
     try {
       const res = await fetch('/api/club');
       const data = await res.json();
       setClubs(data.clubs || []);
+      // ذخیره توضیحات اصلی هر کلاب
+      const descriptions = {};
+      (data.clubs || []).forEach(c => {
+        descriptions[c.id] = c.description;
+      });
+      setOriginalDescriptions(descriptions);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching clubs:', error);
@@ -29,6 +37,7 @@ const ManageClubs = () => {
   };
   fetchClubs();
 }, []);
+
 
   const handleEdit = (club) => {
     setSelectedClub(club);
@@ -46,7 +55,7 @@ const ManageClubs = () => {
       return;
     }
     try {
-      const res = await fetch(`/api/club`, {
+      const res = await fetch('/api/club', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,59 +82,50 @@ const ManageClubs = () => {
     }
   };
 
-  const handleDeactivate = async (id) => {
-    try {
-      const res = await fetch(`/api/club/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          id: id,
-          description: 'This club has been Deactivated' 
-        }),
-      });
-
-      if (res.ok) {
-        alert('Club Deactivated!');
-        setClubs(clubs.map(club =>
-          club.id === id ? { ...club, description: 'This club has been Deactivated' } : club
-        ));
-      } else {
-        const errorMessage = await res.text();
-        console.error('Failed to deactivate club:', errorMessage);
-        alert('Failed to deactivate club: ' + errorMessage);
-      }
-    } catch (error) {
-      console.error('Error deactivating club:', error);
-    }
-  };
-
   const handleToggleActive = async (club) => {
-    const newStatus = !club.is_active;
-    try {
-  const res = await fetch(`/api/club`, {
-  method: 'PUT',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    id: club.id,
-    is_active: newStatus,
-    description: newStatus ? club.description : 'This club has been Deactivated'
-  }),
-});
+  const newStatus = !club.is_active;
+  try {
+    const newDescription = newStatus 
+      ? originalDescriptions[club.id] || club.description // بازیابی توضیح اصلی 
+      : 'This club has been Deactivated';                // تغییر توضیح هنگام غیرفعال
 
-      if (res.ok) {
-        alert(`Club ${newStatus ? 'Activated' : 'Deactivated'}!`);
-        setClubs(clubs.map(c => 
-          c.id === club.id ? { ...c, is_active: newStatus, description: newStatus ? club.description : 'This club has been Deactivated' } : c
-        ));
-      } else {
-        const errorMessage = await res.text();
-        console.error('Failed to toggle club:', errorMessage);
-        alert('Failed to toggle club: ' + errorMessage);
-      }
-    } catch (error) {
-      console.error('Error toggling club:', error);
+    // اگر داریم غیرفعال می‌کنیم، ذخیره توضیح اصلی
+    if (!newStatus) {
+      setOriginalDescriptions(prev => ({
+        ...prev,
+        [club.id]: club.description,
+      }));
     }
-  };
+
+    const res = await fetch('/api/club', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: club.id,
+        is_active: newStatus,
+        description: newDescription,
+      }),
+    });
+
+    if (res.ok) {
+      alert(`Club ${newStatus ? 'Activated' : 'Deactivated'}!`);
+      setClubs(clubs.map(c =>
+        c.id === club.id ? {
+          ...c,
+          is_active: newStatus,
+          description: newDescription,
+        } : c
+      ));
+    } else {
+      const errorMessage = await res.text();
+      console.error('Failed to toggle club:', errorMessage);
+      alert('Failed to toggle club: ' + errorMessage);
+    }
+  } catch (error) {
+    console.error('Error toggling club:', error);
+  }
+};
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -222,7 +222,7 @@ const ManageClubs = () => {
                       <tr key={index} className={!club.is_active ? 'opacity-50' : ''}>
                         <td className="align-middle">
                           <div className="d-flex align-items-center">
-                            <div md={4} className="text-center">
+                            <div className="text-center">
                               <img
                                 src={`/images/ClubsLogo/${club.logo}`}
                                 alt="Club Logo"
@@ -231,7 +231,7 @@ const ManageClubs = () => {
                                   maxWidth: '50px',
                                   opacity: club.is_active ? 1 : 0.3
                                 }}
-                                onError={(e) => e.target.src = "/images/default-logo.png"}
+                                onError={(e) => { e.target.src = '/images/default-logo.png'; }}
                               />
                             </div>
                             <div className="ms-3 lh-1">
@@ -241,19 +241,20 @@ const ManageClubs = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="align-middle">{club.president_name || 'N/A'}</td>
+                        <td className="align-middle">
+                          {club.president_name ? `${club.president_name} ${club.president_surname || ''}` : 'N/A'}
+                        </td>
                         <td className="align-middle">{club.member_count}</td>
                         <td className="text-center">
                           <Button variant="primary" onClick={() => handleEdit(club)} className="me-2">Edit</Button>
                         </td>
                         <td>
-                         <Button
-  variant={club.is_active ? 'warning' : 'success'}
-  onClick={() => handleToggleActive(club)}
->
-  {club.is_active ? 'Deactivate' : 'Activate'}
-</Button>
-
+                          <Button
+                            variant={club.is_active ? 'warning' : 'success'}
+                            onClick={() => handleToggleActive(club)}
+                          >
+                            {club.is_active ? 'Deactivate' : 'Activate'}
+                          </Button>
                         </td>
                       </tr>
                     ))

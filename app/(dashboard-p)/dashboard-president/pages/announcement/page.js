@@ -9,9 +9,9 @@ const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 const CreateAnnouncementPage = () => {
   const [message, setMessage] = useState('');
   const [title, setTitle] = useState('');
-      const [clubIds, setClubIds] = useState([]); 
+  const [clubIds, setClubIds] = useState([]); 
   const [submitting, setSubmitting] = useState(false);
-
+ const editorRef = useState(null);
   const todayDate = new Date().toLocaleDateString('en-US');
 
   const handleSubmit = async (e) => {

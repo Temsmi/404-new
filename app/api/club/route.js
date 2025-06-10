@@ -3,7 +3,6 @@ import { conn } from '../../connections/conn';
 
 export async function GET() {
   try {
-    // Query clubs from club table
     const clubQuery = `
       SELECT 
         club.id, 
@@ -18,32 +17,35 @@ export async function GET() {
       LEFT JOIN members ON club.id = members.club_id
       LEFT JOIN president ON club.id = president.club_id
       LEFT JOIN student ON president.student_id = student.id
-      GROUP BY club.id, club.name, club.description, club.logo, club.is_active, student.name
+      GROUP BY club.id, club.name, club.description, club.logo, club.is_active, student.name, student.surname
     `;
 
-    // Query approved club requests not yet in club table
     const clubRequestsQuery = `
       SELECT
-        id + 1000000 AS id,  -- large offset to avoid ID collision
+        id + 1000000 AS id,
         name,
         description,
         logo,
         NULL AS is_active,
         0 AS member_count,
-        NULL AS president_name
+        NULL AS president_name,
+        NULL AS president_surname
       FROM club_requests
-      WHERE status = 'approved' 
+      WHERE status = 'approved'
       AND id NOT IN (SELECT id FROM club)
     `;
 
-    const response = {
-      total_clubs: clubs.length,
-      clubs: clubs
-    };
+    const clubs = await conn({ query: clubQuery });
+    const clubRequests = await conn({ query: clubRequestsQuery });
 
-    return NextResponse.json(response);
+    const allClubs = [...clubs, ...clubRequests];
+
+    return NextResponse.json({
+      total_clubs: allClubs.length,
+      clubs: allClubs,
+    });
   } catch (error) {
-    console.error("Database error:", error);
+    console.error('Database error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -53,23 +55,23 @@ export async function PUT(req) {
     const body = await req.json();
     const { id, name, description, logo, is_active } = body;
 
-    let fields = [];
-    let values = [];
+    const fields = [];
+    const values = [];
 
     if (typeof name !== 'undefined') {
-      fields.push("name = ?");
+      fields.push('name = ?');
       values.push(name);
     }
     if (typeof description !== 'undefined') {
-      fields.push("description = ?");
+      fields.push('description = ?');
       values.push(description);
     }
     if (typeof logo !== 'undefined') {
-      fields.push("logo = ?");
+      fields.push('logo = ?');
       values.push(logo);
     }
     if (typeof is_active !== 'undefined') {
-      fields.push("is_active = ?");
+      fields.push('is_active = ?');
       values.push(is_active);
     }
 
@@ -78,14 +80,13 @@ export async function PUT(req) {
     }
 
     values.push(id);
-
     const query = `UPDATE club SET ${fields.join(', ')} WHERE id = ?`;
 
     await conn({ query, values });
 
     return NextResponse.json({ id, ...body });
   } catch (error) {
-    console.error("Database error:", error);
+    console.error('Database error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

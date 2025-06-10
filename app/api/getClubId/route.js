@@ -7,39 +7,59 @@ export async function GET(req) {
     const session = await getSession(req);
     const userId = session?.userId || session?.user?.userId;
 
-      if (!userId) {
-    return NextResponse.json({ clubIds: [] });
-  }
+    if (!userId) {
+      return NextResponse.json({ club_id: [], role: null });
+    }
 
-    // Check president first
+    // 1️⃣ Check if Admin
+    const adminResult = await conn({
+      query: `SELECT id FROM admin WHERE id = ?`,
+      values: [userId],
+    });
+
+    if (adminResult?.length > 0) {
+      return NextResponse.json({
+        club_id: [], // Admin can access all clubs (frontend should handle this)
+        role: 'admin',
+      });
+    }
+
+    // 2️⃣ Check if President
     const presidentResult = await conn({
       query: `SELECT club_id FROM president WHERE student_id = ?`,
       values: [userId],
     });
 
     if (presidentResult?.length > 0 && presidentResult[0].club_id) {
-      return NextResponse.json({ club_id: [presidentResult[0].club_id] }); // ✅ wrapped in object
+      return NextResponse.json({
+        club_id: [presidentResult[0].club_id],
+        role: 'president',
+      });
     }
 
-    // Then check member (can belong to multiple)
+    // 3️⃣ Check if Member
     const memberResult = await conn({
       query: `SELECT club_id FROM members WHERE student_id = ?`,
       values: [userId],
     });
 
-    if (!memberResult || memberResult.length === 0) {
-      throw new Error("User not found in members or president tables");
+    const clubIds = memberResult?.map(row => row.club_id).filter(Boolean) || [];
+
+    if (clubIds.length > 0) {
+      return NextResponse.json({
+        club_id: clubIds,
+        role: 'member',
+      });
     }
 
-    const clubIds = memberResult.map(row => row.club_id).filter(Boolean);
-
-    if (clubIds.length === 0) {
-      throw new Error("No club_id found for this member");
-    }
-
-    return NextResponse.json({ club_id: clubIds }); // ✅ standardized key
+    // No role found
+    return NextResponse.json({
+      club_id: [],
+      role: null,
+    });
+    
   } catch (error) {
-    console.error('Error fetching club_id:', error);
+    console.error('Error fetching club_id and role:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
