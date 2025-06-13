@@ -1,40 +1,56 @@
 'use client'
-// import node module libraries
-import { Fragment } from "react";
-import { Container, Col, Row } from 'react-bootstrap';
-// import widget/custom components
-import { StatRightTopIcon } from "widgets";
 
-// import required data files
-import DashCards from "data/dashboard/DashCards";
+import { Fragment, useEffect, useState } from "react";
 
 const Home = () => {
+    const messages = [
+        "Visit Memberships to join a club",
+        "OR",
+        "Click on the Help Page to guide you through the Club Management System"
+    ];
+    const [messageIndex, setMessageIndex] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setMessageIndex((prevIndex) => (prevIndex + 1) % messages.length);
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <Fragment>
-            <div className="bg-primary pt-10 pb-21"></div>
-            <Container fluid className="mt-n22 px-6">
-                <Row>
-                    <Col lg={12} md={12} xs={12}>
-                        {/* Page header */}
-                        <div>
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div className="mb-2 mb-lg-0">
-                                    <h3 className="mb-0  text-white">Welcome, User!</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </Col>
-                    {DashCards.map((item, index) => {
-                        return (
-                            <Col xl={3} lg={6} md={12} xs={12} className="mt-6" key={index}>
-                                <StatRightTopIcon info={item} />
-                            </Col>
-                        )
-                    })}
-                </Row>
-
-            </Container>
+            <div
+                style={{
+                    backgroundImage: 'url("/images/welcome.jpeg")',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    height: '100vh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    paddingTop: '15vh',
+                    textAlign: 'center',
+                    color: '#000',
+                    fontWeight: 'bold'
+                }}
+            >
+                <h1><strong>WELCOME NEW USER!</strong></h1>
+                <p
+                    className="fs-5"
+                    style={{
+                        marginTop: 'auto',
+                        marginBottom: '10vh', // Lower the text visually
+                        maxWidth: '700px',
+                        fontSize: '50em',
+                        transition: 'opacity 0.5s ease-in-out'
+                    }}
+                >
+                    {messages[messageIndex]}
+                </p>
+            </div>
         </Fragment>
     );
-}
+};
+
 export default Home;

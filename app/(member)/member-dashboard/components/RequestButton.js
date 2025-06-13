@@ -135,12 +135,11 @@ const RequestButton = ({ student_id }) => {
               value={selectedClubId}
               onChange={e => setSelectedClubId(e.target.value)}
             >
-              <option value="">-- Select a Club --</option>
-              {clubs.map(club => (
-                <option key={club.id} value={club.id}>
-                  {club.name}
-                </option>
-              ))}
+              {Array.isArray(clubs) && clubs.map(club => (
+  <option key={club.id} value={club.id}>
+    {club.name}
+  </option>
+))}
             </Form.Select>
           </Form.Group>
 

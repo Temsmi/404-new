@@ -52,7 +52,7 @@ function cleanProfanity(input) {
 }
 
 function escapeRegex(s) {
-  return s.replace(/\*/g, '\\*');;
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
     useEffect(() => {
@@ -141,9 +141,9 @@ useEffect(() => {
     const isDifferentChannel = messageChannelId !== currentChannelId;
 
     if (isDifferentChannel) {
-      toast.info(`💬 ${message.text || 'New message'} from another channel`, {
-        toastId: `channel-${message.channel_id}`,
-      });
+      toast.info(`${message.text || 'New message'} from another channel`, {
+  toastId: `channel-${message.channel_id}`,
+});
     } else {
       setMessages(prev => [...prev, {
         ...message,
@@ -249,7 +249,7 @@ const clubName = clubObject?.name || "Unknown Club";
       ...messageData,
       message_id,
     });
-      console.log("⬆️ Emitted new_message:", messageData);
+      console.log("⬆ Emitted new_message:", messageData);
   } catch (err) {
     console.error("Failed to save message:", err);
   }
@@ -380,7 +380,7 @@ const stopRecording = () => {
   const formatTime = (seconds) => {
     const min = String(Math.floor(seconds / 60)).padStart(2, '0');
     const sec = String(seconds % 60).padStart(2, '0');
-    return `${min}:${sec}`;
+    return  `${min}:${sec}`;
   }
 
 const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
@@ -417,7 +417,7 @@ const formattedLastMessageTime = lastMessage
       const clubName = clubObject?.name || "Unknown Club";
 
       const messageData = {
-        text: null,
+        text: 'media',
         image: data.url,
         audio: null,
         message_type: "media",
@@ -496,41 +496,42 @@ const formattedLastMessageTime = lastMessage
           {!msg.self && (
             <div className="message-meta">
               <img
-              src={msg.avatar || '/images/avatar/default.jpg'}
-              alt={`${msg.username || 'User'} avatar`}
-              className="avatar"
-            />
+                src={msg.avatar || '/images/avatar/avatar.jpg'}
+                alt={`${msg.username || 'User'} avatar`}
+                className="avatar"
+              />
               <div className="meta-info">
                 <span className="username">{msg.username || 'User'}</span>
               </div>
             </div>
           )}
 
-{msg.message_type === 'media' && msg.image ? (
-  <div
-    className="uploaded-image-container"
-    style={{
-      marginTop: '10px',
-      marginBottom: '10px',
-      textAlign: msg.self ? 'right' : 'left', // align image properly
-    }}
-  >
-  <img
-  src={msg.image}
-  alt="Uploaded media"
-  className="uploaded-image"
-/>
+     {msg.text === 'media' && msg.image?.startsWith('http') ? (
+    <div
+      className="uploaded-image-container"
+      style={{
+        marginTop: '10px',
+        marginBottom: '10px',
+        textAlign: msg.self ? 'right' : 'left',
+      }}
+    >
+      <img
+        src={msg.image}
+        alt="Uploaded media"
+        className="uploaded-image"
+        style={{ maxWidth: '300px', borderRadius: '8px' }}
+      />
     <div style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>
       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
     </div>
   </div>
 ) : (
   <div className="texts">
-    {msg.message_type === 'audio' ? (
-      <audio controls src={msg.audio}></audio>
-    ) : (
-      <p>{msg.text}</p>
-    )}
+ {msg.text === 'audio message' && msg.audio?.startsWith('http') ? (
+    <audio controls src={msg.audio} />
+  ) : (
+    <p>{msg.text}</p>
+  )}
     <span className="timestamp-inside">
       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
     </span>
@@ -568,34 +569,34 @@ const formattedLastMessageTime = lastMessage
                 </div>
               ) : (
                 <>
-<div className="input-wrapper">
-  <div className="icons">
-    {activeChannel?.name?.toLowerCase() === 'club-media' && (
-      <>
-        <img
-          src="/fonts/feather-icons/icons/add.svg"
-          alt="Attachment"
-          onClick={handleClick}
-          style={{ cursor: "pointer" }}
-        />
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          style={{ display: "none" }}
-          accept="image/*,video/*"
-        />
-      </>
-    )}
-  </div>
-  <input
-    type="text"
-    placeholder=" Join the conversation..."
-    value={text}
-    onChange={(e) => setText(e.target.value)}
-    onKeyDown={handleKeyPress}
-  />
-  {!recording && (
+                <div className="input-wrapper">
+                  <div className="icons">
+                    {activeChannel?.name?.toLowerCase() === 'club-media' && (
+                      <>
+                        <img
+                          src="/fonts/feather-icons/icons/add.svg"
+                          alt="Attachment"
+                          onClick={handleClick}
+                          style={{ cursor: "pointer" }}
+                        />
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          style={{ display: "none" }}
+                          accept="image/,video/"
+                        />
+                      </>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder=" Join the conversation..."
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                  />
+                     {!recording && (
     <img
       src="/fonts/feather-icons/icons/mic.svg"
       alt="Mic"
@@ -626,12 +627,12 @@ const formattedLastMessageTime = lastMessage
   </div>
 )}
 
-
-              {audioURL && (
+{audioURL && (
                 <div style={{ marginTop: '10px' }}>
                   <p>Uploaded Audio:</p>
                   <audio controls src={audioURL}></audio>
                 </div> )}
+
 
                   <div className="side-icons">
                   <div className="emoji">

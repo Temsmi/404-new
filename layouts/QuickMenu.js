@@ -89,7 +89,7 @@ const QuickMenu = () => {
     const QuickMenuDesktop = () => {
         return (
         <ListGroup as="ul" bsPrefix='navbar-nav' className="navbar-right-wrap ms-auto d-flex nav-top-wrap">
-              <Dropdown as="li" className="me-2" style={{ marginTop: '10px' }}>
+              {/* <Dropdown as="li" className="me-2" style={{ marginTop: '10px' }}>
         <Dropdown.Toggle
           id="language-dropdown"
           className="bg-transparent border-0 p-0 d-flex align-items-center text-dark"
@@ -137,7 +137,7 @@ const QuickMenu = () => {
             Turkish
           </Dropdown.Item>
         </Dropdown.Menu>
-      </Dropdown>
+      </Dropdown> */}
             <Dropdown as="li" className="stopevent">
                 <Dropdown.Toggle as="a"
                     bsPrefix=' '

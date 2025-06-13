@@ -66,7 +66,16 @@ const Home = () => {
         </div>
       ) : (
         <>
-          <div className="bg-primary pt-10 pb-21"></div>
+          <div
+                className="text-white pt-10 px-3 pb-21"
+                style={{
+                  backgroundImage: 'url("/fonts/feather-icons/icons/bg.svg")',
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  borderRadius: "0.5rem"
+                }}
+              ></div>
           <Container fluid className="mt-n22 px-6">
             <Row>
               <Col lg={12} md={12} xs={12}>
@@ -78,7 +87,7 @@ const Home = () => {
                   </div>
                   <div>
                     <Link href="/dashboard-president/pages/chats" className="btn btn-white">
-                      Joining Club Chats
+                      Join Club Chats
                     </Link>
                   </div>
                 </div>

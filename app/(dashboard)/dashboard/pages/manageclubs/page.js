@@ -143,7 +143,7 @@ const ManageClubs = () => {
         </Col>
         <Col className="text-end">
           <Link href="/dashboard/pages/managepresident">
-            <Button variant="dark">Manage Presidents</Button>
+            <Button variant="dark">List Of Presidents</Button>
           </Link>
         </Col>
       </Row>
