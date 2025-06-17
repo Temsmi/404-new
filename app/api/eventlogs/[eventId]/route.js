@@ -26,7 +26,7 @@ export async function PUT(req, { params }) {
         const zoomLinkRaw = formData.get('zoomLink');
         const zoomLink = zoomLinkRaw === 'no' ? null : zoomLinkRaw;
         const imageFile = formData.get('eventImage'); // Get uploaded image
-        
+        const isAnnounced = 0 ;
         let imageUrl = null;
 
         // Handle image upload to Cloudinary if a new image is provided

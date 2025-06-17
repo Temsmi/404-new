@@ -34,7 +34,6 @@ const ChatComponent =  ({ activeChannel, selectedClubId, handleChannelClick, ava
  const [showClubInfo, setShowClubInfo] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  //const [audioChunks, setAudioChunks] = useState([]);
   const [audioURL, setAudioURL] = useState(null);
   const mediaRecorderRef = useRef(null);
   const timerRef = useRef(null);
@@ -288,14 +287,14 @@ const startRecording = async () => {
     const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
     mediaRecorderRef.current = recorder;
-    audioChunksRef.current = [];  // Clear ref
+    audioChunksRef.current = []; 
     setRecording(true);
     setRecordingTime(0);
 
     recorder.ondataavailable = (e) => {
       console.log("ondataavailable event:", e);
       if (e.data && e.data.size > 0) {
-        audioChunksRef.current.push(e.data);  // Use ref → instant write
+        audioChunksRef.current.push(e.data); 
       }
     };
 
@@ -316,7 +315,6 @@ const startRecording = async () => {
         return;
       }
 
-      // Optionally, wrap audioBlob in File for Cloudinary (helps for some CORS issues)
       const audioFile = new File([audioBlob], "recording.webm", { type: audioBlob.type });
       const cloudinaryUrl = await uploadToCloudinary(audioFile);
 
@@ -324,7 +322,6 @@ const startRecording = async () => {
       setRecording(false);
       setRecordingTime(0);
 
-      // Clear ref for next recording
       audioChunksRef.current = [];
 
       sendMessage(cloudinaryUrl);
@@ -354,7 +351,6 @@ const stopRecording = () => {
  const uploadToCloudinary = async (audioBlob) => {
   const formData = new FormData();
 
-  // Wrap blob as File with filename → this prevents many errors:
   const audioFile = new File([audioBlob], "recording.webm", { type: "audio/webm" });
   formData.append('file', audioFile);
   formData.append('upload_preset', 'audio_unsigned');
@@ -412,7 +408,6 @@ const formattedLastMessageTime = lastMessage
     const data = await res.json();
 
     if (data.url) {
-      // Reconfirm needed values
       const clubObject = allClubs.find(c => String(c.id) === String(selectedClubId));
       const clubName = clubObject?.name || "Unknown Club";
 
@@ -442,7 +437,7 @@ const formattedLastMessageTime = lastMessage
 
       socket.emit("new_message", {
         ...messageData,
-        message_id: result.id, // assuming backend returns the saved message id
+        message_id: result.id,
       });
 
       console.log("✅ File sent as chat message:", data.url);
@@ -605,8 +600,6 @@ const formattedLastMessageTime = lastMessage
     />
   )}
 </div>
-
-{/* Move recording box OUTSIDE of .input-wrapper */}
 {recording && (
   <div style={{
     padding: '10px',
@@ -617,7 +610,7 @@ const formattedLastMessageTime = lastMessage
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    flexWrap: 'wrap', // helps on small screens
+    flexWrap: 'wrap', 
   }}>
     <span style={{ color: 'red', fontWeight: 'bold' }}>● Recording</span>
     <span>{formatTime(recordingTime)}</span>
@@ -647,7 +640,7 @@ const formattedLastMessageTime = lastMessage
                       </div>
                     )}
                   </div>
-                       <button className="send-icon" onClick={sendMessage}>
+                       <button className="send-icon" onClick={() => sendMessage()}>
                         <img src="/fonts/feather-icons/icons/send-1.svg" alt="Send" />
                         </button>
                 </div></>

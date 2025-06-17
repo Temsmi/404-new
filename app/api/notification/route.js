@@ -43,38 +43,53 @@ export async function GET(req) {
   try {
     const session = await getSession(req);
     const userId = session?.userId || session?.user?.userId;
-    const clubIds = await getClubIdFromSession(req);
 
+    if (!userId) {
+      return NextResponse.json([], { status: 200 });
+    }
+
+    const clubIds = await getClubIdFromSession(req);
     if (!clubIds || clubIds.length === 0) {
       return NextResponse.json([], { status: 200 });
     }
 
     const placeholders = clubIds.map(() => '?').join(', ');
 
-    // SQL query
-    const notifications = await conn({
-      query: `
-        SELECT 
-          id,
-          title,
-          message,
-          type,
-          created_at,
-          user_id,
-          channel_id,
-          message_id
-        FROM notification
-        WHERE club_id IN (${placeholders})
-          AND (user_id = ? OR user_id IS NULL)
-        ORDER BY created_at DESC
-      `,
-      values: [...clubIds, userId]
-    });
+        const url = new URL(req.url);
+        const typeParam = url.searchParams.get('type');
+
+        let query = `
+          SELECT 
+            n.id,
+            n.title,
+            n.message,
+            n.type,
+            n.created_at,
+            n.user_id,
+            n.channel_id,
+            n.message_id,
+            c.name AS club_name
+          FROM notification n
+          JOIN club c ON n.club_id = c.id
+          WHERE n.club_id IN (${placeholders})
+            AND (n.user_id = ? OR n.user_id IS NULL)
+        `;
+
+        const values = [...clubIds, userId];
+
+        if (typeParam) {
+          query += ` AND n.type = ?`;
+          values.push(typeParam);
+        }
+
+        query += ` ORDER BY n.created_at DESC`;
+
+const notifications = await conn({ query, values });
 
     return NextResponse.json(notifications);
   } catch (error) {
     console.error("GET error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+   return NextResponse.json([], { status: 500 });
   }
 }
 
@@ -135,7 +150,7 @@ if (type === 'chat') {
     });
   } else {
     const initialMessage = `You have a new message in ${channel_name}`;
-
+    
     await conn({
       query: `
         INSERT INTO notification (club_id, title, message, type, created_at, user_id, channel_id, message_id)

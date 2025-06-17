@@ -1,6 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState,  useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { toast } from 'react-toastify';
+import socket from 'app/lib/socket';
 import { Container, Form, Button } from 'react-bootstrap';
 import 'react-quill/dist/quill.snow.css';
 
@@ -9,14 +11,13 @@ const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 const CreateAnnouncementPage = () => {
   const [message, setMessage] = useState('');
   const [title, setTitle] = useState('');
-  const [clubIds, setClubIds] = useState([]); 
   const [submitting, setSubmitting] = useState(false);
- const editorRef = useState(null);
+  const editorRef = useRef(null);
   const todayDate = new Date().toLocaleDateString('en-US');
 
   const handleSubmit = async (e) => {
   e.preventDefault();
-  const content = editorRef.current.innerHTML;
+  const content = message;
 
   try {
   const rew = await fetch("/api/getClubId");
@@ -47,7 +48,7 @@ const CreateAnnouncementPage = () => {
         clubIds,
         ...payload,
       });
-      editorRef.current.innerHTML = '';
+      setMessage('');
       setTitle('');
     } else {
       toast.error(result.error || 'Failed to send announcement');

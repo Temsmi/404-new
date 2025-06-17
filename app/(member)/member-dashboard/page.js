@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import { Moon } from 'lucide-react';
 import CalendarWidget from './components/CalendarWidget';
 import RequestButton from './components/RequestButton';
-import Image from 'next/image';
+//import Image from 'next/image';
 
 const stripHtml = (html) => {
   if (!html) return '';
@@ -17,6 +16,7 @@ const normalizeName = (name) => name?.toLowerCase().replace(/\s+/g, '').trim();
 export default function MemberDashboard() {
   const [events, setEvents] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [announcementLimit, setAnnouncementLimit] = useState(1);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -43,9 +43,10 @@ export default function MemberDashboard() {
 
     const fetchAnnouncements = async () => {
       try {
-        const res = await fetch('/api/announcement');
+        const res = await fetch('/api/notification?type=announcement');
         const data = await res.json();
-        setAnnouncements(data.slice(0, 3));
+        console.log("Fetched announcements:", data);
+        setAnnouncements(data);
       } catch (error) {
         console.error('Error fetching announcements:', error);
       }
@@ -75,16 +76,17 @@ export default function MemberDashboard() {
 
     return {
       text: 'Good evening, ',
-      icon: <Moon className="inline w-5 h-5 text-indigo-500 ml-2" />
+     icon: <img src="fonts/feather-icons/icons/moon.svg" alt="sunny icon" className="inline w-5 h-5 ml-2" />
     };
   };
 
-  const groupedAnnouncements = announcements.reduce((acc, a) => {
-    const key = normalizeName(a.club_name);
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(a);
-    return acc;
-  }, {});
+const groupedAnnouncements = announcements.reduce((acc, a) => {
+  const key = normalizeName(a.club_name);
+  if (!acc[key]) acc[key] = [];
+  if (acc[key].length < announcementLimit) acc[key].push(a);
+  return acc;
+}, {});
+
 
   const userClubs = user?.clubs || [];
 
@@ -128,9 +130,14 @@ export default function MemberDashboard() {
                     <img src="fonts/feather-icons/icons/sp.svg" alt="icon" width={30} height={30} className="me-3" />
                     <h5 className="mb-0 text-white fw-semibold">Announcements</h5>
                   </div>
-                  <button className="btn btn-outline-light btn-sm" style={{ width: '94px', height: '32px', borderRadius: '100px', borderWidth: '1px' }}>
-                    See more&nbsp;&nbsp;<img src="fonts/feather-icons/icons/Vector 2 (Stroke).svg" />
-                  </button>
+                    <button
+                      className="btn btn-outline-light btn-sm"
+                      style={{ width: '94px', height: '32px', borderRadius: '100px', borderWidth: '1px' }}
+                      onClick={() => setAnnouncementLimit((prev) => (prev === 1 ? 3 : 1))}
+                    >
+                      {announcementLimit === 1 ? 'See more' : 'See less'}
+                      {' '}{' '}<img src="fonts/feather-icons/icons/Vector 2 (Stroke).svg" />
+                    </button>
                 </div>
                 <Card.Body className="p-0">
                   {user && userClubs.length > 0 ? (
@@ -145,7 +152,7 @@ export default function MemberDashboard() {
                               <div key={a.id} className="mb-2">
                                 <div className="d-flex align-items-center" style={{ gap: '4px' }}>
                                   <strong className="text-nowrap">{a.title}:</strong>
-                                  <span className="text-truncate d-inline-block" style={{ maxWidth: '70%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{stripHtml(a.content)}</span>
+                                  <span className="text-truncate d-inline-block" style={{ maxWidth: '70%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{stripHtml(a.message)}</span>
                                 </div>
                                 {index < clubAnnouncements.length - 1 && <hr style={{ borderTop: '1px solid white', opacity: 0.3 }} />}
                               </div>

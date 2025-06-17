@@ -44,21 +44,25 @@ const QuickMenu_p = () => {
     fetchUser();
   }, []);
 
-      useEffect(() => {
-        const fetchUnreadCount = async () => {
-          try {
-            const res = await fetch('/api/notification/mark-read');
-            const data = await res.json();
-            setUnreadCount(data.unreadCount);
-          } catch (err) {
-            console.error('Failed to fetch unread count', err);
-          }
-        };
+useEffect(() => {
+  if (!user || !user.id) return;
 
-        fetchUnreadCount();
-        const interval = setInterval(fetchUnreadCount, 30000);
-        return () => clearInterval(interval);
-      }, [setUnreadCount]);
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await fetch('/api/notification/mark-read');
+      const data = await res.json();
+      setUnreadCount(data.unreadCount);
+    } catch (err) {
+      console.error('Failed to fetch unread count', err);
+    }
+  };
+
+  fetchUnreadCount();
+
+  const interval = setInterval(fetchUnreadCount, 30000);
+  return () => clearInterval(interval);
+}, [user, setUnreadCount]);
+
 
           const router = useRouter(); 
 
@@ -201,17 +205,17 @@ const QuickMenu_p = () => {
                     <div className="border-bottom px-3 pt-0 pb-3 d-flex justify-content-between align-items-end">
                       <span className="h4 mb-0">Notifications</span>
                       <Link href="/" className="text-muted">
-                        <span className="align-middle">
+                        {/* <span className="align-middle">
                           
                           <i className="fe fe-settings me-3"></i>
-                        </span>
+                        </span> */}
                       </Link>
                     </div>
                     <Notifications />
                     <div className="border-top px-3 pt-3 pb-3">
-                      <Link href="/dashboard/notification-history" className="text-link fw-semi-bold">
+                      {/* <Link href="/dashboard/notification-history" className="text-link fw-semi-bold">
                         See all Notifications
-                      </Link>
+                      </Link> */}
                     </div>
                   </Dropdown.Item>
                 </Dropdown.Menu>

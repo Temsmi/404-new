@@ -32,7 +32,7 @@ const Home = () => {
                     router.push('/authentication/sign-in');
                 }
             } catch (error) {
-                console.error('Session fetch error:', error);
+                //console.error('Session fetch error:', error);
                 router.push('/authentication/sign-in');
             }
         };

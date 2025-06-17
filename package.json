@@ -3,25 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "author": {
-    "name": "Girls Team",
-    "url": "https://codescandy.com"
+    "name": "Girls Team"
   },
-  "keywords": [
-    "react",
-    "javascript",
-    "admin",
-    "dashboard",
-    "nextjs",
-    "nextjs13",
-    "admin-dashboard",
-    "free",
-    "admin-template",
-    "admin-panel",
-    "freebies",
-    "nextjs-template",
-    "react-dashboard",
-    "bootstrap 5"
-  ],
   "scripts": {
     "dev": "concurrently \"next dev\" \"node server.js\"",
     "build": "next build",
@@ -40,6 +23,7 @@
     "@vercel/analytics": "^1.0.1",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
+    "bufferutil": "^4.0.9",
     "cloudinary": "^2.6.0",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
@@ -75,6 +59,7 @@
     "simplebar-react": "^3.2.4",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "utf-8-validate": "^6.0.5",
     "uuid": "^9.0.0",
     "zod": "^3.24.2",
     "zustand": "^5.0.5"
