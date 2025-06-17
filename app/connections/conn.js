@@ -6,6 +6,7 @@ async function createPool() {
   if (!pool) {
     pool = mysql.createPool({
       host: process.env.DB_HOST || "localhost",
+       port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3307, 
       database: process.env.DB_NAME || "cms",
       user: process.env.DB_USER || "root",
       password: process.env.DB_PASSWORD || "",
