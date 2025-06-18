@@ -20,11 +20,15 @@ const io = require("socket.io")(server, {
 io.on("connection", (socket) => {
   console.log(`✅ Socket connected: ${socket.id}`);
 
-  socket.on("join_club", (club_id) => {
-    socket.join(`club_${club_id}`);
-    console.log(`🟢 Joined room: club_${club_id}`);
-  });
+    socket.on("join_club", (club_id) => {
+    if (!club_id) return;
 
+    const alreadyInRoom = Array.from(socket.rooms).includes(club_id);
+    if (!alreadyInRoom) {
+      socket.join(club_id);
+      console.log(`🟢 Joined room: ${club_id}`);
+    }
+  });
    socket.on("join_channel", (channelId) => {
     const roomName = `channel_${channelId}`;
     socket.join(roomName);

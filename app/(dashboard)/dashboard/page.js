@@ -9,12 +9,10 @@ import ClubsTable from 'sub-components/dashboard/ClubsTable';
 import { StatRightTopIcon } from "widgets";
 import Row3Chart from "components/Row3Chart";
 import Row4Charts from 'components/Row4Charts';
-//import { useTranslation } from 'react-i18next';
 
 const Home = () => {
     const [clubs, setClubs] = useState([]);
     const [dashCards, setDashCards] = useState([]);
-//const { t } = useTranslation();
 
     useEffect(() => {
         fetch("/api/metrics-admin")

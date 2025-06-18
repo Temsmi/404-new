@@ -20,7 +20,7 @@ export async function PUT(req, { params }) {
         const isPostFeedback = feedbackRaw === 'true' ? 1 : 0;
         const zoomLinkRaw = formData.get('zoomLink');
         const zoomLink = zoomLinkRaw === 'no' ? null : zoomLinkRaw;
-        const imageFile = formData.get('eventImage'); 
+        const imageFile = formData.get('eventImage'); // Get uploaded image
         
         let imageUrl = null;
 

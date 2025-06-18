@@ -22,7 +22,7 @@ const NotificationListener = () => {
   useEffect(() => {
     fetch('/api/session')
       .then((res) => res.json())
-      .then((data) => setUserId(data.userId))
+      .then((data) => setUserId(data?.userId || null))
       .catch((err) => console.error('Session fetch error:', err));
   }, []);
 

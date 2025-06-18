@@ -24,12 +24,13 @@ export async function POST(req) {
         values: [email, password],
       });
     }
-    console.log(result);
     if (!result || result.length === 0) {
       return NextResponse.json({ success: false, message: 'Invalid credentials' }, { status: 401 });
     }
 
-    const user = result[0];  
+    const user = result[0];  // Get first user
+
+    // Create session with user ID and role
     await createSession(user.id, user.role);
 
     return NextResponse.json({ success: true, role: user.role });

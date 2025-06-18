@@ -77,7 +77,7 @@ const Notification = () => {
 		);
 	}
 
-	if (error) return <p>Error: {error}</p>;
+	if (error) return <p> </p>;
 	if (notification.length === 0) return <p>No notifications found.</p>;
 
 return (
