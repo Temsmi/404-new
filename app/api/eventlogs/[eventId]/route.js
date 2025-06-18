@@ -62,42 +62,39 @@ export async function PUT(req, { params }) {
             return NextResponse.json({ error: "Event not found" }, { status: 404 });
         }
 
-        // If no new image is uploaded, keep the old image URL
+       
         if (!imageUrl) {
-            imageUrl = eventResult[0].image; // Retain the old image URL
+            imageUrl = eventResult[0].image; 
         }
 
-        // Update event details in the database
-        const updateQuery = `
-            UPDATE event1
-            SET 
-                date_name = ?, 
-                description = ?, 
-                event_time = ?, 
-                date_selected = ?, 
-                is_postfeedback = ?, 
-                zoom_link = ?, 
-                image = ?,
-                is_announced = ?
+        
+const updateQuery = `
+    UPDATE event1
+    SET 
+        date_name = ?, 
+        description = ?, 
+        event_time = ?, 
+        date_selected = ?, 
+        is_postfeedback = ?, 
+        zoom_link = ?, 
+        image = ?
+    WHERE id = ?
+`;
 
-            WHERE id = ?
-        `;
+await conn({
+    query: updateQuery,
+    values: [
+        eventName,
+        description,
+        eventTime,
+        dateSelected,
+        isPostFeedback,
+        zoomLink,
+        imageUrl,
+        eventId,
+    ],
+});
 
-        await conn({
-            query: updateQuery,
-            values: [
-                eventName,
-                description,
-                eventTime,
-                dateSelected,
-                isPostFeedback,
-                zoomLink,
-                imageUrl,
-                eventId,
-                isAnnounced, // ✅ این خط جدید
-
-            ],
-        });
 
         return NextResponse.json({ message: 'Event updated successfully' });
     } catch (error) {
