@@ -71,6 +71,7 @@ const HelpPage = () => {
       setVideoFile(null);
       showMessage('success', 'Video uploaded successfully!');
     } else {
+     
       alert(data.error || 'Video upload failed.');
     }
   };
