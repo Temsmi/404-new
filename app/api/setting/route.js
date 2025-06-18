@@ -19,7 +19,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
     }
 
-    // مرحله اول: گرفتن اطلاعات پایه دانشجو
+   
     const [studentData] = await conn({
       query: `
         SELECT id, name, surname, email, phone_num, dept, role, profile_picture
@@ -33,7 +33,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // مرحله دوم: اگر رئیس باشه، bio رو هم بیار
+   
     let bio = null;
     if (studentData.role === "president") {
       const [presidentData] = await conn({
@@ -111,7 +111,7 @@ const phoneNum = formData.get('phone_num');
       });
     }
 
-    // Update profile picture if uploaded
+    
     if (profilePictureUrl) {
       await conn({
         query: `UPDATE student SET profile_picture = ? WHERE id = ?`,
