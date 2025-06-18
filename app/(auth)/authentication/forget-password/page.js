@@ -1,10 +1,10 @@
 'use client'
 
-// import node module libraries
+
 import { Row, Col, Card, Form, Button, Image } from 'react-bootstrap';
 import Link from 'next/link';
 
-// import hooks
+
 import useMounted from 'hooks/useMounted';
 
 const ForgetPassword = () => {
@@ -31,8 +31,8 @@ const ForgetPassword = () => {
       <div
         className="absolute top-0 left-0 w-full h-full"
         style={{
-          background: "rgba(0, 0, 0, 0.26)", // Dark overlay
-          backdropFilter: "blur(8px)", // More blur for a stronger glass effect
+          background: "rgba(0, 0, 0, 0.26)", 
+          backdropFilter: "blur(8px)", 
           zIndex: 0,
         }}
       >
@@ -41,33 +41,32 @@ const ForgetPassword = () => {
         {/* Card */}
         <Card className="smooth-shadow-md"
          style={{
-          background: "rgba(90, 85, 85, 0.49)", // Glassmorphism effect
+          background: "rgba(90, 85, 85, 0.49)",
           backdropFilter: "blur(10px)",
           border: "1px solid rgba(27, 26, 26, 0.61)",        
           borderRadius: "12px",
-          color: "#F5F5DC", // Beige text
-          width: "100%", // Maintain responsiveness
-          maxWidth: "500px", // Proper width
+          color: "#F5F5DC",
+          width: "100%", 
+          maxWidth: "500px",
           padding: "20px",
           cursor: 'pointer',
           transition: "all '.3s'",
           display: "flex",
           flexDirection: "column",
         }}>
-          {/* Card body */}
+         
           <Card.Body className="p-6">
           <div className="flex flex-col text-center justify-center min-h-screen">
               <Link href="/"><Image src="/images/brand/logo/logo.png"   className="text-center block mx-auto  mb-2 " style={{ maxWidth: "140px", height: "auto" }}  alt="" /></Link>
             </div>
-            {/* Form */}
+    
             {hasMounted && 
             <Form>
-              {/* Email */}
               <Form.Group className="mb-3" controlId="email">
                 <Form.Label style={{ color: "#F5F5DC" }}>Email</Form.Label>
                 <Form.Control type="email" name="email" placeholder="Enter Your Email" />
               </Form.Group>
-              {/* Button */}
+            
               <div className="mb-3 d-grid">
                 <Button variant="primary" type="submit" style={{ color: "#F5F5DC" }}>Reset Password</Button>
               </div>

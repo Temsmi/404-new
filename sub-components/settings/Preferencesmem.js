@@ -39,7 +39,7 @@ const Preferences = () => {
       if (selectedImageFile) {
         formData.append("profile_picture", selectedImageFile);
       }
-      formData.append("phone_num", phoneNumber); // شماره تلفن همیشه فرستاده بشه
+      formData.append("phone_num", phoneNumber);
 
       const response = await fetch('/api/setting', {
         method: 'PUT',

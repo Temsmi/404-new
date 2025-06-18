@@ -110,7 +110,7 @@ const SignUp = () => {
               {/* Email */}
               <Form.Group className="mb-3" controlId="email">
                 <Form.Label className={styles.label}>Email address:</Form.Label>
-                <Form.Control type="email" name="email" placeholder="Enter address here" required="" />
+                <Form.Control type="email" name="email" placeholder="Enter your school email address here" required="" />
               </Form.Group>
               {state?.errors?.email && <p>{state.errors.email}</p>}
 
