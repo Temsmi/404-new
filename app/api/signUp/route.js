@@ -17,7 +17,6 @@ export async function POST(req) {
 
     const { name, sname, stdno, dept, email, phoneno, password } = validatedFields.data;
 
-    // Insert user into the database
     const result = await conn({
       query: 'INSERT INTO student (name, surname, std_no, email, phone_num, password, dept) VALUES (?, ?, ?, ?, ?, ?, ?)',
       values: [name, sname, stdno, email, phoneno, password, dept],
@@ -27,9 +26,7 @@ export async function POST(req) {
       return NextResponse.json({ message: 'An error occurred while creating your account.' }, { status: 500 });
     }
 
-    console.log("Inserted User:", result); // Debugging
-
-    // Fetch role of the new user
+    console.log("Inserted User:", result); 
     const userRows = await conn({
       query: "SELECT role FROM student WHERE id = ?",
       values: [result.insertId],
@@ -46,10 +43,8 @@ export async function POST(req) {
     console.log("User role found:", user.role);
     
 
-    // Create session for the new user
-    await createSession(stdno, user.role); // Using stdno instead of result.insertId
-
-    // ✅ Send response for frontend to handle redirect
+   
+    await createSession(stdno, user.role); 
     return NextResponse.json({
       message: 'Signup successful!',
       redirectTo: '/authentication/sign-in',

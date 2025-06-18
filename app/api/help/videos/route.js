@@ -6,14 +6,13 @@ import { getSession } from 'app/lib/session';
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 export async function POST(req) {
   try {
     const session = await getSession(req);
     const userId = session?.user?.id || session?.userId;
-
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -27,31 +26,30 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const arrayBuffer = await file.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
+    const mimeType = file.type;
+    const dataUri = `data:${mimeType};base64,${base64}`;
 
-    const cloudinaryResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        {
-          resource_type: 'video',
-          folder: 'videos_tutorial'
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      ).end(buffer);
+    const cloudinaryResult = await cloudinary.uploader.upload(dataUri, {
+      resource_type: 'video',
+      folder: 'videos_tutorial',
+      chunk_size: 6000000, 
     });
 
     const videoUrl = cloudinaryResult.secure_url;
 
     await conn({
-      query: `INSERT INTO help_tutorial (title, description, file) VALUES (?, ?, ?)`,
-      values: [title, description, videoUrl]
+      query: 'INSERT INTO help_tutorial (title, description, file) VALUES (?, ?, ?)',
+      values: [title, description, videoUrl],
     });
 
-    return NextResponse.json({ message: 'Video uploaded successfully', videoUrl });
+    return NextResponse.json({ message: 'Uploaded successfully', url: videoUrl });
   } catch (error) {
-    console.error('Video Upload Error:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+   
+    return NextResponse.json({
+      error: error?.message || 'Server error',
+      stack: error?.stack || null,
+    }, { status: 500 });
   }
 }

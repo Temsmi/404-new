@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { conn } from '../../connections/conn';
-import { getSession } from 'app/lib/session'; // Adjust path if needed
+import { getSession } from 'app/lib/session'; 
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -19,7 +19,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
     }
 
-    // مرحله اول: گرفتن اطلاعات پایه دانشجو
+   
     const [studentData] = await conn({
       query: `
         SELECT id, name, surname, email, phone_num, dept, role, profile_picture
@@ -33,7 +33,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // مرحله دوم: اگر رئیس باشه، bio رو هم بیار
+   
     let bio = null;
     if (studentData.role === "president") {
       const [presidentData] = await conn({
@@ -95,7 +95,6 @@ const phoneNum = formData.get('phone_num');
       });
     }
 
-    // Update email if provided
     if (email !== null) {
       await conn({
         query: `UPDATE student SET email = ? WHERE id = ?`,
@@ -103,7 +102,6 @@ const phoneNum = formData.get('phone_num');
       });
     }
 
-    // Update password if provided
     if (password !== null) {
       await conn({
         query: `UPDATE student SET password = ? WHERE id = ?`,
@@ -111,7 +109,7 @@ const phoneNum = formData.get('phone_num');
       });
     }
 
-    // Update profile picture if uploaded
+    
     if (profilePictureUrl) {
       await conn({
         query: `UPDATE student SET profile_picture = ? WHERE id = ?`,
@@ -125,7 +123,6 @@ if (phoneNum !== null) {
   });
 }
 
-    // Update bio if provided
     if (bio !== null) {
       await conn({
         query: `UPDATE president SET bio = ? WHERE student_id = ?`,

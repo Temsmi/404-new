@@ -10,11 +10,9 @@ import { StatRightTopIcon } from "widgets";
 import Row3Chart from "components/Row3Chart";
 import Row4Charts from 'components/Row4Charts';
 
-
 const Home = () => {
     const [clubs, setClubs] = useState([]);
     const [dashCards, setDashCards] = useState([]);
-
 
     useEffect(() => {
         fetch("/api/metrics-admin")

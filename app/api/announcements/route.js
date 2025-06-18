@@ -13,7 +13,7 @@ async function getClubIdFromSession(req) {
   });
 
   if (!result || result.length === 0 || !result[0].club_id) {
-    // If not found in 'members', check in 'president' table
+    
     result = await conn({
       query: `SELECT club_id FROM president WHERE student_id = ?`,
       values: [userId],

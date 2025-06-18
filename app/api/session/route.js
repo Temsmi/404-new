@@ -7,7 +7,7 @@ export async function GET() {
 
     if (!session) {
       console.warn('No active session found.');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      //return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(session);

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { conn } from '../../connections/conn'; // Adjust the path as necessary
+import { conn } from '../../connections/conn';
 
 export async function PATCH(req) {
   try {

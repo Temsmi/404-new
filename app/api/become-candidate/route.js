@@ -4,14 +4,14 @@ import { v2 as cloudinary } from 'cloudinary';
 import { conn } from '../../connections/conn';
 import { getSession } from 'app/lib/session';
 
-// Configure Cloudinary
+
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// GET Request: Return user info and clubs
+
 export async function GET(req) {
   try {
     const session = await getSession(req);
@@ -29,7 +29,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
     }
 
-    // ✅ Fetch user data (name, surname)
+    
     const userResult = await conn({
       query: 'SELECT name, surname FROM student WHERE id = ?',
       values: [userId],
@@ -37,7 +37,7 @@ export async function GET(req) {
 
     const user = userResult[0] || {};
 
-    // ✅ Fetch available clubs
+    
    const clubsResult = await conn({
   query: `
     SELECT c.id, c.name
@@ -59,7 +59,7 @@ export async function GET(req) {
   }
 }
 
-// POST handler
+
 export async function POST(req) {
   try {
     const session = await getSession(req);
@@ -86,7 +86,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // **New check:** Has this student already applied for any club?
+    
     const existingCandidateCheck = await conn({
       query: `SELECT * FROM candidate WHERE student_id = ?`,
       values: [userId],
@@ -96,10 +96,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'You have already applied as a candidate for another club.' }, { status: 400 });
     }
 
-    // (Optional) You can still keep the same club check if you want,
-    // but it's redundant now because the previous check covers all clubs.
 
-    // Upload photo (same as before)
     let photoUrl = null;
     if (photo && typeof photo.arrayBuffer === 'function') {
       const buffer = Buffer.from(await photo.arrayBuffer());
@@ -120,7 +117,7 @@ export async function POST(req) {
       });
     }
 
-    // Insert candidate
+    
     const insertQuery = `
       INSERT INTO candidate (student_id, club_id, bio, photo, amount_of_votes)
       VALUES (?, ?, ?, ?, 0)

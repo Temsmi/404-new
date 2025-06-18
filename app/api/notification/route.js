@@ -43,8 +43,12 @@ export async function GET(req) {
   try {
     const session = await getSession(req);
     const userId = session?.userId || session?.user?.userId;
-    const clubIds = await getClubIdFromSession(req);
 
+    if (!userId) {
+      return NextResponse.json([], { status: 200 });
+    }
+
+    const clubIds = await getClubIdFromSession(req);
     if (!clubIds || clubIds.length === 0) {
       return NextResponse.json([], { status: 200 });
     }
@@ -74,7 +78,7 @@ export async function GET(req) {
     return NextResponse.json(notifications);
   } catch (error) {
     console.error("GET error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+   return NextResponse.json([], { status: 500 });
   }
 }
 
@@ -135,7 +139,7 @@ if (type === 'chat') {
     });
   } else {
     const initialMessage = `You have a new message in ${channel_name}`;
-
+    
     await conn({
       query: `
         INSERT INTO notification (club_id, title, message, type, created_at, user_id, channel_id, message_id)

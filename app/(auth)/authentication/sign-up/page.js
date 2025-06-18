@@ -138,9 +138,9 @@ const SignUp = () => {
               {/* Checkbox */}
               <div className="mb-3">
                 <Form.Check type="checkbox" id="check-api-checkbox">
-                  <Form.Check.Input type="checkbox"/>
+                  <Form.Check.Input type="checkbox" required=""/>
                   <Form.Check.Label>
-                    I agree to the <Link href="#" className={styles.link}> Student Club Rules and Regulations </Link>
+                    I agree to the <Link href="https://activity.emu.edu.tr/en/Documents/Ogr.%20Klup%20Kur.Clsm%20Ilke%20-%20ENG.docx" className={styles.link}> Student Club Rules and Regulations </Link>
                   </Form.Check.Label>
                 </Form.Check>
               </div>

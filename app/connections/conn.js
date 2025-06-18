@@ -1,4 +1,4 @@
-import mysql from "mysql2/promise";
+import mysql from 'mysql2/promise';
 
 let pool; // Declare pool as a mutable variable
 
@@ -6,6 +6,7 @@ async function createPool() {
   if (!pool) {
     pool = mysql.createPool({
       host: process.env.DB_HOST || "localhost",
+       port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3307, 
       database: process.env.DB_NAME || "cms",
       user: process.env.DB_USER || "root",
       password: process.env.DB_PASSWORD || "",
@@ -20,10 +21,8 @@ async function getPool() {
   if (!pool) {
     await createPool();
   }
-  return pool;
 }
 
-// Function to execute queries
 export async function conn({ query, values = [] }) {
   try {
     let connectionPool = await getPool(); // Use a different variable name
@@ -39,7 +38,7 @@ export async function conn({ query, values = [] }) {
     const [results] = await connectionPool.execute(query, values);
     return results;
   } catch (error) {
-    console.error("Database Error:", error);
+    console.error('Database Error:', error);
     return { error: error.message };
   }
 }

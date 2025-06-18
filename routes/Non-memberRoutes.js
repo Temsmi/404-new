@@ -28,7 +28,7 @@ export const DashboardMenu = [
     {
         id: uuid(),
         title: 'Club Request',
-        icon: 'info',
+        icon: 'send',
 		link: '/nonMember/clubcreationre'
     },
     {

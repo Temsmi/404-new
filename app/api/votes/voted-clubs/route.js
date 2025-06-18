@@ -1,4 +1,3 @@
-// file: /app/api/votes/voted-clubs/route.js (or .ts if TS)
 import { NextResponse } from 'next/server';
 import { conn } from 'app/connections/conn';
 import { getSession } from 'app/lib/session';
@@ -12,7 +11,6 @@ export async function GET() {
 
     const student_id = session.userId;
 
-    // Get member IDs for this student
     const members = await conn({
       query: 'SELECT id FROM members WHERE student_id = ?',
       values: [student_id],
@@ -24,10 +22,8 @@ export async function GET() {
 
     const memberIds = members.map(m => m.id);
 
-    // Use placeholders for SQL IN clause
     const placeholders = memberIds.map(() => '?').join(',');
 
-    // Get distinct club_ids from votes table where member_id in memberIds
     const votes = await conn({
       query: `SELECT DISTINCT club_id FROM votes WHERE member_id IN (${placeholders})`,
       values: memberIds,
