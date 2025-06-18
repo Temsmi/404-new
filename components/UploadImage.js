@@ -13,14 +13,13 @@ const UploadAudio = () => {
 
     if (!file) return;
 
-    // Ensure it's an audio file
     if (!file.type.startsWith("audio/")) {
       alert("Please select a valid audio file!");
       return;
     }
 
     setAudio(file);
-    setPreviewUrl(URL.createObjectURL(file)); // Audio preview
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleUpload = async () => {
@@ -37,12 +36,12 @@ const UploadAudio = () => {
 
     const formData = new FormData();
     formData.append("file", audio);
-    formData.append("upload_preset", "upload_preset"); // Use your actual Cloudinary upload preset
-    formData.append("folder", "voice_messages"); // Store audio in 'voice_messages' folder
+    formData.append("upload_preset", "upload_preset"); 
+    formData.append("folder", "voice_messages");
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, // Cloudinary uses `video/upload` for audio files
+        `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, 
         formData
       );
 

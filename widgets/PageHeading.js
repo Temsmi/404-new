@@ -1,4 +1,3 @@
-// import node module libraries
 import { Row, Col } from 'react-bootstrap';
 
 const PageHeading = props => {

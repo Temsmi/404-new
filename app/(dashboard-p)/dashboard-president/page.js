@@ -8,7 +8,7 @@ import { StatRightTopIcon } from "widgets";
 import DashCards_president from "data/dashboard/DashCards_president";
 import PieChartPresident from 'components/PieChartPresident';
 import MembersInfo from "sub-components/dashboard/MembersInfo";
-import RecentAnnouncementsTable from 'components/RecentAnnouncementsTable';
+//import RecentAnnouncementsTable from 'components/RecentAnnouncementsTable';
 
 const Home = () => {
   const [clubName, setClubName] = useState('');

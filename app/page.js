@@ -16,7 +16,6 @@ const Home = () => {
                     const data = await res.json();
                     setSession(data);
 
-                    // Redirect based on role
                     switch (data.role) {
                         case 'admin':
                             router.push('/dashboard');
@@ -32,7 +31,6 @@ const Home = () => {
                     router.push('/authentication/sign-in');
                 }
             } catch (error) {
-                //console.error('Session fetch error:', error);
                 router.push('/authentication/sign-in');
             }
         };

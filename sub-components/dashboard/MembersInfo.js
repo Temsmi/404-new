@@ -1,21 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { Col, Row, Card, Table, Form, Button } from 'react-bootstrap';
 
 const MembersInfo = ({ members }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showAll, setShowAll] = useState(false);
 
-    // Filter members based on search term (safe with String())
     const filteredMembers = members.filter(member =>
         member.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(member.student_number).toLowerCase().includes(searchTerm.toLowerCase()) ||
         member.department.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Limit number of members shown if showAll is false
     const displayedMembers = showAll ? filteredMembers : filteredMembers.slice(0, 6);
 
     return (

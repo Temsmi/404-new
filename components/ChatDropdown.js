@@ -18,9 +18,9 @@ export default function ChatHeader({ selectedClubId, onClose }) {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          setClub(data[0]); // assuming array response
+          setClub(data[0]); 
         } else if (data && typeof data === 'object') {
-          setClub(data); // if it's already a single object
+          setClub(data); 
         } else {
           console.warn("Unexpected club data:", data);
         }

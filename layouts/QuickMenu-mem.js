@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Fragment } from 'react';
-import { Image, Dropdown, ListGroup, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
+import { Image, Dropdown, ListGroup} from 'react-bootstrap';
 import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,6 @@ import { useNotificationStore } from 'widgets/store';
 
 const QuickMenu_p = () => {
   const [hasMounted, setHasMounted] = useState(false);
-      const [language, setLanguage] = useState('English');
     const [isLoading, setIsLoading] = useState(false);
     const {unreadCount, setUnreadCount, resetUnread} = useNotificationStore();
   const [user, setUser] = useState(null);
@@ -120,55 +119,6 @@ useEffect(() => {
         bsPrefix="navbar-nav"
         className="navbar-right-wrap ms-auto d-flex nav-top-wrap"
       >
-{/* <Dropdown as="li" className="me-2" style={{ marginTop: '10px' }}>
-        <Dropdown.Toggle
-          id="language-dropdown"
-          className="bg-transparent border-0 p-0 d-flex align-items-center text-dark"
-          style={{ boxShadow: "none" }}
-        >
-          {language === "English" ? (
-            <>
-              <img
-                src="/fonts/feather-icons/icons/en.svg"
-                alt="eng icon"
-                className="me-2"
-                style={{ width: "20px", height: "20px" }}
-             />
-              <span className="fw-normal">English</span>
-            </>
-          ) : (
-            <>
-              <img
-                src="/fonts/feather-icons/icons/tr.svg"
-                alt="trk icon"
-                className="me-2"
-                style={{ width: "20px", height: "20px" }}
-              />
-              <span className="fw-normal">Turkish</span>
-            </>
-          )}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <Dropdown.Item eventKey="English">
-            <img
-              src="/fonts/feather-icons/icons/en.svg"
-              alt="eng icon"
-              className="me-2"
-              style={{ width: "20px", height: "20px" }}
-            />
-            English
-          </Dropdown.Item>
-          <Dropdown.Item eventKey="Turkish">
-            <img
-              src="/fonts/feather-icons/icons/tr.svg"
-              alt="trk icon"
-              className="me-2"
-              style={{ width: "20px", height: "20px" }}
-            />
-            Turkish
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown> */}
       &nbsp;
 
               <Dropdown as="li" className="stopevent me-2" onToggle={handleToggle}>

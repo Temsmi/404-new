@@ -7,7 +7,6 @@ import departments from "data/code/departments";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-
 const SignUp = () => {
   const router = useRouter(); 
   const [state, setState] = useState({ errors: {} });
@@ -40,7 +39,6 @@ const SignUp = () => {
         return;
       }
 
-     
       const redirectUrl = result.redirectTo || "/authentication/sign-in";
       console.log("Redirecting to:", redirectUrl);
 

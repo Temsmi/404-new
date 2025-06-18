@@ -1,5 +1,4 @@
 'use client'
-// import node module libraries
 import { Container } from 'react-bootstrap';
 
 export default function AuthLayout({ children }) {

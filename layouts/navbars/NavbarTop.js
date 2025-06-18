@@ -1,11 +1,9 @@
-// import node module libraries
 import { Menu } from 'react-feather';
 import Link from 'next/link';
 import {
 	Nav,
 	Navbar
 } from 'react-bootstrap';
-// import sub components
 import QuickMenu from 'layouts/QuickMenu';
 import SearchBar from 'layouts/SearchBar';
 
@@ -22,12 +20,10 @@ const NavbarTop = (props) => {
 						<Menu size="18px" />
 					</Link>
 					<div className="ms-lg-3 d-none d-md-none d-lg-block">
-						{/* Search Form */}
 						<SearchBar/>
 
 					</div>
 				</div>
-				{/* Quick Menu */}
 				<Nav className="navbar-right-wrap ms-2 d-flex nav-top-wrap">
 					<QuickMenu />
 				</Nav>

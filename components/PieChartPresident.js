@@ -14,7 +14,6 @@ const PieChartPresident = ({ data, chartType }) => {
     return <div>No request data available.</div>;
   }
 
-  // Compute Requests by Type
   const requestsByType = useMemo(() => {
     const typeTotals = {};
     data.forEach(item => {
@@ -26,7 +25,6 @@ const PieChartPresident = ({ data, chartType }) => {
     }));
   }, [data]);
 
-  // Compute Anonymous vs Non-Anonymous
   const anonymousSplit = useMemo(() => {
     let anonymous = 0;
     let nonAnonymous = 0;
@@ -45,7 +43,6 @@ const PieChartPresident = ({ data, chartType }) => {
 
   const COLORS = ['#0088FE', '#FF8042', '#00C49F', '#FFBB28', '#AA336A', '#66CC66'];
 
-  // Select data based on chartType
   const pieData = chartType === 'byType' ? requestsByType : anonymousSplit;
 
   return (

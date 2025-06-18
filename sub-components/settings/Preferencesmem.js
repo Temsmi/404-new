@@ -14,7 +14,6 @@ const Preferences = () => {
       try {
         const res = await fetch('/api/setting');
         const data = await res.json();
-        console.log("Fetched profile:", data);
         if (res.ok) {
           setPhoneNumber(data.phone_num || '');
         } else {
@@ -39,7 +38,7 @@ const Preferences = () => {
       if (selectedImageFile) {
         formData.append("profile_picture", selectedImageFile);
       }
-      formData.append("phone_num", phoneNumber);
+      formData.append("phone_num", phoneNumber); // شماره تلفن همیشه فرستاده بشه
 
       const response = await fetch('/api/setting', {
         method: 'PUT',
