@@ -1,78 +1,54 @@
-# [DashUI Next.js Free Admin Template](https://dashui-free-nextjs-admin-template.vercel.app/)
+# 📘 Digital Club Management System
 
-Dash UI - Next.js Free admin / dashboard template created by [Codescandy](https://codescandy.com/) and available on Github
+A modern web-based platform to streamline the administration of university or organizational clubs. Built with **Next.js 13**, **Node.js**, and **MySQL**, it offers club leaders and members an efficient way to manage events, memberships, announcements, and administrative workflows.
 
-![dashui-free-nextjs-admin-template](https://user-images.githubusercontent.com/68774600/231716707-3da30d19-b826-4692-b03a-fed41376d250.jpg)
+---
 
-## How to use DashUI?
+## 🚀 Features
 
-Clone the Dash UI repo:
+- ✅ Club registration and approval system
+- ✅ Role-based access (e.g. President, Member, Admin)
+- ✅ Event creation, approval, and calendar integration
+- ✅ Member management and activity tracking
+- ✅ Notification system for approvals and reminders
+- ✅ Responsive UI with modern UX
 
-```
-git clone https://github.com/codescandy/dashui-free-nextjs-admin-template.git
-```
+---
 
-```
-cd dashui-free-nextjs-admin-template
-```
+## 🛠 Tech Stack
 
-## 🚀 Getting Started
+| Tech             | Description                       |
+|------------------|-----------------------------------|
+| Next.js 13       | Frontend framework (React-based)  |
+| Node.js + Express| Backend server and API handling   |
+| MySQL XAMPP           | Relational database               |    |
+| Bootstrap / SCSS | UI Styling  
+        CLOUDINARY FOR STORAGE      
+        JOSE JWT                |
 
-### Installation 👨🏻‍💻
+---
 
-1. Install all packages
+## 📂 Project Structure
+/app
+/api # API routes
+/dashboard # Club dashboard views
+/auth # Authentication logic
+/components # Reusable UI components
 
-```
-npm i
-```
+Install Dependencies
+<!-- npm install -->
 
-2. Run Development Server
 
-```
-npm run dev
-```
+Run the App
+<!-- npm run dev -->
+Visit http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-3. Build your project
-
-```
-npm run build
-```
-
-## Deploy on Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcodescandy%2Fdashui-free-nextjs-admin-template.git&project-name=dashui-nextjs-admin-dashboard&repository-name=dashui-free-nextjs-admin-template&skippable-integrations=1)
-
-## Technical Support or Questions
-
-If you have questions or need help integrating the product please [contact us](https://codescandy.com/contact-us/). [Support](https://github.com/codescandy/Dash-UI/discussions)
+INSTALL DATABSE TO MYSQL XAMPP
 
 ## Useful Links
+Admin: admin@emu.edu.tr
+PW: admin123#
 
--  [Bootstrap Template](https://dashui.codescandy.com/free-bootstrap-5-admin-dashboard-template.html)
--  [React Template](https://dashui.codescandy.com/free-reactjs-admin-dashboard-template.html)
--  [Next.js Template](https://dashui.codescandy.com/free-next-js-admin-dashboard-template.html)
--  [Nuxt.js Template](https://dashui.codescandy.com/free-nuxt-js-admin-dashboard-template.html)
--  [Tailwind Template](https://dashui.codescandy.com/free-tailwindcss-admin-dashboard-html-template.html)
-
-## Figma Design File
-
-Ready to use [Figma File](https://www.figma.com/community/file/1259105309122518026/dash-ui-admin-dashboard-template).
-
-## Upgrade to PRO
-
-Get more power with [Dash UI pro](https://dashui.codescandy.com/) featuring bunch of UI components, forms, tables, charts, pages, and icons.
-
-| Free Version                                                                                       | DashUI PRO                                                                                  |
-| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| ✔️ 1 Dashboard                                                                                     | ✔️ 6 Dashboard                                                                              |
-| ✔️ 11 HTML Pages                                                                                   | ✔️ 60+ HTML pages                                                                           |
-| ✔️ Includine Docs                                                                                  | ✔️ Documentation                                                                            |
-| ✔️ 4 Plugins                                                                                       | ✔️ 10+ Plugins                                                                              |
-| ✔️ Source Files                                                                                    | ✔️ Source Files                                                                             |
-| ❌ Dark Mode                                                                                       | ✔️ Dark Mode                                                                                |
-| ❌ Layout Options                                                                                  | ✔️ Layout Variations                                                                        |
-| ❌ Priority Support                                                                                | ✔️ Priority Support                                                                         |
-| -                                                                                                  | ✔️ Free Update                                                                              |
-| [Free Download](https://dashui.codescandy.com/free-next-js-admin-dashboard-template.html) | [Get Dash UI](https://dashui.codescandy.com/next-js-admin-dashboard-template.html) |
+Advisably, Try yoga club president for better data
+EMAIL: 22902275@emu.edu.tr
+PW pass123#

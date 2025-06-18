@@ -81,6 +81,14 @@ const CalendarPage = () => {
     setShowEventModal(true);
   };
 
+    const handleYearChange = (e) => {
+    const newYear = Number(e.target.value);
+    setSelectedYear(newYear);
+    const calendarApi = calendarRef.current?.getApi();
+    if (calendarApi) {
+      calendarApi.gotoDate(`${newYear}-01-01`);
+    }
+  };
   return (
     <Container className="mt-5">
       <h3 className="text-center mb-4">Club Events Calendar</h3>
@@ -88,7 +96,7 @@ const CalendarPage = () => {
       <div className="d-flex justify-content-left align-items-left mb-3">
         <Form.Select
           value={selectedYear}
-          onChange={(e) => setSelectedYear(Number(e.target.value))}
+          onChange={handleYearChange}
           style={{ width: '100px', display: 'inline-block' }}
         >
           {Array.from({ length: 11 }, (_, i) => currentYear + i).map(year => (
