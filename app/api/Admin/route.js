@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
-import { getSession } from 'app/lib/session'; // Adjust the import path for session
+import { getSession } from 'app/lib/session'; 
 export async function GET(req) {
     try {
         const session = await getSession(req);
@@ -33,7 +33,7 @@ export async function GET(req) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
-// Update admin and club data
+
 export async function PUT(req) {
     try {
       const session = await getSession(req);
@@ -57,7 +57,7 @@ export async function PUT(req) {
       }
   
       if (password) {
-        // ⚠️ نکته: بهتره اینجا پسورد رو هش کنی با bcrypt
+        
         await conn({
           query: `UPDATE admin SET password = ? WHERE id = ?`,
           values: [password, userId],

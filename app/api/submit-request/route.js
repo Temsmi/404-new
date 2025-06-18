@@ -17,7 +17,6 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    //  Ensure student exists in the members table
     const memberResult = await conn({
       query: 'SELECT student_id FROM members WHERE student_id = ? LIMIT 1',
       values: [userId],
@@ -29,7 +28,6 @@ export async function POST(req) {
 
     const student_id = memberResult[0].student_id;
 
-    // Insert the request (without reg_num)
     const insertQuery = `
       INSERT INTO request (student_id, type, text, club_id, anonymous, status)
       VALUES (?, ?, ?, ?, ?, 'Pending')

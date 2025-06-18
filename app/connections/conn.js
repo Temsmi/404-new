@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 
-let pool; // Declare pool as a mutable variable
+let pool; 
 
 async function createPool() {
   if (!pool) {
@@ -24,17 +24,14 @@ async function getPool() {
   return pool;
 }
 
-// Function to execute queries
 export async function conn({ query, values = [] }) {
   try {
-    let connectionPool = await getPool(); // Use a different variable name
-
-    // Ensure the pool is available
+    let connectionPool = await getPool(); 
     if (!connectionPool || connectionPool._closed) {
       console.log("Recreating DB connection pool...");
-      pool = null; // No reassignment error now
+      pool = null;
       await createPool();
-      connectionPool = await getPool(); // Re-fetch pool
+      connectionPool = await getPool(); 
     }
 
     const [results] = await connectionPool.execute(query, values);

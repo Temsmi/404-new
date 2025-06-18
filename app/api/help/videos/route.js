@@ -3,7 +3,6 @@ import { v2 as cloudinary } from 'cloudinary';
 import { conn } from 'app/connections/conn';
 import { getSession } from 'app/lib/session';
 
-// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
@@ -12,14 +11,12 @@ cloudinary.config({
 
 export async function POST(req) {
   try {
-    // Check session
     const session = await getSession(req);
     const userId = session?.user?.id || session?.userId;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get form data
     const formData = await req.formData();
     const title = formData.get('title');
     const description = formData.get('description');
@@ -29,22 +26,19 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    // Read the file as base64
     const arrayBuffer = await file.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString('base64');
     const mimeType = file.type;
     const dataUri = `data:${mimeType};base64,${base64}`;
 
-    // Upload to Cloudinary using base64 (upload_large for chunked upload)
     const cloudinaryResult = await cloudinary.uploader.upload(dataUri, {
       resource_type: 'video',
       folder: 'videos_tutorial',
-      chunk_size: 6000000, // 6MB chunks
+      chunk_size: 6000000, 
     });
 
     const videoUrl = cloudinaryResult.secure_url;
 
-    // Save to DB
     await conn({
       query: 'INSERT INTO help_tutorial (title, description, file) VALUES (?, ?, ?)',
       values: [title, description, videoUrl],

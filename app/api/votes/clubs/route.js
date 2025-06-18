@@ -11,7 +11,6 @@ export async function GET(req) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // Query clubs based on userId
     const clubs = await conn({
       query: `
         SELECT club.id, club.name, club.logo
@@ -23,12 +22,11 @@ export async function GET(req) {
       values: [session.userId],
     });
 
-    // Add full path for logos or null if missing
     const clubsWithFullLogo = clubs.map(club => ({
       ...club,
       logo: club.logo
         ? `/images/ClubsLogo/${club.logo}`
-        : '/images/default-logo.png', // Fallback logo path
+        : '/images/default-logo.png', 
     }));
 
     return NextResponse.json(clubsWithFullLogo);

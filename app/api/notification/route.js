@@ -51,7 +51,6 @@ export async function GET(req) {
 
     const placeholders = clubIds.map(() => '?').join(', ');
 
-    // SQL query
     const notifications = await conn({
       query: `
         SELECT 

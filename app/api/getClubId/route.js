@@ -11,7 +11,6 @@ export async function GET(req) {
       return NextResponse.json({ club_id: [], role: null });
     }
 
-    // 1️⃣ Check if Admin
     const adminResult = await conn({
       query: `SELECT id FROM admin WHERE id = ?`,
       values: [userId],
@@ -19,12 +18,11 @@ export async function GET(req) {
 
     if (adminResult?.length > 0) {
       return NextResponse.json({
-        club_id: [], // Admin can access all clubs (frontend should handle this)
+        club_id: [], 
         role: 'admin',
       });
     }
 
-    // 2️⃣ Check if President
     const presidentResult = await conn({
       query: `SELECT club_id FROM president WHERE student_id = ?`,
       values: [userId],
@@ -37,7 +35,6 @@ export async function GET(req) {
       });
     }
 
-    // 3️⃣ Check if Member
     const memberResult = await conn({
       query: `SELECT club_id FROM members WHERE student_id = ?`,
       values: [userId],
@@ -52,7 +49,6 @@ export async function GET(req) {
       });
     }
 
-    // No role found
     return NextResponse.json({
       club_id: [],
       role: null,
