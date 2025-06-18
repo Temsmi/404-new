@@ -14,7 +14,6 @@ export async function POST(req) {
    
     const { candidate_id, club_id } = await req.json();
 
-    // Get the member_id for this student and club
     const [member] = await conn({
       query: 'SELECT id FROM members WHERE student_id = ? AND club_id = ?',
       values: [session.userId, club_id],
@@ -26,7 +25,6 @@ export async function POST(req) {
 
     const member_id = member.id;
 
-    // Check if the student has already voted in this club
     const [existingVote] = await conn({
       query: 'SELECT id FROM votes WHERE member_id = ? AND club_id = ?',
       values: [member_id, club_id],
@@ -36,7 +34,6 @@ export async function POST(req) {
       return NextResponse.json({ message: 'You have already voted in this club' }, { status: 400 });
     }
 
-    // Record the vote
     await conn({
       query: `
         INSERT INTO votes (member_id, candidate_id, club_id, date)
@@ -45,7 +42,6 @@ export async function POST(req) {
       values: [member_id, candidate_id, club_id],
     });
 
-    // Update candidate's vote count
     await conn({
       query: `
         UPDATE candidate SET amount_of_votes = amount_of_votes + 1

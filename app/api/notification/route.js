@@ -55,36 +55,25 @@ export async function GET(req) {
 
     const placeholders = clubIds.map(() => '?').join(', ');
 
-        const url = new URL(req.url);
-        const typeParam = url.searchParams.get('type');
-
-        let query = `
-          SELECT 
-            n.id,
-            n.title,
-            n.message,
-            n.type,
-            n.created_at,
-            n.user_id,
-            n.channel_id,
-            n.message_id,
-            c.name AS club_name
-          FROM notification n
-          JOIN club c ON n.club_id = c.id
-          WHERE n.club_id IN (${placeholders})
-            AND (n.user_id = ? OR n.user_id IS NULL)
-        `;
-
-        const values = [...clubIds, userId];
-
-        if (typeParam) {
-          query += ` AND n.type = ?`;
-          values.push(typeParam);
-        }
-
-        query += ` ORDER BY n.created_at DESC`;
-
-const notifications = await conn({ query, values });
+    // SQL query
+    const notifications = await conn({
+      query: `
+        SELECT 
+          id,
+          title,
+          message,
+          type,
+          created_at,
+          user_id,
+          channel_id,
+          message_id
+        FROM notification
+        WHERE club_id IN (${placeholders})
+          AND (user_id = ? OR user_id IS NULL)
+        ORDER BY created_at DESC
+      `,
+      values: [...clubIds, userId]
+    });
 
     return NextResponse.json(notifications);
   } catch (error) {

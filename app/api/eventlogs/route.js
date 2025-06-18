@@ -4,7 +4,6 @@ import { conn } from '../../connections/conn';
 import { getSession } from 'app/lib/session';
 
 export async function GET(req, { params }) {
-    // For specific event by ID
     if (params && params.eventId) {
         const { eventId } = params;
         try {
@@ -30,7 +29,6 @@ export async function GET(req, { params }) {
         }
     }
 
-    // For user-based club events
     try {
         const session = await getSession(req);
         console.log("Session:", session);
@@ -45,7 +43,6 @@ export async function GET(req, { params }) {
             return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
         }
 
-        // Get all club_ids where user is president or member
         const clubsQuery = `
             SELECT club_id FROM president WHERE student_id = ?
             UNION
@@ -64,7 +61,6 @@ export async function GET(req, { params }) {
         const clubIds = clubsResult.map(club => club.club_id);
         console.log("User is in clubs:", clubIds);
 
-        // Get events for all these clubs
         const placeholders = clubIds.map(() => '?').join(',');
         const eventsQuery = `
             SELECT id, date_name, description, event_time, date_selected, approval, is_postfeedback, feedback AS feedbackReason, zoom_link, image, is_announced, club_id
@@ -81,7 +77,6 @@ export async function GET(req, { params }) {
             return NextResponse.json({ error: "Unexpected data format from DB" }, { status: 500 });
         }
 
-        // Format events for frontend
         const formattedEvents = eventsResult.map(event => ({
             id: event.id,
             name: event.date_name,
@@ -99,7 +94,7 @@ export async function GET(req, { params }) {
             link: event.zoom_link,
             image: event.image,
             is_announced: event.is_announced,
-            club_id: event.club_id, // useful if showing which club each event belongs to
+            club_id: event.club_id, 
         }));
 
         return NextResponse.json(formattedEvents);

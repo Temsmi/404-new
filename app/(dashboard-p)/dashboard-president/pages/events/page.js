@@ -34,6 +34,7 @@ const EventLogs = () => {
     const handleEdit = (event) => {
         setSelectedEvent({
             ...event,
+            image: event.image || '',
             feedback: event.feedback === 1 ? 1 : 0,
             zoomOption: event.link ? 'yes' : 'no',
             link: event.link || '',

@@ -45,7 +45,6 @@ export async function POST(req) {
     const { clubId } = await req.json();
     if (!clubId) return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
 
-    // چک کردن عضویت تکراری
     const duplicateCheck = await conn({
       query: 'SELECT 1 FROM members WHERE student_id = ? AND club_id = ?',
       values: [session.userId, clubId],
@@ -55,7 +54,6 @@ export async function POST(req) {
       return NextResponse.json({ error: 'You are already a member of this club' }, { status: 400 });
     }
 
-    // بررسی اینکه بیشتر از ۳ کلاب عضو نشود
     const checkRes = await conn({
       query: 'SELECT COUNT(*) AS count FROM members WHERE student_id = ?',
       values: [session.userId],

@@ -22,7 +22,7 @@ export default function SuggestionPage() {
         }
 
         const json = await res.json();
-console.log('Received feedback data:', json); // ← Add this
+console.log('Received feedback data:', json); 
 setFeedbacks(Array.isArray(json.data) ? json.data : []);
 
       } catch (err) {

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 
-// Fetch Club Presidents
 export async function GET() {
     try {
         const query = `
@@ -28,8 +27,6 @@ export async function GET() {
     }
 }
 
-// Update Club President
-// Update Club President
 export async function PUT(req) {
     try {
         const { student_id, name, surname, email, phone_num, dept, club_id } = await req.json();
@@ -38,11 +35,9 @@ export async function PUT(req) {
             return NextResponse.json({ error: "student_id is required" }, { status: 400 });
         }
 
-        // Prepare the update query
         const updateQueries = [];
         const values = [];
 
-        // Only add fields to the update query if they are provided
         if (name) {
             updateQueries.push("name = ?");
             values.push(name);
@@ -68,18 +63,16 @@ export async function PUT(req) {
             values.push(club_id);
         }
 
-        // Ensure at least one field is being updated
         if (updateQueries.length === 0) {
             return NextResponse.json({ error: "No fields to update" }, { status: 400 });
         }
 
-        // Construct the final update query
         const updateStudentQuery = `
             UPDATE student
             SET ${updateQueries.join(", ")}
             WHERE id = ?;
         `;
-        values.push(student_id); // Add student_id to the end of values for the WHERE clause
+        values.push(student_id);
         await conn({ query: updateStudentQuery, values });
 
         return NextResponse.json({ message: "Club President updated successfully" });

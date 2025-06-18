@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button, Modal, Form } from 'react-bootstrap';
 import axios from 'axios';
+import Draggable from 'react-draggable';
 
 const RequestButton = ({ student_id }) => {
   const [show, setShow] = useState(false);
@@ -97,23 +98,24 @@ const RequestButton = ({ student_id }) => {
   return (
     <>
       <Button
-        ref={btnRef}
-        variant="primary"
-        onClick={() => setShow(true)}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        style={{
-          position: 'fixed',
-          top: position.y,
-          left: position.x,
-          zIndex: 9999,
-          cursor: dragging ? 'grabbing' : 'grab',
-        }}
-      >
-        Request / Complaint
-      </Button>
+      variant="primary"
+  onClick={() => setShow(true)}
+  style={{
+    position: "fixed",
+    top: position.y,
+    left: position.x,
+    zIndex: 9999,
+    cursor: dragging ? "grabbing" : "grab",
+    userSelect: "none",
+  }}
+  onMouseDown={handleMouseDown}
+  onMouseMove={handleMouseMove}
+  onMouseUp={handleMouseUp}
+  onMouseLeave={dragging ? handleMouseUp : undefined}
+  ref={btnRef}
+>
+  Request / Complaint
+</Button>
 
       <Modal show={show} onHide={() => setShow(false)}>
         <Modal.Header closeButton>
@@ -128,21 +130,22 @@ const RequestButton = ({ student_id }) => {
               <option value="complaint">Complaint</option>
             </Form.Select>
           </Form.Group>
-
-          <Form.Group className="mt-3">
+ <Form.Group className="mt-3">
             <Form.Label>Select Club</Form.Label>
-            <Form.Select
-              value={selectedClubId}
-              onChange={e => setSelectedClubId(e.target.value)}
-            >
-              {Array.isArray(clubs) && clubs.map(club => (
+                <Form.Select
+                     value={selectedClubId}
+                      onChange={(e) => setSelectedClubId(e.target.value)}
+                      required
+                  >
+    <option value="">-- Select a Club --</option>
+   {clubs.map((club) => (
   <option key={club.id} value={club.id}>
     {club.name}
   </option>
 ))}
-            </Form.Select>
-          </Form.Group>
 
+  </Form.Select>
+</Form.Group>
           <Form.Group className="mt-3">
             <Form.Label>Message</Form.Label>
             <Form.Control

@@ -22,9 +22,9 @@ export async function GET() {
             WHERE e.approval IN (0, 1)  -- Filter for pending (0) or approved/denied (1)
         `;
         
-        // Execute the query and get the results
+        
         const events = await conn({ query });
-        // Return the events data as JSON
+        
         return NextResponse.json(events);
     } catch (error) {
         console.error('Database error:', error);
@@ -32,7 +32,7 @@ export async function GET() {
     }
 }
 
-// Example PUT API to update approval status and feedback
+
 export async function PUT(req) {
   try {
       const body = await req.json();
@@ -48,13 +48,13 @@ export async function PUT(req) {
         WHERE id = ?
       `;
   
-      // Update approval status (true = approved, false = denied) and feedback
+      
        await conn({ query, values: [status, feedback || null, id] });
     
 
       const updatedQuery = `SELECT * FROM event1 WHERE id = ?`;
       const updatedRequest = await conn({ query: updatedQuery, values: [id] });
-      console.log("Updated request:", updatedRequest[0]); // Debugging log
+      console.log("Updated request:", updatedRequest[0]); 
 
       return NextResponse.json(updatedRequest[0], { status: 200 });
 

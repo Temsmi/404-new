@@ -43,7 +43,6 @@ export async function GET(req) {
         const count = match ? parseInt(match[0], 10) : 1;
         totalUnread += count;
       } else {
-        // Count other types (like announcements) as one each
         totalUnread += 1;
       }
     }

@@ -1,9 +1,8 @@
-import { conn } from '../../connections/conn'; // Adjust import path
+import { conn } from '../../connections/conn'; 
 import { getSession } from 'app/lib/session';
 
 export async function GET(req) {
   try {
-    // Retrieve the session to get userId
     const session = await getSession(req);
 
     let userId;
@@ -14,9 +13,8 @@ export async function GET(req) {
     } else {
       return new Response(JSON.stringify({ error: "Unauthorized - No userId in session" }), { status: 401 });
     }
-    // Query to fetch the clubId for the logged-in president
     const query = 'SELECT club_id FROM president WHERE student_id = ?';
-    const results = await conn({ query, values: [userId] }); // Pass query and values to conn
+    const results = await conn({ query, values: [userId] }); 
 
     if (!results || results.length === 0) {
       return new Response(JSON.stringify({ error: "Club not found for this user" }), { status: 404 });

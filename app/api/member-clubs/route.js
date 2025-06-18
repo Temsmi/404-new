@@ -1,4 +1,3 @@
-// app/api/member-clubs/route.js
 
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
@@ -18,7 +17,6 @@ export async function GET(req) {
       );
     }
 
-    // Fix the JOIN: Use the actual club_id the student is a member of
     const query = `
       SELECT c.id AS id, c.name AS name
       FROM members m

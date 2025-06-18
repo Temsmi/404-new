@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { conn } from '../../connections/conn';
-import { getSession } from 'app/lib/session'; // Adjust path if needed
+import { getSession } from 'app/lib/session'; 
 
 cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
@@ -95,7 +95,6 @@ const phoneNum = formData.get('phone_num');
       });
     }
 
-    // Update email if provided
     if (email !== null) {
       await conn({
         query: `UPDATE student SET email = ? WHERE id = ?`,
@@ -103,7 +102,6 @@ const phoneNum = formData.get('phone_num');
       });
     }
 
-    // Update password if provided
     if (password !== null) {
       await conn({
         query: `UPDATE student SET password = ? WHERE id = ?`,
@@ -125,7 +123,6 @@ if (phoneNum !== null) {
   });
 }
 
-    // Update bio if provided
     if (bio !== null) {
       await conn({
         query: `UPDATE president SET bio = ? WHERE student_id = ?`,

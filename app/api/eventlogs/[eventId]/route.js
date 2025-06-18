@@ -1,22 +1,17 @@
 import 'dotenv/config';
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
-import { conn } from '../../../connections/conn'; // Adjust the path accordingly
-//import { getSession } from 'app/lib/session'; // Adjust the import path for session
-
-// Configure Cloudinary
+import { conn } from '../../../connections/conn'; 
 cloudinary.config({
-    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.API_SECRET
 });
 
 export async function PUT(req, { params }) {
     try {
-        const { eventId } = params; // Retrieve eventId from URL parameters
-        const formData = await req.formData(); // Get form data
-
-        // Extract form data
+        const { eventId } = params; 
+        const formData = await req.formData(); 
         const eventName = formData.get('eventName');
         const description = formData.get('description');
         const eventTime = formData.get('eventTime');
@@ -26,32 +21,32 @@ export async function PUT(req, { params }) {
         const zoomLinkRaw = formData.get('zoomLink');
         const zoomLink = zoomLinkRaw === 'no' ? null : zoomLinkRaw;
         const imageFile = formData.get('eventImage'); // Get uploaded image
-        const isAnnounced = 0 ;
+        
         let imageUrl = null;
 
-        // Handle image upload to Cloudinary if a new image is provided
+        
         if (imageFile) {
             const buffer = await imageFile.arrayBuffer();
             const imageBuffer = Buffer.from(buffer);
 
-            // Upload image to Cloudinary
+           
             imageUrl = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: 'events_images' }, // Set Cloudinary folder for image storage
+                    { folder: 'events_images' }, 
                     (error, result) => {
                         if (error) {
                             console.error('Cloudinary Upload Error:', error);
                             reject(new Error('Image upload failed'));
                         } else {
-                            resolve(result.secure_url); // Get the image URL after upload
+                            resolve(result.secure_url); 
                         }
                     }
                 );
-                uploadStream.end(imageBuffer); // End the upload stream with image buffer
+                uploadStream.end(imageBuffer); 
             });
         }
 
-        // Fetch current event data from the database to keep the old image if no new one is uploaded
+        
         const eventQuery = `SELECT image FROM event1 WHERE id = ?`;
         const eventResult = await conn({
             query: eventQuery,
