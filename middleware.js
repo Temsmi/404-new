@@ -9,12 +9,10 @@ export async function middleware(req) {
 
   const url = req.nextUrl;
 
-  // Redirect if no session and trying to access protected route
   if (!sessionToken && url.pathname !== "/authentication/sign-in") {
     return NextResponse.redirect(new URL("/authentication/sign-in", req.url));
   }
 
-  // If session exists, verify and check role
   if (sessionToken) {
     try {
       const { payload } = await jwtVerify(sessionToken, encodedKey);
@@ -48,7 +46,6 @@ export async function middleware(req) {
   return NextResponse.next();
 }
 
-// Apply middleware only to protected routes
 export const config = {
   matcher: [
     "/dashboard/:path*",

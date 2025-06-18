@@ -440,7 +440,6 @@ const formattedLastMessageTime = lastMessage
         message_id: result.id,
       });
 
-      console.log("✅ File sent as chat message:", data.url);
     } else {
       console.error("Upload response missing URL:", data);
     }

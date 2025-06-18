@@ -1,10 +1,5 @@
 import {
-    Briefcase,
-    ListTask,
-    People,
-    Bullseye,
     Person,
-    RocketTakeoff
 } from 'react-bootstrap-icons';
 
 export const DashCards_president = [

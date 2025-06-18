@@ -3,11 +3,11 @@
 import { Row, Col, Card, Form, Button, Image } from 'react-bootstrap';
 import Link from 'next/link';
 import { useState } from 'react';
-import useMounted from 'hooks/useMounted';  // Custom hook to check mounting status
+import useMounted from 'hooks/useMounted'; 
 import styles from 'styles/SignIn.module.scss';
 
 const SignIn = () => {
-  const hasMounted = useMounted(); // To handle window/document issues
+  const hasMounted = useMounted(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,8 +15,8 @@ const SignIn = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
-    setLoading(true); // Show loading state
+    setError("");
+    setLoading(true); 
 
     try {
       const res = await fetch('/api/login', { 
@@ -26,14 +26,13 @@ const SignIn = () => {
       });
 
       const result = await res.json();
-      setLoading(false); // Stop loading state
+      setLoading(false); 
 
       if (!res.ok) {
         setError(result.message || "Login failed, please try again.");
         return;
       }
 
-      // Redirect based on role
       let redirectTo = "/dashboard";
       if (result.role === "president") redirectTo = "/dashboard-president";
       else if (result.role === "member") redirectTo = "/member-dashboard";
@@ -91,8 +90,7 @@ const SignIn = () => {
                       />
                     </Form.Group>
 
-                    {/* Error Message */}
-                    {error && <p className="text-danger">{error}</p>}
+                    {error && <p className="text-danger fw-bold">{error}</p>}
 
                     {/* Submit Button */}
                     <div className="d-grid">

@@ -14,7 +14,6 @@ const Row2Charts = () => {
     fetch('/api/metrics-admin')
       .then(res => res.json())
       .then(data => {
-        // Prepare Active vs Inactive
         let activeInactive = [];
 
         const active = Number(data.active_vs_inactive.active) || 0;
@@ -33,7 +32,6 @@ const Row2Charts = () => {
 
         setActiveInactiveData(activeInactive);
 
-        // Prepare Request Types
         const reqTypes = Object.entries(data.request_types).map(([key, value]) => ({
           name: key,
           value: Number(value)
@@ -61,7 +59,7 @@ const Row2Charts = () => {
                 startAngle={90}
                 endAngle={-270}
                 labelLine={false}
-                label={({ value }) => `${Math.round(value)}`}  // show only number
+                label={({ value }) => `${Math.round(value)}`}
               >
                 {activeInactiveData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -90,7 +88,7 @@ const Row2Charts = () => {
                 startAngle={90}
                 endAngle={-270}
                 labelLine={false}
-                label={({ value }) => `${Math.round(value)}`}  // show only number
+                label={({ value }) => `${Math.round(value)}`}
               >
                 {requestTypesData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

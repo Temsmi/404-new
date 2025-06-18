@@ -6,10 +6,9 @@ import styles from 'styles/SignIn.module.scss';
 import departments from "data/code/departments";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-//import useMounted from 'hooks/useMounted';
 
 const SignUp = () => {
-  const router = useRouter(); // ✅ Initialize router
+  const router = useRouter(); 
   const [state, setState] = useState({ errors: {} });
 
   const handleSubmit = async (e) => {
@@ -40,11 +39,10 @@ const SignUp = () => {
         return;
       }
 
-      // ✅ Ensure redirect URL exists
       const redirectUrl = result.redirectTo || "/authentication/sign-in";
       console.log("Redirecting to:", redirectUrl);
 
-      router.push(redirectUrl); // ✅ Redirect on success
+      router.push(redirectUrl); 
 
     } catch (error) {
       console.error("Signup failed:", error);

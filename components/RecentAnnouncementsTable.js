@@ -4,7 +4,6 @@ import React from 'react';
 import { Table } from 'react-bootstrap';
 
 const RecentAnnouncementsTable = ({ data }) => {
-  console.log('RecentAnnouncementsTable data:', data); // <--- Debug log
 
   if (!Array.isArray(data) || data.length === 0) {
     return <div>No recent announcements in the last month.</div>;
