@@ -6,10 +6,10 @@ import styles from 'styles/SignIn.module.scss';
 import departments from "data/code/departments";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-//import useMounted from 'hooks/useMounted';
+
 
 const SignUp = () => {
-  const router = useRouter(); // ✅ Initialize router
+  const router = useRouter(); 
   const [state, setState] = useState({ errors: {} });
 
   const handleSubmit = async (e) => {
@@ -40,11 +40,11 @@ const SignUp = () => {
         return;
       }
 
-      // ✅ Ensure redirect URL exists
+     
       const redirectUrl = result.redirectTo || "/authentication/sign-in";
       console.log("Redirecting to:", redirectUrl);
 
-      router.push(redirectUrl); // ✅ Redirect on success
+      router.push(redirectUrl); 
 
     } catch (error) {
       console.error("Signup failed:", error);
@@ -62,18 +62,18 @@ const SignUp = () => {
           <div className={styles.overlay}>
           <Row className="align-items-center justify-content-center g-0 py-5">
       <Col xxl={4} lg={5} md={4} xs={12} className="py-5">
-        {/* Card */}
+      
         <Card className={`smooth-shadow-md ${styles.cardUp}`}>
-          {/* Card body */}
+         
           <Card.Body className="p-7">
           <div className="flex flex-col text-center justify-center min-h-screen">
             <Image src="/images/brand/logo/logo.png"   className="text-center block mx-auto  mb-4 " style={{ maxWidth: "150px", height: "auto" }}  alt="" />
             </div>
-            {/* Form */}
+          
             {
             <Form onSubmit={handleSubmit}>
               <h3 className={`text-center ${styles.label}`}>Sign Up</h3>
-              {/* User name */}
+           
               <Form.Group className="mb-3" controlId="name">
                 <Form.Label className={styles.label}>Name:</Form.Label>
                 <Form.Control type="text" name="name" placeholder="Enter Name" required="" 
@@ -81,13 +81,13 @@ const SignUp = () => {
                 onChange={(e) => setState({ ...state, name: e.target.value })}/>
               </Form.Group>
               {state?.errors?.name && <p>{state.errors.name}</p>}
-              {/* Surname */}
+          
               <Form.Group className="mb-3" controlId="sname">
                 <Form.Label className={styles.label}>Surname:</Form.Label>
                 <Form.Control type="text" name="sname" placeholder="Enter Surname" required="" />
               </Form.Group>
               {state?.errors?.sname && <p>{state.errors.sname}</p>}
-              {/* Student number */}
+            
               <Form.Group className="mb-3" controlId="stdno">
                 <Form.Label className={styles.label}>Student Number:</Form.Label>
                 <Form.Control type="text" name="stdno" placeholder=" Enter Student Number" required="" />
@@ -107,14 +107,14 @@ const SignUp = () => {
                 ))}
               </Form.Select>
             </Form.Group>
-              {/* Email */}
+
               <Form.Group className="mb-3" controlId="email">
                 <Form.Label className={styles.label}>Email address:</Form.Label>
                 <Form.Control type="email" name="email" placeholder="Enter your school email address here" required="" />
               </Form.Group>
               {state?.errors?.email && <p>{state.errors.email}</p>}
 
-              {/* Password */}
+             
               <Form.Group className="mb-3" controlId="password">
                 <Form.Label className={styles.label}>Password</Form.Label>
                 <Form.Control type="password" name="password" placeholder="**************" required="" />
@@ -129,13 +129,13 @@ const SignUp = () => {
                     </ul>
                   </div>
                 )}
-              {/* Confirm Password */}
+           
               <Form.Group className="mb-3" controlId="confirmpassword">
                 <Form.Label className={styles.label}>Confirm Password</Form.Label>
                 <Form.Control type="password" name="confirm-password" placeholder="**************" required="" />
               </Form.Group>
                 
-              {/* Checkbox */}
+           
               <div className="mb-3">
                 <Form.Check type="checkbox" id="check-api-checkbox">
                   <Form.Check.Input type="checkbox" required=""/>

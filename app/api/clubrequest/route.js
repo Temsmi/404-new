@@ -21,7 +21,6 @@ export async function POST(req) {
 
     const status = action === 'approve' ? 'approved' : 'rejected';
 
-    // Update the status in the club_requests table
     await conn({
       query: 'UPDATE club_requests SET status = ? WHERE id = ?',
       values: [status, id],
