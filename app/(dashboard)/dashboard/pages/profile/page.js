@@ -1,10 +1,8 @@
 'use client'
-// import node module libraries
+
 import { Col, Row, Card, Table, Image, Container } from 'react-bootstrap';
 import Link from 'next/link';
-// import widget as custom components
 import { PageHeading } from 'widgets'
-// import sub components
 import ActiveProjectsData from "data/dashboard/ActiveProjectsData";
 
 const Profile = () => {

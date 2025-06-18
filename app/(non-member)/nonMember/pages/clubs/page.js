@@ -1,10 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Spinner, Form } from 'react-bootstrap';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation'; // اگر از app router استفاده می‌کنی
+import { useRouter } from 'next/navigation'; 
 
 const truncateText = (text, maxLength) => {
   if (!text) return '';
@@ -63,7 +62,7 @@ const [showForceLogoutModal, setShowForceLogoutModal] = useState(false);
         return updated;
       });
 if (data.forceLogout) {
-  setShowForceLogoutModal(true); // نمایش Modal
+  setShowForceLogoutModal(true); 
   setIsLoading(true);
   setTimeout(async () => {
     try {
@@ -72,7 +71,6 @@ if (data.forceLogout) {
       });
       const data = await res.json();
       if (data.success) {
-        console.log('Session deleted, redirecting...');
         router.push('/authentication/sign-in');
       } else {
         console.error('Failed to log out');
@@ -222,7 +220,6 @@ if (data.forceLogout) {
         </>
       )}
 
-      {/* Modal for Full Club Details */}
       {selectedClub && (
         <Modal show centered onHide={() => setSelectedClub(null)}>
           <Modal.Header closeButton>

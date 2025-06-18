@@ -36,9 +36,7 @@ export async function GET() {
 export async function PUT(req) {
   try {
       const body = await req.json();
-      console.log("Request Body:", body); //
       const { id, status, feedback } = body;
-      console.log(`Updating activity request with ID: ${id}`);
       if (!body || !body.id) {
         return NextResponse.json({ error: "Missing 'id' in request" }, { status: 400 });
     }
@@ -54,7 +52,6 @@ export async function PUT(req) {
 
       const updatedQuery = `SELECT * FROM event1 WHERE id = ?`;
       const updatedRequest = await conn({ query: updatedQuery, values: [id] });
-      console.log("Updated request:", updatedRequest[0]); 
 
       return NextResponse.json(updatedRequest[0], { status: 200 });
 

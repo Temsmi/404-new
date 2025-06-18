@@ -6,12 +6,7 @@ import AboutMem from 'sub-components/profile/AboutMem';
 import  EmailSettingmem from 'sub-components/settings/EmailSettingmem';
 import  Preferencesmem from 'sub-components/settings/Preferencesmem';
 import ProfileHeadermem from 'sub-components/profile/ProfileHeadermem';
-
-import { PageHeading } from 'widgets'
-
-
-
-import { Notifications, GeneralSetting, Preferences } from 'sub-components'
+import { PageHeading } from 'widgets/PageHeading';
 
 const CombinedProfileSettings = () => {
   

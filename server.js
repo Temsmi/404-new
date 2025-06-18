@@ -18,7 +18,6 @@ const io = require("socket.io")(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`✅ Socket connected: ${socket.id}`);
 
     socket.on("join_club", (club_id) => {
     if (!club_id) return;
@@ -26,19 +25,16 @@ io.on("connection", (socket) => {
     const alreadyInRoom = Array.from(socket.rooms).includes(club_id);
     if (!alreadyInRoom) {
       socket.join(club_id);
-      console.log(`🟢 Joined room: ${club_id}`);
     }
   });
    socket.on("join_channel", (channelId) => {
     const roomName = `channel_${channelId}`;
     socket.join(roomName);
-    console.log(`🟢 Socket ${socket.id} joined room: ${roomName}`);
   });
 
   socket.on("leave_channel", (channelId) => {
     const roomName = `channel_${channelId}`;
     socket.leave(roomName);
-    console.log(`🚪 Socket ${socket.id} left room: ${roomName}`);
   });
 
       socket.on("new_message", async(msg) => {
@@ -55,7 +51,6 @@ io.on("connection", (socket) => {
           channel,
           message_id
         });
-        console.log(`📨 Message broadcasted to club_${club_id} (from channel_${channel_id}): ${text}`);
       });
 
 
@@ -67,7 +62,6 @@ io.on("connection", (socket) => {
       message,
       created_at,
     });
-    console.log(`📢 Announcement to club_${club_id}: ${title}`);
   });
 
   socket.on("disconnect", () => {

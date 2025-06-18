@@ -19,27 +19,7 @@ export async function GET() {
       GROUP BY club.id, club.name, club.description, club.logo, club.is_active, student.name
     `;
 
-    const clubRequestsQuery = `
-      SELECT
-        id + 1000000 AS id,  -- large offset to avoid ID collision
-        name,
-        description,
-        logo,
-        NULL AS is_active,
-        0 AS member_count,
-        NULL AS president_name
-      FROM club_requests
-      WHERE status = 'approved' 
-      AND id NOT IN (SELECT id FROM club)
-    `;
-
-    const fullQuery = `
-      (${clubQuery})
-      UNION ALL
-      (${clubRequestsQuery})
-    `;
-
-    const clubs = await conn({ query: fullQuery });
+    const clubs = await conn({ query: clubQuery });
 
     return NextResponse.json(clubs);
   } catch (error) {

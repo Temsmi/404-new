@@ -4,11 +4,9 @@ import { Fragment, useEffect, useState } from "react";
 import Link from 'next/link';
 import { Container, Col, Row, Card } from 'react-bootstrap';
 
-import { StatRightTopIcon } from "widgets";
 import DashCards_president from "data/dashboard/DashCards_president";
 import PieChartPresident from 'components/PieChartPresident';
 import MembersInfo from "sub-components/dashboard/MembersInfo";
-//import RecentAnnouncementsTable from 'components/RecentAnnouncementsTable';
 
 const Home = () => {
   const [clubName, setClubName] = useState('');
@@ -101,7 +99,7 @@ const Home = () => {
 
                 return (
                   <Col xl={3} lg={6} md={12} xs={12} className="mt-6" key={index}>
-                    <StatRightTopIcon info={item} />
+                    {/* <StatRightTopIcon info={item} /> */}
                   </Col>
                 );
               })}

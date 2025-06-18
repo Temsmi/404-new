@@ -42,7 +42,7 @@ async function getClubIdFromSession(req) {
 
 export async function GET(req) {
   try {
-    const club_id = await getClubIdFromSession(req); // Expecting an array
+    const club_id = await getClubIdFromSession(req); 
 
     if (!Array.isArray(club_id) || club_id.length === 0) {
       return NextResponse.json([], { status: 200 });

@@ -35,8 +35,6 @@ useEffect(() => {
       const res = await fetch('/api/active-club', { signal: controller.signal });
       const data = await res.json();
 
-      console.log('Active club API response:', data);
-
       if (data && Array.isArray(data.clubs) && data.clubs.length > 0) {
         setClubs(data.clubs);
         setHasActiveClub(data.clubs.some(c => c.is_active === 1));
@@ -60,7 +58,6 @@ useEffect(() => {
 
 const isItemDisabled = (title = '') => {
   const lower = title.toLowerCase();
-  console.log('Checking disable for:', title, 'hasActiveClub:', hasActiveClub);
   if (hasActiveClub) return false;
   return (
     restrictedWithoutClub.some(k => lower.includes(k)) ||

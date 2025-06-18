@@ -10,7 +10,6 @@ export async function GET() {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // 1. Get user's clubs including logo
     const clubs = await conn({
       query: `
         SELECT c.id, c.name, c.logo
@@ -21,7 +20,6 @@ export async function GET() {
       values: [session.userId],
     });
 
-    // 2. Normalize logo paths or use default
     const clubsWithFullLogo = clubs.map(club => ({
       ...club,
       logo: club.logo
@@ -29,7 +27,6 @@ export async function GET() {
         : '/images/default-logo.png',
     }));
 
-    // 3. Fetch candidates for each club
     const clubsWithCandidates = await Promise.all(clubsWithFullLogo.map(async club => {
       const candidates = await conn({
         query: `

@@ -1,20 +1,3 @@
-// 'use client';
-
-// import { useParams } from 'next/navigation';
-
-// const EditEventPage = () => {
-//   const { eventId } = useParams();
-
-//   return (
-//     <div style={{ padding: '2rem', fontSize: '1.2rem' }}>
-//       <h1>Edit Event</h1>
-//       <p>Event ID: {eventId}</p>
-//     </div>
-//   );
-// };
-
-// export default EditEventPage;
-
 'use client';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';

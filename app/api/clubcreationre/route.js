@@ -7,10 +7,7 @@ import { getSession } from 'app/lib/session';
 
 export async function POST(req) {
   try {
-    // Call cookies() in the same server context
     const session = await getSession();
-
-    console.log("SESSION:", session); 
 
     const studentId = session?.userId; 
 

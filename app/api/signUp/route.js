@@ -26,13 +26,10 @@ export async function POST(req) {
       return NextResponse.json({ message: 'An error occurred while creating your account.' }, { status: 500 });
     }
 
-    console.log("Inserted User:", result); 
     const userRows = await conn({
       query: "SELECT role FROM student WHERE id = ?",
       values: [result.insertId],
     });
-    
-    console.log("Fetched user data:", userRows);
     
     if (!userRows || userRows.length === 0) {
       console.error("Error fetching user role: No user found with ID", result.insertId);
@@ -40,8 +37,6 @@ export async function POST(req) {
     }
     
     const user = userRows[0]; 
-    console.log("User role found:", user.role);
-    
 
    
     await createSession(stdno, user.role); 

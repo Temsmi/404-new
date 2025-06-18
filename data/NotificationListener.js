@@ -101,7 +101,6 @@ const NotificationListener = () => {
                   console.error('❌ Notification POST failed:', reward);
                 } else {
                   incrementUnread();
-                  console.log('✅ Notification saved.');
                 }
               } catch (err) {
                 console.error('❌ Failed to save notification:', err);

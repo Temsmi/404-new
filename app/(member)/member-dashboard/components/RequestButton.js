@@ -18,7 +18,6 @@ const RequestButton = ({ student_id }) => {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const btnRef = useRef(null);
 
-  // Runs only in browser after mount
   useEffect(() => {
     const saved = localStorage.getItem('request-btn-position');
     if (saved) {
@@ -29,7 +28,6 @@ const RequestButton = ({ student_id }) => {
       } catch {}
     }
 
-    // Access window safely here
     setPosition({
       x: window.innerWidth - 160,
       y: window.innerHeight - 80,

@@ -4,7 +4,6 @@ import { getSession } from 'app/lib/session';
 import fs from 'fs';
 import path from 'path';
 
-// کنترل ورودی‌های مختلف (GET, PUT, POST)
 export async function GET(req) {
     try {
         const session = await getSession(req);

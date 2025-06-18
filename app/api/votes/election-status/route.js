@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import { conn } from 'app/connections/conn';
-import { getSession } from 'app/lib/session';
 
 export async function POST(req) {
   try {
     const { action } = await req.json();
 
-    // Fetch current values to avoid violating constraints
     const result = await conn({
       query: `SELECT start, stop, publish FROM election_status WHERE id = 1`,
     });
@@ -26,7 +24,7 @@ export async function POST(req) {
       stop = 1;
       publish = 0;
     } else if (action === 'publish') {
-      publish = 1; // Just set publish = 1, keep current start/stop
+      publish = 1; 
     } else {
       return NextResponse.json({ message: 'Invalid action' }, { status: 400 });
     }

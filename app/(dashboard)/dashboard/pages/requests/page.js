@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Image, Modal, Spinner } from 'react-bootstrap';
 
-// Helper function to format date
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {

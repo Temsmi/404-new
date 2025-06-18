@@ -8,8 +8,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useChatStore } from '/widgets/store';
 import { format } from 'date-fns';
-import { filterBadWords } from '@tekdi/multilingual-profanity-filter';
-import turkishProfanities from 'widgets/trProfanities';
+import { Filter } from 'bad-words';
 import socket from 'app/lib/socket';
 
 export function groupMessagesByDate(messages) {
@@ -31,30 +30,27 @@ const ChatComponent =  ({ activeChannel, selectedClubId, handleChannelClick, ava
   const [clubIds, setClubIds] = useState([]); 
   const [allClubs, setAllClubs] = useState([]);
   const [role, setRole] = useState(null);
- const [showClubInfo, setShowClubInfo] = useState(false);
+  const [showClubInfo, setShowClubInfo] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioURL, setAudioURL] = useState(null);
   const mediaRecorderRef = useRef(null);
   const timerRef = useRef(null);
-
   const audioChunksRef = useRef([]);
+  const falsePositives = ['am', 'i am', 'I am'];
+  
+const filter = new Filter();
+filter.removeWords(...falsePositives);
+
 function cleanProfanity(input) {
-  let text = filterBadWords(input, 'en');
-
-  turkishProfanities.forEach(word => {
-    const regex = new RegExp(`\\b${escapeRegex(word)}\\b`, 'gi');
-    text = text.replace(regex, '*'.repeat(word.length));
-  });
-
-  return text;
+  return filter.clean(input);
 }
 
 function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-    useEffect(() => {
+  useEffect(() => {
     setActiveChannelId(activeChannel?.id || null);
   }, [activeChannel]);
 
@@ -190,8 +186,13 @@ useEffect(() => {
 }, [messages, activeChannel?.id]);
 
 const sendMessage = async (audioOverride = null) => {
-  const trimmedText = text.trim();
-  let cleaned = cleanProfanity(trimmedText);
+const trimmedText = text.trim();
+const cleaned = cleanProfanity(trimmedText);
+
+  if (cleaned !== trimmedText) {
+    toast.warning("Please avoid inappropriate language.");
+    return;
+  }
 
   const isTextMessage = !!trimmedText;
   const isAudioMessage = !!audioOverride || !!audioURL;
@@ -224,7 +225,6 @@ const clubName = clubObject?.name || "Unknown Club";
     club_name: clubName
   };
 
-  console.log(messageData);
   setText("");
    setAudioURL(null);
 
@@ -244,11 +244,16 @@ const clubName = clubObject?.name || "Unknown Club";
 
     const message_id = result.id;
 
+    setMessages(prev => [...prev, {
+      ...messageData,
+      id: message_id,
+      self: true
+        }]);
+
     socket.emit("new_message", {
       ...messageData,
       message_id,
     });
-      console.log("⬆ Emitted new_message:", messageData);
   } catch (err) {
     console.error("Failed to save message:", err);
   }
@@ -273,16 +278,11 @@ const startRecording = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    console.log("stream tracks:", stream.getTracks());
-    console.log("audio track enabled:", stream.getAudioTracks()[0]?.enabled);
-
     const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
       ? 'audio/webm;codecs=opus'
       : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
       ? 'audio/ogg;codecs=opus'
       : '';
-
-    console.log("Using mimeType:", mimeType);
 
     const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
@@ -292,7 +292,6 @@ const startRecording = async () => {
     setRecordingTime(0);
 
     recorder.ondataavailable = (e) => {
-      console.log("ondataavailable event:", e);
       if (e.data && e.data.size > 0) {
         audioChunksRef.current.push(e.data); 
       }
@@ -301,11 +300,7 @@ const startRecording = async () => {
     recorder.onstop = async () => {
       clearInterval(timerRef.current);
 
-      console.log("audioChunks length:", audioChunksRef.current.length);
-      console.log("audioChunks:", audioChunksRef.current);
-
       const audioBlob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/webm' });
-      console.log("audioBlob size:", audioBlob.size);
 
       if (audioBlob.size === 0) {
         console.error("Audio blob is empty → skipping upload.");
@@ -362,7 +357,6 @@ const stopRecording = () => {
   });
 
   const text = await res.text();
-  console.log("Cloudinary response:", text);
 
   if (!res.ok) {
     console.error("Cloudinary upload failed:", res.status, text);

@@ -6,13 +6,10 @@ export async function PUT(req, { params }) {
   const faqId = parseInt(params.id, 10); 
 
   if (isNaN(faqId)) {
-    console.log("Invalid FAQ ID:", params.id);
     return NextResponse.json({ error: 'Invalid FAQ ID' }, { status: 400 });
   }
 
   const { answer } = await req.json();
-  console.log("FAQ ID:", faqId);
-  console.log("Answer:", answer);
 
   if (!answer || answer.trim() === '') {
     return NextResponse.json({ error: 'Answer is required' }, { status: 400 });
@@ -23,8 +20,6 @@ export async function PUT(req, { params }) {
       query: 'UPDATE faq SET answer = ? WHERE id = ?',
       values: [answer, faqId],
     });
-
-    console.log("Query result:", result);
 
     if (result.affectedRows === 0) {
       return NextResponse.json({ error: 'FAQ not found' }, { status: 404 });

@@ -6,10 +6,10 @@ import ChatComponent from "components/ChatComponent";
 import { Spinner } from "react-bootstrap";
 
 export default function Sidebar() {
-  const [clubIds, setClubIds] = useState([]); // updated to support multiple
+  const [clubIds, setClubIds] = useState([]);
   const [clubs, setClubs] = useState([]);
   const [userClubs, setUserClubs] = useState([]);
-  const [showLogoPopup, setShowLogoPopup] = useState(null); // changed to track clicked club
+  const [showLogoPopup, setShowLogoPopup] = useState(null); 
   const [activeChannel, setActiveChannel] = useState(null);
   const [channels, setChannels] = useState([]);
   const [selectedClubId, setSelectedClubId] = useState(null);
@@ -33,14 +33,10 @@ export default function Sidebar() {
 
 useEffect(() => {
   if (clubIds.length > 0 && clubs.length > 0) {
-    console.log("📌 clubIds:", clubIds);
-    console.log("📌 all clubs:", clubs);
 
   const matchedClubs = clubs.filter((club) =>
   clubIds.map(String).includes(String(club.id))
     );
-
-    console.log("✅ matchedClubs:", matchedClubs);
 
     setUserClubs(matchedClubs);
     setSelectedClubId(matchedClubs[0]?.id || null);
@@ -73,7 +69,6 @@ useEffect(() => {
             value={selectedClubId || ""}
             onChange={(e) => {
               setSelectedClubId(Number(e.target.value));
-              console.log(selectedClubId);
               setActiveChannel(null);
             }}
             className="club-dropdown"

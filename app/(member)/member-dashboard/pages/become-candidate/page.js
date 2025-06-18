@@ -11,11 +11,10 @@ export default function BecomeCandidatePage() {
   const [photo, setPhoto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [alreadyCandidate, setAlreadyCandidate] = useState(false); // Track if the user is already a candidate
+  const [alreadyCandidate, setAlreadyCandidate] = useState(false); 
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch the user information including their name, surname, and clubs
     fetch('/api/become-candidate', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
@@ -33,13 +32,12 @@ export default function BecomeCandidatePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Check if the user is already a candidate for the selected club
   useEffect(() => {
     if (clubId) {
       fetch(`/api/check-candidate?clubId=${clubId}`, { credentials: 'include' })
         .then(res => res.json())
         .then(data => {
-          setAlreadyCandidate(data.isCandidate); // Assume the response has an "isCandidate" boolean
+          setAlreadyCandidate(data.isCandidate);
         })
         .catch(err => console.error('Error checking if already a candidate:', err));
     }
@@ -53,7 +51,6 @@ export default function BecomeCandidatePage() {
       return;
     }
 
-    // Check if a photo is selected
     if (!photo) {
       setError('Please upload a photo.');
       return;
@@ -64,7 +61,7 @@ export default function BecomeCandidatePage() {
     formData.append('bio', bio);
     formData.append('photo', photo);
 
-    setLoading(true); // Set loading state to true while submitting
+    setLoading(true); 
 
     try {
       const res = await fetch('/api/become-candidate', {
@@ -84,7 +81,7 @@ export default function BecomeCandidatePage() {
       console.error(error);
       setError('Submission failed. Please try again.');
     } finally {
-      setLoading(false); // Set loading state to false after submission
+      setLoading(false); 
     }
   };
 
@@ -159,12 +156,11 @@ export default function BecomeCandidatePage() {
           type="submit"
           className="btn btn-primary w-100"
           style={{ backgroundColor: '#6f42c1', borderColor: '#6f42c1' }}
-          disabled={loading || alreadyCandidate} // Disable button if already a candidate
+          disabled={loading || alreadyCandidate} 
         >
           {loading ? 'Submitting...' : 'Submit'}
         </button>
-        
-        {/* Static message below submit button */}
+
         <p className="mt-3 text-muted text-center" style={{ fontWeight: 'bold' }}>
           * * * * * * * * Only one candidate allowed at a time. It means you can become a candidate just for 1 club only in current elections year.
         </p>

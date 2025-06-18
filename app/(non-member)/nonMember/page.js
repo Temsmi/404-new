@@ -40,7 +40,7 @@ const Home = () => {
                     className="fs-5"
                     style={{
                         marginTop: 'auto',
-                        marginBottom: '10vh', // Lower the text visually
+                        marginBottom: '10vh',
                         maxWidth: '700px',
                         fontSize: '50em',
                         transition: 'opacity 0.5s ease-in-out'

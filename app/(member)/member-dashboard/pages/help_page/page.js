@@ -34,7 +34,7 @@ const HelpPage = () => {
   );
 
   const filteredFaqs = faqs
-    .filter(faq => faq.answer && faq.answer.trim() !== '') // show only answered
+    .filter(faq => faq.answer && faq.answer.trim() !== '')
     .filter(faq =>
       faq.question.toLowerCase().includes(search.toLowerCase()) ||
       faq.answer.toLowerCase().includes(search.toLowerCase())

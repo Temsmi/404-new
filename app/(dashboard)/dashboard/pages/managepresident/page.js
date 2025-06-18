@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Card, Form, Table } from 'react-bootstrap';
-import Link from 'next/link';
+import { Container, Row, Col,Table } from 'react-bootstrap';
 
 const ManageClubPresidents = () => {
   const [presidents, setPresidents] = useState([]);
@@ -46,37 +45,6 @@ const ManageClubPresidents = () => {
     setFormData({ name: '', email: '', club_id: '' });
   };
 
-  // const handleSave = async () => {
-  //   if (!formData.name || !formData.email || !formData.club_id) {
-  //     alert('Please fill in all fields.');
-  //     return;
-  //   }
-  //   try {
-  //     const res = await fetch(`/api/mgmtpresi`, {
-  //       method: 'PUT',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({
-  //         student_id: selectedPresident.student_id, // Assuming this is the ID to update
-  //         name: formData.name,
-  //         email: formData.email,
-  //         club_id: formData.club_id
-  //       }),
-  //     });
-
-  //     if (res.ok) {
-  //       const updatedPresident = await res.json();
-  //       alert('Club President Updated!');
-  //       setPresidents(presidents.map(p => (p.student_id === updatedPresident.student_id ? updatedPresident : p)));
-  //       handleClose(); // Close the modal after saving
-  //     } else {
-  //       const errorMessage = await res.text();
-  //       console.error('Failed to update president:', errorMessage);
-  //       alert('Failed to update president: ' + errorMessage);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error updating president:', error);
-  //   }
-  // };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

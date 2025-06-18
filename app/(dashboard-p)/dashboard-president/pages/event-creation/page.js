@@ -42,7 +42,7 @@ const EventCreationForm = () => {
         const response = await fetch('/api/eventcreation', {
             method: 'POST',
             body: formData,
-            credentials: 'same-origin',  // Ensure the session cookie is sent along with the request
+            credentials: 'same-origin', 
         });
         const data = await response.json();  
 

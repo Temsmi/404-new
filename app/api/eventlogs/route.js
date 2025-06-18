@@ -31,7 +31,6 @@ export async function GET(req, { params }) {
 
     try {
         const session = await getSession(req);
-        console.log("Session:", session);
 
         let userId;
         if (session.userId) {
@@ -59,7 +58,6 @@ export async function GET(req, { params }) {
         }
 
         const clubIds = clubsResult.map(club => club.club_id);
-        console.log("User is in clubs:", clubIds);
 
         const placeholders = clubIds.map(() => '?').join(',');
         const eventsQuery = `

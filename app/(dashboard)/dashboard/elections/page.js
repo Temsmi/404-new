@@ -15,7 +15,6 @@ import {
   Alert,
 } from 'react-bootstrap';
 
-// Timer helper function
 const getElapsedTime = (startTime) => {
   if (!startTime) return '0w 0d 0h 0m 0s';
   const now = Date.now();
@@ -46,21 +45,17 @@ export default function ElectionAdmin() {
   const [elapsed, setElapsed] = useState('0w 0d 0h 0m 0s');
   const intervalRef = useRef(null);
 
-  // Election status state
   const [electionStatus, setElectionStatus] = useState(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [errorStatus, setErrorStatus] = useState(null);
 
-  // Status message shown under buttons
   const [statusMessage, setStatusMessage] = useState('');
 
-  // Load startTime from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('electionStartTime');
     if (saved) setStartTime(Number(saved));
   }, []);
 
-  // Timer interval effect - updates elapsed every second if started
   useEffect(() => {
     clearInterval(intervalRef.current);
 
@@ -76,7 +71,6 @@ export default function ElectionAdmin() {
     return () => clearInterval(intervalRef.current);
   }, [startTime]);
 
-  // Fetch clubs on mount
   useEffect(() => {
     async function fetchClubs() {
       try {
@@ -98,7 +92,6 @@ export default function ElectionAdmin() {
     fetchClubs();
   }, []);
 
-  // Fetch election status on mount
   useEffect(() => {
     async function fetchStatus() {
       try {
@@ -120,7 +113,6 @@ export default function ElectionAdmin() {
     fetchStatus();
   }, []);
 
-  // Handle start, stop, publish actions
   const handleGlobalAction = async (action) => {
     try {
       const res = await fetch('/api/votes/election-status', {
@@ -137,14 +129,12 @@ export default function ElectionAdmin() {
       const data = await res.json();
 
       if (action === 'start') {
-        // Reset timer on start
         const now = Date.now();
         setStartTime(now);
         localStorage.setItem('electionStartTime', now.toString());
         setClubs((prev) => prev.map((club) => ({ ...club, started: true })));
         setStatusMessage('Elections have started.');
       } else if (action === 'stop') {
-        // Stop timer interval but keep elapsed time
         clearInterval(intervalRef.current);
         setClubs((prev) => prev.map((club) => ({ ...club, started: false })));
         setStatusMessage('Elections have stopped.');
@@ -157,7 +147,6 @@ export default function ElectionAdmin() {
     }
   };
 
-  // Filter clubs by search term
   const filteredClubs = clubs.filter((club) =>
     club.name.toLowerCase().includes(searchTerm.toLowerCase())
   );

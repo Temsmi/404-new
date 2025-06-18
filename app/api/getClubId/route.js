@@ -7,9 +7,9 @@ export async function GET(req) {
     const session = await getSession(req);
     const userId = session?.userId || session?.user?.userId;
 
-      if (!userId) {
-    return NextResponse.json({ clubIds: [] });
-  }
+    if (!userId) {
+      return NextResponse.json({ club_id: [], role: null });
+    }
 
     const adminResult = await conn({
       query: `SELECT id FROM admin WHERE id = ?`,
@@ -29,7 +29,7 @@ export async function GET(req) {
     });
 
     if (presidentResult?.length > 0 && presidentResult[0].club_id) {
-      return NextResponse.json({ club_id: [presidentResult[0].club_id] });
+      return NextResponse.json({ club_id: [presidentResult[0].club_id], role: 'president' });
     }
 
     const memberResult = await conn({
@@ -38,14 +38,14 @@ export async function GET(req) {
     });
 
     if (!memberResult || memberResult.length === 0) {
-      throw new Error("User not found in members or president tables");
+      return NextResponse.json({ club_id: [], role: null });
     }
 
     return NextResponse.json({
-      club_id: [],
-      role: null,
+      club_id: memberResult.map(r => r.club_id),
+      role: 'member',
     });
-    
+
   } catch (error) {
     console.error('Error fetching club_id:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

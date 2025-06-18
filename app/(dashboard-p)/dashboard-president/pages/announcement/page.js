@@ -32,7 +32,6 @@ const CreateAnnouncementPage = () => {
       type: 'announcement'
     };
    
-    // Store in DB
     const res = await fetch('/api/notification', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -43,7 +42,6 @@ const CreateAnnouncementPage = () => {
     if (result.success) {
       toast.success('Announcement sent!');
 
-      // Real-time socket broadcast to club members
       socket.emit('new_announcement', {
         clubIds,
         ...payload,

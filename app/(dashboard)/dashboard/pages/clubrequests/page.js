@@ -34,7 +34,6 @@ const ClubRequests = () => {
   body: JSON.stringify({ id, action }),
 });
 const data = await res.json();
-console.log('Server response:', res.status, data);
 
 if (res.ok) {
   toast.success(`Club request ${action}d successfully`);

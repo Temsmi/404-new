@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Col, Row, Card, Spinner } from 'react-bootstrap';
 
-const AboutMe = () => {
+export const AboutMe = () => {
   const [president, setPresident] = useState(null);
 
   useEffect(() => {

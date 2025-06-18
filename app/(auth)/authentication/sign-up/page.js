@@ -29,7 +29,6 @@ const SignUp = () => {
       });
 
       const result = await res.json();
-      console.log("Signup API response:", result);
 
       if (!res.ok) {
         setState((prevState) => ({
@@ -40,7 +39,6 @@ const SignUp = () => {
       }
 
       const redirectUrl = result.redirectTo || "/authentication/sign-in";
-      console.log("Redirecting to:", redirectUrl);
 
       router.push(redirectUrl); 
 

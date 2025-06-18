@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn'; 
+import { getSession } from 'app/lib/session';
+
 export async function GET(req) {
   try {
     const session = await getSession();

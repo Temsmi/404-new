@@ -1,4 +1,3 @@
-// /app/api/myclubrequests/route.js
 import { NextResponse } from 'next/server';
 import { conn } from '../../connections/conn';
 import { getSession } from 'app/lib/session';
@@ -25,7 +24,6 @@ export async function GET(req) {
       values: [userId],
     });
 
-    // Check if conn returned error
     if (rows.error) {
       throw new Error(rows.error);
     }

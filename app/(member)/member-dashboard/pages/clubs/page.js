@@ -93,7 +93,6 @@ const handleDrop = async (id) => {
       });
       const data = await res.json();
       if (data.success) {
-        console.log('Session deleted, redirecting...');
         router.push('/authentication/sign-in');
       } else {
         console.error('Failed to log out');

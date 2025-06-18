@@ -45,7 +45,6 @@ export default function MemberDashboard() {
       try {
         const res = await fetch('/api/notification?type=announcement');
         const data = await res.json();
-        console.log("Fetched announcements:", data);
         setAnnouncements(data);
       } catch (error) {
         console.error('Error fetching announcements:', error);

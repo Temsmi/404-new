@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import { conn } from '../../../../connections/conn'; // Adjust path as needed
+import { conn } from '../../../../connections/conn'; 
 
 export async function PUT(req, context) {
-        console.log("🌐 Params:", context.params); // 👈 برای دیباگ
 
     const { eventId } = context.params;
-
-    console.log("📌 Announce ID:", eventId);
 
     try {
         const [current] = await conn({
@@ -25,7 +22,6 @@ export async function PUT(req, context) {
             values: [newStatus, eventId],
         });
 
-        console.log("✅ Update result:", result);
         return NextResponse.json({ success: true, newStatus });
     } catch (error) {
         console.error("❌ Error announcing event:", error);

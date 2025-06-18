@@ -3,18 +3,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { Col, Row, Container } from 'react-bootstrap';
 
-import { PageHeading } from 'widgets'
+import { PageHeading } from 'widgets/PageHeading'
 
 import {
   AboutAdmin,
-  ActivityFeed,
-  MyTeam,
   HeaderAdmin,
-  ProjectsContributions,
-  RecentFromBlog
-} from 'sub-components'
+} from 'sub-components/profile'
 
-import { Notifications,  GeneralSetting, EmailAdmin, Preferences } from 'sub-components'
+import {  EmailAdmin } from 'sub-components/settings';
 
 const CombinedProfileSettings = () => {
 

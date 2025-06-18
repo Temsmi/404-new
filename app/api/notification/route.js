@@ -85,7 +85,6 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    console.log("Received body:", body);
       const {
         type,
         club_id,      

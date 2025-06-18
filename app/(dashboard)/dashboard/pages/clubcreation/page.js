@@ -32,12 +32,10 @@ const ClubCreationForm = () => {
       if (res.ok) {
         alert('Club created successfully!');
         
-        // Reset form fields
         setClubName('');
         setDescription('');
         setLogo(null);
 
-        // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = ''; 
         }
@@ -75,7 +73,7 @@ const ClubCreationForm = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
-                    ref={fileInputRef} // مقدار را پاک می‌کند
+                    ref={fileInputRef} 
                     required
                   />
                 </Form.Group>

@@ -1,6 +1,6 @@
 import { Row, Col } from 'react-bootstrap';
 
-const PageHeading = props => {
+export const PageHeading = props => {
   const { heading } = props;
   return (
     <Row>

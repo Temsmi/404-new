@@ -69,17 +69,6 @@ if (message_type === "audio" && !audio) {
 
     const clubId = Array.isArray(club_id) ? club_id[0] : club_id;
     const date = new Date(timestamp);
-    console.log("📥 Inserting message with values:", {
-        text,
-        audio,
-        image,
-        message_type,
-        channel,
-        user_id,
-        club_id,
-        timestamp
-      });
-
     
     const result = await conn({
       query: `

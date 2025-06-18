@@ -38,7 +38,6 @@ export async function middleware(req) {
       }           
 
     } catch (err) {
-      console.error("Invalid session:", err);
       return NextResponse.redirect(new URL("/authentication/sign-in", req.url));
     }
   }

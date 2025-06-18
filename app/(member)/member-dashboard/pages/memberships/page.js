@@ -18,7 +18,6 @@ const fetchClubs = async () => {
   try {
     const res = await fetch('/api/memberships');
     const data = await res.json();
-    console.log('Fetched clubs:', data); 
     setClubs(data);
     setFiltered(data);
   } catch (err) {
@@ -51,7 +50,6 @@ const fetchClubs = async () => {
   }, [search, sortField, clubs]);
 
 const handleDrop = async (clubId) => {
-  console.log("Dropping club with ID:", clubId);
   if (!confirm('Are you sure you want to leave this club?')) return;
 
   try {
@@ -62,7 +60,6 @@ const handleDrop = async (clubId) => {
     });
 
     const result = await res.json();
-    console.log('Drop result:', result);
 
     if (res.ok) {
       
@@ -78,7 +75,6 @@ setFiltered(prev => prev.filter(club => club.club_id !== clubId));
       });
       const data = await res.json();
       if (data.success) {
-        console.log('Session deleted, redirecting...');
         router.push('/authentication/sign-in');
       } else {
         console.error('Failed to log out');

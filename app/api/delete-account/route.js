@@ -5,7 +5,6 @@ import { getSession } from 'app/lib/session';
 export async function DELETE(req) {
   try {
     const session = await getSession();
-    console.log("Session:", session);
 
     if (!session || !session.userId) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -13,7 +12,6 @@ export async function DELETE(req) {
 
     const userId = session.userId;
 
-    // Get the user's role
     const userRows = await conn({
       query: 'SELECT role FROM student WHERE id = ?',
       values: [userId],
@@ -25,7 +23,6 @@ export async function DELETE(req) {
 
     const role = userRows[0].role;
 
-    // Delete from specific table
     if (role === 'member') {
       await conn({
         query: 'DELETE FROM members WHERE student_id = ?',
@@ -38,7 +35,6 @@ export async function DELETE(req) {
       });
     }
 
-    // Always delete from students
     await conn({
       query: 'DELETE FROM student WHERE id = ?',
       values: [userId],

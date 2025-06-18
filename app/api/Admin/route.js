@@ -4,7 +4,6 @@ import { getSession } from 'app/lib/session';
 export async function GET(req) {
     try {
         const session = await getSession(req);
-        console.log("Session:", session);
 
         let userId;
         if (session?.userId) {
@@ -15,8 +14,6 @@ export async function GET(req) {
             console.error("No userId found in session.");
             return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
         }
-
-        console.log("User ID from session:", userId);
   
         const query =
         'SELECT name, email, role FROM admin WHERE id = ? AND role = "admin"';

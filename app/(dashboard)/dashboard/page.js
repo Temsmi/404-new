@@ -6,7 +6,6 @@ import { Container, Col, Row } from 'react-bootstrap';
 import { People, GraphUp, ListCheck } from 'react-bootstrap-icons';
 import Row2Charts from 'components/Row2Charts';
 import ClubsTable from 'sub-components/dashboard/ClubsTable';
-import { StatRightTopIcon } from "widgets";
 import Row3Chart from "components/Row3Chart";
 import Row4Charts from 'components/Row4Charts';
 
@@ -19,7 +18,7 @@ const Home = () => {
             .then((res) => res.json())
             .then((data) => {
                 const totalMembers = data.total_members || 0;
-                const totalClubs = data.clubs?.length || 0; // count clubs from data
+                const totalClubs = data.clubs?.length || 0; 
 
                 setClubs(data.clubs || []);
 
@@ -65,7 +64,7 @@ const Home = () => {
 
                     {dashCards.map((item) => (
                         <Col xl={3} lg={6} md={12} xs={12} className="mt-6" key={item.id}>
-                            <StatRightTopIcon info={item} />
+                            {/* <StatRightTopIcon info={item} /> */}
                         </Col>
                     ))}
                 </Row>

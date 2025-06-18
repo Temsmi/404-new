@@ -11,7 +11,6 @@ export async function GET(req) {
             return NextResponse.json({ error: "Unauthorized - No userId in session" }, { status: 401 });
         }
 
-        // First → find club_id for this president
         const queryClub = `SELECT club_id FROM president WHERE student_id = ?`;
         const resultClub = await conn({ query: queryClub, values: [userId] });
 
@@ -21,13 +20,11 @@ export async function GET(req) {
             return NextResponse.json({ error: "President club_id not found" }, { status: 404 });
         }
 
-        // Second → count members in this club
         const queryMembers = `SELECT COUNT(*) AS total FROM members WHERE club_id = ?`;
         const resultMembers = await conn({ query: queryMembers, values: [club_id] });
 
         const totalMembers = Array.isArray(resultMembers) ? resultMembers[0]?.total : resultMembers?.total || 0;
 
-        // Requests by type + anonymous
         const queryRequestsByTypeAnon = `
             SELECT type, anonymous, COUNT(*) AS total
             FROM request
@@ -40,7 +37,6 @@ export async function GET(req) {
         const requestsByTypeAnon = Array.isArray(resultRequestsByTypeAnon) ? resultRequestsByTypeAnon : [];
 
 
-// Recent announcements (last month)
 const queryRecentAnnouncements = `
     SELECT id, date, text
     FROM announcement
@@ -53,7 +49,6 @@ const resultRecentAnnouncements = await conn({ query: queryRecentAnnouncements, 
 const recentAnnouncements = Array.isArray(resultRecentAnnouncements) ? resultRecentAnnouncements : [];
 
 
-// Members of the club
 const queryMembers1 = `
     SELECT 
         s.id AS student_id,
@@ -69,8 +64,6 @@ const queryMembers1 = `
 const resultMembersList = await conn({ query: queryMembers1, values: [club_id] });
 const members = Array.isArray(resultMembersList) ? resultMembersList : [];
 
-
-        // Return metrics
         return NextResponse.json({
             totalMembers,
             requestsByTypeAnon,

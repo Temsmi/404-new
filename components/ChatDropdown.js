@@ -13,7 +13,6 @@ export default function ChatHeader({ selectedClubId, onClose }) {
 
   useEffect(() => {
     if (!selectedClubId) return;
-      console.log(selectedClubId);
     fetch(`/api/selectedClubID?club_id=${selectedClubId}`)
       .then(res => res.json())
       .then(data => {

@@ -2,21 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Col, Row, Container } from 'react-bootstrap';
-
-
-import { PageHeading } from 'widgets'
-
-
+import { PageHeading } from 'widgets/PageHeading';
 import {
   AboutMe,
-  ActivityFeed,
-  MyTeam,
   ProfileHeader,
-  ProjectsContributions,
-  RecentFromBlog
-} from 'sub-components'
-
-import { Notifications, GeneralSetting, EmailSetting, Preferences } from 'sub-components'
+} from 'sub-components/profile';
+import { EmailSetting, Preferences } from 'sub-components/settings';
 
 const CombinedProfileSettings = () => {
 

@@ -6,8 +6,8 @@ export async function GET() {
     const session = await getSession();
 
     if (!session) {
-      console.warn('No active session found.');
-      //return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.warn('');
+
     }
 
     return NextResponse.json(session);

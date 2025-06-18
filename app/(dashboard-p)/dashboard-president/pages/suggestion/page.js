@@ -7,7 +7,7 @@ export default function SuggestionPage() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [typeFilter, setTypeFilter] = useState(''); // '' = all
+  const [typeFilter, setTypeFilter] = useState(''); 
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
@@ -22,8 +22,7 @@ export default function SuggestionPage() {
         }
 
         const json = await res.json();
-console.log('Received feedback data:', json); 
-setFeedbacks(Array.isArray(json.data) ? json.data : []);
+        setFeedbacks(Array.isArray(json.data) ? json.data : []);
 
       } catch (err) {
         console.error('Error fetching feedbacks:', err);

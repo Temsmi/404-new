@@ -3,8 +3,8 @@ import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { conn } from '../../../connections/conn'; 
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
     api_secret: process.env.API_SECRET
 });
 
@@ -20,7 +20,7 @@ export async function PUT(req, { params }) {
         const isPostFeedback = feedbackRaw === 'true' ? 1 : 0;
         const zoomLinkRaw = formData.get('zoomLink');
         const zoomLink = zoomLinkRaw === 'no' ? null : zoomLinkRaw;
-        const imageFile = formData.get('eventImage'); // Get uploaded image
+        const imageFile = formData.get('eventImage'); 
         
         let imageUrl = null;
 

@@ -11,7 +11,7 @@ export async function POST(req) {
 
     await conn({
       query: 'INSERT INTO faq (question, answer) VALUES (?, ?)',
-      values: [question, '']  // Empty answer for now
+      values: [question, ''] 
     });
 
     return NextResponse.json({ message: 'Question submitted successfully.' });

@@ -21,7 +21,6 @@ export async function POST(req) {
 
     const status = action === 'approve' ? 'approved' : 'rejected';
 
-    // Update the status in the club_requests table
     await conn({
       query: 'UPDATE club_requests SET status = ? WHERE id = ?',
       values: [status, id],
@@ -43,10 +42,10 @@ export async function POST(req) {
       
       const result = await conn({
         query: `
-          INSERT INTO club (name, logo, description, student_id)
-          VALUES (?, ?, ?, ?)
+          INSERT INTO club (name, logo, description)
+          VALUES (?, ?, ?)
         `,
-        values: [request.name, request.logo, request.description, request.student_id],
+        values: [request.name, request.logo, request.description],
       });
 
       const clubId = result.insertId;

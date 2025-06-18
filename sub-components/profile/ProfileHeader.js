@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Col, Row, Image } from 'react-bootstrap';
 
-const ProfileHeader = ({ onEditProfileClick }) => {
+export const ProfileHeader = ({ onEditProfileClick }) => {
   const [profilePicture, setProfilePicture] = useState('/images/avatar/avatar.jpg');
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');

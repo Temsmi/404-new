@@ -20,7 +20,6 @@ const CalendarPage = () => {
       try {
         const res = await fetch('/api/activityrequests');
         const data = await res.json();
-        console.log("Fetched events:", data);
 
         if (Array.isArray(data)) {
           const approvedEvents = data
@@ -47,7 +46,6 @@ const CalendarPage = () => {
     fetchApprovedEvents();
   }, []);
 
-  // Format date and time to ISO string for FullCalendar
   const formatDateTime = (date, time) => {
     if (!date) return null;
 
@@ -60,7 +58,6 @@ const CalendarPage = () => {
     return `${date.split('T')[0]}T${formattedTime}`;
   };
 
-  // When user selects a year, update calendar view to January 1 of that year
   const handleYearChange = (e) => {
     const newYear = Number(e.target.value);
     setSelectedYear(newYear);
