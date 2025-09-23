@@ -37,7 +37,17 @@ A modern web-based platform to streamline the administration of university or or
 
 Install Dependencies
 <!-- npm install -->
-
+npm install bad-words
+npm install recharts
+npm install react-toastify
+npm install i emoji-picker-react
+npm install date-fns
+npm install i @tekdi/multilingual-profanity-filter
+npm install zustand
+npm install react-draggable
+npm install concurrently
+npm install react-quill
+npm install @fullcalendar/react@fullcalendar/daygrid @fullcalendar/interaction
 
 Run the App
 <!-- npm run dev -->
@@ -46,9 +56,13 @@ Visit http://localhost:3000
 INSTALL DATABSE TO MYSQL XAMPP
 
 ## Useful Links
+Go to anmin dashboard to explore functionality:
 Admin: admin@emu.edu.tr
-PW: admin123#
+Password: admin123#
 
 Advisably, Try yoga club president for better data
 EMAIL: 22902275@emu.edu.tr
-PW pass123#
+Password: hanna123#
+
+sigh up as a new user and join the yoga club to become a member of yoga club.
+explore the functionality of the memeber side, see the club events
